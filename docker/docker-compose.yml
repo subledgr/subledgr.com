@@ -1,0 +1,94 @@
+version: '3'
+name: subledgr-stack
+
+# PORTS
+# - 8080 - frontend, http
+# - 5432 - postgres, tcp
+# - 3000 - api, http
+
+services:
+
+  subledgr-redis:
+    container_name: subledgr-redis
+    image: redis
+    restart: unless-stopped
+    ports:
+      - '6379:6379'
+
+  subledgr-datastore:
+    container_name: subledgr-datastore
+    # image: mariadb:10.11.2
+    # image: arm64v8/mysql #:5.7.41
+    image: postgres:15.2-alpine
+    # no build required
+    # build:
+    #   context: ../.
+    #   dockerfile: docker/Dockerfile.mariadb
+    #   args:
+    #     RELEASE: "latest"
+    restart: unless-stopped
+    environment:
+      # MARIADB_ROOT_PASSWORD: thisIsASecret
+      # POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: thisIsASecret
+      PGDATA: /data/postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - /mnt/Containers/subledgr/data/postgres:/data/postgres
+      - /mnt/Containers/subledgr/data/schema.pgsql.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+
+  subledgr-api:
+    container_name: subledgr-api
+    image: subledgr/subledgr-api
+    build:
+      context: ../.
+      dockerfile: docker/Dockerfile.graphql-express
+      args:
+        RELEASE: "latest"
+        HTTP_PORT: 3000
+    # no ports, we'll proxy from frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - HTTP_PORT=3000
+    # volumes:
+      # - /mnt/Containers/subledgr/config/config.local.js:/home/ibp/config/config.local.js
+      # - /mnt/Containers/subledgr/keys:/home/ibp/keys
+    depends_on:
+      - subledgr-datastore
+
+  subledgr-workers:
+    # <<: *subledgr-services
+    container_name: subledgr-workers
+    restart: on-failure
+    build: 
+      context: ../.
+      dockerfile: docker/Dockerfile.workers
+    depends_on:
+      - subledgr-redis
+    ports:
+      - '3000:3000'
+    command: >
+      bash -c "node workers.js"
+
+  subledgr-frontend:
+    container_name: subledgr-frontend
+    image: subledgr/subledgr-fe
+    build:
+      context: ../.
+      dockerfile: docker/Dockerfile.frontend
+      args:
+        RELEASE: "latest"
+    ports:
+      - "8080:8080"
+    # volumes:
+    #   - ../static:/usr/share/nginx/html
+    depends_on:
+      - subledgr-api
+
+  subledgr-proxy:
+    image: nginx
+    ports:
+      - 8080:8080
+      

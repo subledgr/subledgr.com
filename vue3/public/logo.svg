@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="1080" height="1080" viewBox="0 0 1080 1080" xml:space="preserve">
+  <defs>
+  </defs>
+  <g transform="matrix(1 0 0 1 540 540)" id="0cd7be64-ff9d-480f-a3a6-3f9571865862"  >
+    <rect style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1; visibility: hidden;" vector-effect="non-scaling-stroke"  x="-540" y="-540" rx="0" ry="0" width="1080" height="1080" />
+  </g>
+  <g transform="matrix(1 0 0 1 540 540)" id="67e7d1a2-7cdb-4a1f-bb8e-0b65ea62d15d"  ></g>
+  
+  <g transform="matrix(7.23 0 0 14.64 813.98 540)" id="473c9408-88ab-4002-930b-13449cc8c3c1"  >
+    <rect style="stroke: rgb(0,0,0); stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1;" vector-effect="non-scaling-stroke"  x="-37.165" y="-37.165" rx="0" ry="0" width="74.33" height="74.33" />
+  </g>
+
+  <g transform="matrix(6.95 -6.86 6.95 6.86 534 540)" id="d35e7344-00f8-4838-b880-d5f1b40f8c26"  >
+    <rect style="stroke: rgb(0,0,0); stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(145,68,183); fill-rule: nonzero; opacity: 1;" vector-effect="non-scaling-stroke"  x="-37.165" y="-37.165" rx="0" ry="0" width="74.33" height="74.33" />
+  </g>
+
+  <g transform="matrix(7.33 0 0 14.64 268.11 540)" id="473c9408-88ab-4002-930b-13449cc8c3c1"  >
+    <rect style="stroke: rgb(0,0,0); stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1;" vector-effect="non-scaling-stroke"  x="-37.165" y="-37.165" rx="0" ry="0" width="74.33" height="74.33" />
+  </g>
+
+  <g transform="matrix(12.44 0 0 12.44 540 540)"  >
+    <path style="stroke: rgb(0,0,0); stroke-width: 13; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" vector-effect="non-scaling-stroke"  transform=" translate(-50, -50)" d="M 50 92.875 C 26.358 92.875 7.125 73.642 7.125 50 C 7.125 26.358000000000004 26.358 7.125 50 7.125 C 73.642 7.125 92.875 26.358 92.875 50 C 92.875 73.642 73.642 92.875 50 92.875 z M 50 9.125 C 27.461 9.125 9.125 27.461 9.125 50 C 9.125 72.538 27.461 90.875 50 90.875 C 72.538 90.875 90.875 72.538 90.875 50 C 90.875 27.461 72.538 9.125 50 9.125 z" stroke-linecap="round" />
+  </g>
+
+  <g transform="matrix(8.32 0 0 8.32 540 540)" id="cb3c46b8-d463-4152-9bfd-0d2f60da9c8b"  >
+    <circle style="stroke: rgb(0,0,0); stroke-width: 0; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(0,0,0); fill-rule: nonzero; opacity: 1;" vector-effect="non-scaling-stroke"  cx="0" cy="0" r="35" />
+  </g>
+
+  <g transform="matrix(5.91 0 0 5.91 540 563.25)" style="" id="a897524f-141e-4512-9185-ff2a7a02eb15"  >
+    <text xml:space="preserve" font-family="Arial" font-size="105" font-style="normal" font-weight="400" style="stroke: none; stroke-width: 1; stroke-dasharray: none; stroke-linecap: butt; stroke-dashoffset: 0; stroke-linejoin: miter; stroke-miterlimit: 4; fill: rgb(255,255,255); fill-rule: nonzero; opacity: 1; white-space: pre;" >
+      <tspan x="-34.87" y="32.98" >S</tspan>
+    </text>
+  </g>
+
+</svg>

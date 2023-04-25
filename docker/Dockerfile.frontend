@@ -1,0 +1,44 @@
+FROM --platform=$TARGETPLATFORM node:18-slim as build-stage
+
+# https://docs.docker.com/build/building/multi-platform/
+ARG BUILDPLATFORM
+ARG TARGETPLATFORM
+RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
+
+ENV PORT 8080
+ENV SERVER_NAME localhost
+ENV API_HOST subledgr-api
+ENV API_PORT 4000
+
+# we need python + gcc to compile gyp
+RUN apt update \
+  && apt install -y curl python gcc
+#   && npm i -g npm@latest
+
+## install simple http server for serving static content
+# not needed, we're using nginx below
+# RUN npm install -g http-server
+
+WORKDIR /
+COPY ../vue3 /app
+WORKDIR /app
+
+# RUN npm install -g yarn \
+#   && yarn install
+RUN yarn install && yarn build
+
+FROM --platform=$TARGETPLATFORM nginx as deploy-stage
+
+COPY --from=build-stage /app/dist/. /usr/share/nginx/html/
+# COPY docker/nginx.conf.template /etc/nginx/nginx.conf
+# COPY docker/nginx-default.conf /etc/nginx/conf.d/default.conf
+COPY docker/nginx-default.conf.template /etc/nginx/templates/default.conf.template
+
+# HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+#   CMD curl -f http://localhost:$PORT/version || exit 1
+
+EXPOSE ${PORT}
+
+# CMD [ "yarn", "dev" ]
+# CMD [ "http-server", "dist", "--proxy", "http://localhost:8080?", "--proxy-options" ]
+CMD ["nginx", "-g", "daemon off;"]

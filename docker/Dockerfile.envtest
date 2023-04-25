@@ -1,0 +1,21 @@
+FROM --platform=$TARGETPLATFORM node:18-slim
+
+# https://docs.docker.com/build/building/multi-platform/
+ARG BUILDPLATFORM
+ARG TARGETPLATFORM
+RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
+
+ENV PORT 8080
+
+WORKDIR /
+
+COPY ../envtest /app
+
+WORKDIR /app
+
+RUN rm -rf node_modules \
+  && npm i
+
+EXPOSE ${PORT}
+
+CMD [ "npm", "start" ]

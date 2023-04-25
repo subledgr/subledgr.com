@@ -1,0 +1,26 @@
+# these need to be in the root context!
+# env SERVER_NAME;
+# env API_HOST;
+# env API_PORT;
+
+server {
+  listen 80;
+  # listen [::]:8080;
+
+  server_name ${SERVER_NAME};
+  root /usr/share/nginx/html;
+  index index.html;
+
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+
+  location /graphql {
+    proxy_pass http://${API_HOST}:${API_PORT}/graphql;
+  }
+
+  error_page 500 502 503 504 /50x.html;
+  location = /50x.html {
+    root /usr/share/nginx/html;
+  }
+}
