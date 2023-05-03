@@ -79,12 +79,12 @@ export default defineComponent({
     const router = useRouter()
     const store = useStore()
 
-    const email = ref('derek@colley.cc');
+    const email = ref<string>();
     const emailRules = [
       (value: string) => !!value || 'Email is required',
       (value: string) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) || 'Email must be valid',
     ]
-    const password = ref('wordpasss');
+    const password = ref<string>();
     const passRules = [
       (v: string) => !!v || 'Password is required',
       (v: string) => v.length > 8 || 'Name must be more than 8 characters'

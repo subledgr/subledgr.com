@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="py-0 px-0">
-    <v-toolbar>
+    <v-toolbar density="compact">
       <v-toolbar-title>
         Dashboard
       </v-toolbar-title>

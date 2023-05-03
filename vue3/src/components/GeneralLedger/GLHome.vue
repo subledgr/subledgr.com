@@ -68,7 +68,7 @@ export default defineComponent({
   data () {
     return {
       breadcrumbs: [
-        { text: 'General Ledger', disabled: true }
+        { title: 'General Ledger', disabled: true }
         // { text: 'Chart of accounts', disabled: true, href: '' }
       ],
       items: [

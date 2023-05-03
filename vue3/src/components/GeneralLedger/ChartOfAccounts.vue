@@ -12,8 +12,8 @@ export default defineComponent({
   data () {
     return {
       breadcrumbs: [
-        { text: 'General Ledger', disabled: false, link: true, exact: true, to: '/general-ledger' },
-        { text: 'Chart of accounts', disabled: true, href: '' }
+        { title: 'General Ledger', disabled: false, link: true, exact: true, to: '/general-ledger' },
+        { title: 'Chart of accounts', disabled: true, href: '' }
       ]
     }
   }

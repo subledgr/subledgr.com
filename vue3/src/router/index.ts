@@ -1,5 +1,6 @@
 // Composables
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, RouteLocationNormalized, NavigationGuardNext } from 'vue-router'
+import Plausible from 'plausible-tracker'
 
 import HomeView from '@/views/HomeView.vue'
 
@@ -85,6 +86,22 @@ const routes = [
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
+})
+
+// // TODO move this to a plugin?
+import { plausible as plausibleStore } from '../store/modules/plausible'
+const plausible = Plausible(plausibleStore.state.options)
+plausible.enableAutoPageviews();
+
+router.beforeEach((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
+  // document.title = to.meta?.title || 'baseTitle'
+  // const plausible = inject<typeof p>('$plausible') //|| new PlausiblePlugin()
+  if (plausible) {
+    plausible.trackPageview({
+      url: to.path
+    })
+  }
+  return next()
 })
 
 export default router

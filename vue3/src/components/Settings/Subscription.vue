@@ -40,8 +40,8 @@ export default defineComponent({
   data () {
     return {
       breadcrumbs: [
-        { text: '⚙️ Settings', disabled: false, link: true, exact: true, to: '/settings' },
-        { text: 'Subscription', disabled: true, href: '' }
+        { title: '⚙️ Settings', disabled: false, link: true, exact: true, to: '/settings' },
+        { title: 'Subscription', disabled: true, href: '' }
       ]
     }
   }

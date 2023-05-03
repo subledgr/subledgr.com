@@ -1,6 +1,6 @@
 <template>
   <v-container>
-    <v-breadcrumbs :items="[{ text: '⚙️ Settings', disables: true }]"></v-breadcrumbs>
+    <v-breadcrumbs :items="[{ title: '⚙️ Settings', disabled: true }]"></v-breadcrumbs>
     <v-row>
       <v-col class="col-12 col-md-6">
         <v-list>

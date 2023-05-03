@@ -3,6 +3,7 @@ import { createStore } from 'vuex'
 import { currency } from './modules/currency'
 import { profile } from './modules/profile'
 import { transaction } from './modules/transaction'
+import { plausible } from './modules/plausible'
 
 const key = 'subledgr'
 
@@ -84,6 +85,7 @@ export const store = createStore({
   modules: {
     currency,
     profile,
-    transaction
+    transaction,
+    plausible
   }
 })

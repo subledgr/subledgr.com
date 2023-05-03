@@ -2805,6 +2805,11 @@ mock-socket@^9.1.2, mock-socket@^9.2.1:
   resolved "https://registry.npmjs.org/mock-socket/-/mock-socket-9.2.1.tgz"
   integrity sha512-aw9F9T9G2zpGipLLhSNh6ZpgUyUl4frcVmRN08uE1NWPWg43Wx6+sGPDbQ7E5iFZZDJW5b5bypMeAEHqTbIFag==
 
+moment@^2.29.4:
+  version "2.29.4"
+  resolved "https://registry.yarnpkg.com/moment/-/moment-2.29.4.tgz#3dbe052889fe7c1b2ed966fcb3a77328964ef108"
+  integrity sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==
+
 moonbeam-types-bundle@2.0.9:
   version "2.0.9"
   resolved "https://registry.npmjs.org/moonbeam-types-bundle/-/moonbeam-types-bundle-2.0.9.tgz"
@@ -3017,6 +3022,11 @@ pkg-dir@^4.1.0:
   integrity sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==
   dependencies:
     find-up "^4.0.0"
+
+plausible-tracker@^0.3.8:
+  version "0.3.8"
+  resolved "https://registry.yarnpkg.com/plausible-tracker/-/plausible-tracker-0.3.8.tgz#9b8b322cc41e0e1d6473869ef234deea365a5a40"
+  integrity sha512-lmOWYQ7s9KOUJ1R+YTOR3HrjdbxIS2Z4de0P/Jx2dQPteznJl2eX3tXxKClpvbfyGP59B5bbhW8ftN59HbbFSg==
 
 pontem-types-bundle@1.0.15:
   version "1.0.15"
