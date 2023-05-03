@@ -8,7 +8,34 @@ import { createChainProviders } from './chains/providers.js';
 import { secrets } from './secrets.js';
 import { Coinbase } from './coinbase-api.js';
 import { GraphQLScalarType, Kind } from 'graphql';
+import { v4 as uuidv4 } from 'uuid';
+import mjml2html from 'mjml'
+import fs from 'fs'
+import path from "path"
+const __dirname = path.resolve();
+import mustache from 'mustache'
+import nodemailer from 'nodemailer'
+
 const cb = new Coinbase({ apiKey: secrets.apiKey, apiSecret: secrets.apiSecret })
+const dotsamaRestApiBaseUrl = process.env.DOTSAMA_REST_API_BASE_URL || 'http://localhost:3000'
+const mailer = nodemailer.createTransport({
+  host: process.env.NODEMAILER_HOST,
+  port: process.env.NODEMAILER_PORT,
+  secure: process.env.NODEMAILER_SECURE==='true', // true for 465, false for other ports
+  auth: {
+    user: process.env.NODEMAILER_USER,
+    pass: process.env.NODEMAILER_PASS
+  }
+})
+
+
+// Map from currencyCode to indexDb.transaction.chain
+// TODO where should this go?
+const ccChain = {
+  DOT: 'Polkadot',
+  KSM: 'Kusama',
+  DOCK: 'Dock'
+}
 
 class AuthenticationError extends Error {
   constructor(message) {
@@ -127,11 +154,12 @@ const resolvers = {
 
     Transactions: async (_, args, context) => {
       console.debug('Transactions', args)
-      const { walletId, address, ids, offset = 0, limit = 50 } = args
+      const { chainId, walletId, address, ids, offset = 0, limit = 50 } = args
       const { user, db } = context
       const where = {}
       if (walletId) {
         const wallet = await db.Wallet.findByPk(walletId)
+        where.chain = ccChain[wallet.currencyCode]
         where[Op.or] = { recipientId: wallet.address, senderId: wallet.address }
       }
       if (address) { where[Op.or] = { recipientId: address, senderId: address } }
@@ -139,6 +167,7 @@ const resolvers = {
       // console.debug(where, offset, limit)
       const order = [['height', 'DESC'], ['id', 'DESC']]
       const list = await db.Transaction.findAll({ where, order, offset, limit })
+
       console.log('\nreturning', list.length, 'items\n')
       return list || []
     },
@@ -268,12 +297,12 @@ const resolvers = {
           break
       }
       if (!chain) return {}
-      var url = `http://192.168.1.92:3000/${chain}/query/system/account/${wallet.address}`
+      var url = `${dotsamaRestApiBaseUrl}/${chain}/query/system/account/${wallet.address}`
       console.debug('url', url)
       var rest = await axios.get(url)
       if (rest.data) ret = rest.data.data
       // pooled value
-      url = `http://192.168.1.92:3000/${chain}/query/nominationPools/poolMembersForAccount?accountId=${wallet.address}`
+      url = `${dotsamaRestApiBaseUrl}/${chain}/query/nominationPools/poolMembersForAccount?accountId=${wallet.address}`
       console.debug('url', url)
       var rest = await axios.get(url)
       if (rest.data) ret.pooled = rest.data.poolMembers?.points || 0
@@ -291,14 +320,21 @@ const resolvers = {
       return _curr
     },
     transactions: async (wallet, args, context) => {
+      console.debug('Wallet.transactions()', wallet.currencyCode, wallet.address)
       const { user, db } = context
       const _receipts = await db.Transaction.findAll({ where: {
+        chain: ccChain[wallet.currencyCode],
         recipientId: wallet.address
       }})
       const _payments = await db.Transaction.findAll({ where: {
+        chain: ccChain[wallet.currencyCode],
         senderId: wallet.address
       }})
-      return [..._receipts, ..._payments]
+      return [..._receipts, ..._payments].sort((a, b) => {
+        if(Number(a.height) > Number(b.height)) return -1
+        if(Number(a.height) < Number(b.height)) return 1
+        return 0
+      }).slice(0, 50)
     },
     // Transactions: a
   },
@@ -319,7 +355,9 @@ const resolvers = {
     login: async (_, args, { db }) => {
       // const user = await findUserByEmail(email);
       const  { email, password } = args
-      const user = await db.User.scope('login').findOne({ email });
+      const user = await db.User.scope('login').findOne({ where: { email } });
+      // const user = await db.User.findOne({ where: { email } });
+      console.log('user', user)
       if (!user) {
         // throw new AuthenticationError('Invalid email or password');
         return { success: false, message: 'Invalid email or password', id: 0, email: email }
@@ -330,9 +368,51 @@ const resolvers = {
         // throw new AuthenticationError('Invalid email or password');
         return { success: false, message: 'Invalid email or password', id: 0, email: email }
       }
-      const token = user.generateToken(user);
+      const token = db.User.generateToken(user);
       user.token = token
       return { success: true, message: 'Login ok', id: user.id, email: user.email, token };
+    },
+    reset: async (_, args, { db }) => {
+      console.log('mutations.reset()', args)
+      const  { token, email, password } = args
+      console.log('123123123')
+      const user = await db.User.findOne({ where: { email } });
+      console.debug('log')
+      if (!user) {
+        // throw new AuthenticationError('Invalid email or password');
+        return { success: false, message: 'Invalid email or token', id: 0, email: email }
+      }
+      // 1. send resetToken
+      // 2. recv resetToken
+      if (token && password) {
+        console.debug('we have token and password', user, token)
+        if(token === user.resetToken) {
+          user.password = password
+          user.resetToken = null
+          await user.save()
+          return { success: true, message: 'Password updated, please login', id: user.id, email: user.email }
+        } else {
+          return { success: false, message: 'Invalid email or token', id: 0, email: email }
+        }
+      } else {
+        user.resetToken = uuidv4()
+        await user.save()
+        console.debug('resetToken:', user.resetToken)
+        // send the email here!
+        const tpl = fs.readFileSync(__dirname + '/templates/password-reset.mjml', 'utf-8')
+        const html1 = mustache.render(tpl, { resetToken: user.resetToken, baseUrl: process.env.SUBLEDGR_APP_BASEURL })
+        const html2 = mjml2html(html1, { validationLevel: 'skip' }).html
+        const ret = await mailer.sendMail({
+          // from: 'derek@metaspan.com',
+          to: user.email,
+          subject: 'Subledgr Password Reset',
+          text: '',
+          html: html2
+        })
+        console.log('mailer resp', ret)
+        return { success: true, message: 'Reset started, please check your email', id: user.id, email: user.email }
+      }
+      // return { success: true, message: 'Reset ok, please login', id: user.id, email: user.email };
     },
     addAsset: async (_, args, context) => {
       const { user, db } = context

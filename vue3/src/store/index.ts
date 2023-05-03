@@ -1,6 +1,8 @@
 // import { defineStore, StateTree } from "pinia"
 import { createStore } from 'vuex'
 import { currency } from './modules/currency'
+import { profile } from './modules/profile'
+import { transaction } from './modules/transaction'
 
 const key = 'subledgr'
 
@@ -80,6 +82,8 @@ export const store = createStore({
     },
   },
   modules: {
-    currency
+    currency,
+    profile,
+    transaction
   }
 })

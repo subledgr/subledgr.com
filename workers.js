@@ -15,8 +15,8 @@ import { BullMQAdapter } from '@bull-board/api/bullMQAdapter.js'
 // const ds = new DataStore({ pruning: cfg.pruning })
 
 // import { asyncForeach } from './lib/utils.js'
-import { getPrices } from './workers/functions/get-prices-coinmarketcap.js'
-// import { f_1kv_nominations_update } from './workers/1kv-nominations-update.js'
+import { getPricesCMC } from './workers/functions/get-prices-coinmarketcap.js'
+import { getPricesCG } from './workers/functions/get-prices-coingecko.js'
 // import { f_1kv_nominators_update } from './workers/1kv-nominators-update.js'
 // import { f_w3f_exposures_update } from './workers/w3f-exposures-update.js'
 // import { f_w3f_nominators_update } from './workers/w3f-nominators-update.js'
@@ -44,12 +44,8 @@ const qOpts = {
 }
 
 const jobs = [
-  // 'health_check',
-  'getPrices',
-  // '1kv_nominations_update',
-  // '1kv_nominators_update',
-  // 'w3f_exposures_update',
-  // 'w3f_nominators_update',
+  'getPricesCMC',
+  'getPricesCG',
   // 'w3f_pools_update',
   // 'w3f_validator_location_stats_update',
   // 'w3f_validators_update',
@@ -69,22 +65,16 @@ async function onFailed(job, event) {
   console.log(errStr)
 }
 
-const q_getPrices = new Queue('getPrices', qOpts)
-// const q_health_check = new Queue('health_check', qOpts)
-// const q_1kv_nominators_update = new Queue('1kv_nominators_update', qOpts)
-// const q_w3f_exposures_update = new Queue('w3f_exposures_update', qOpts)
-// const q_w3f_nominators_update = new Queue('w3f_nominators_update', qOpts)
+const q_getPricesCMC = new Queue('getPricesCMC', qOpts)
+const q_getPricesCG = new Queue('getPricesCG', qOpts)
 // const q_w3f_pools_update = new Queue('w3f_pools_update', qOpts)
 // const q_w3f_validator_location_stats_update = new Queue('w3f_validator_location_stats_update', qOpts)
 // const q_w3f_validators_update = new Queue('w3f_validators_update', qOpts)
 // const q_w3f_nominations_update = new Queue('w3f_nominations_update', qOpts)
 // const q_dock_auto_payout = new Queue('dock_auto_payout', qOpts)
 
-const w_getPrices = new Worker('getPrices', getPrices, qOpts)
-// const w_health_check = new Worker('health_check', f_health_check, qOpts)
-// const w_1kv_nominators_update = new Worker('1kv_nominators_update', f_1kv_nominators_update, qOpts)
-// const w_w3f_exposures_update = new Worker('w3f_exposures_update', f_w3f_exposures_update, qOpts)
-// const w_w3f_nominators_update = new Worker('w3f_nominators_update', f_w3f_nominators_update, qOpts)
+const w_getPricesCMC = new Worker('getPricesCMC', getPricesCMC, qOpts)
+const w_getPricesCG = new Worker('getPricesCG', getPricesCG, qOpts)
 // const w_w3f_pools_update = new Worker('w3f_pools_update', f_w3f_pools_update, qOpts)
 // const w_w3f_validator_location_stats_update = new Worker('w3f_validator_location_stats_update', f_w3f_validator_location_stats_update, qOpts)
 // const w_w3f_validators_update = new Worker('w3f_validators_update', f_w3f_validators_update, qOpts)
@@ -126,11 +116,14 @@ async function clearQueue(jobname) {
 
   async function addJobs() {
     const jOpts = {}
-    await q_getPrices.add('sl:getPrices', jOpts,
-      {
-        repeat: { pattern: '0,15,30,45 * * * *' },
-        ...jobRetention
-      })
+    await q_getPricesCMC.add('sl:getPricesCMC', jOpts, {
+      repeat: { pattern: '0,15,30,45 * * * *' },
+      ...jobRetention
+    })
+    await q_getPricesCG.add('sl:getPricesCG', jOpts, {
+      repeat: { pattern: '0,15,30,45 * * * *' },
+      ...jobRetention
+    })
   //   asyncForEach(chains, async (CHAIN, idx, arr) => {
   //     const jOpts = { CHAIN }
   //     await q_health_check.add(`1kv_candidates_${CHAIN}`, jOpts,
@@ -163,12 +156,8 @@ async function clearQueue(jobname) {
   // const queueMQ = new QueueMQ()
   const { setQueues, replaceQueues } = createBullBoard({
     queues: [
-      // new BullMQAdapter(q_health_check, { readOnlyMode: false }),
-      new BullMQAdapter(q_getPrices, { readOnlyMode: false }),
-      // new BullMQAdapter(q_1kv_nominators_update, { readOnlyMode: false }),
-      // new BullMQAdapter(q_w3f_exposures_update, { readOnlyMode: false }),
-      // new BullMQAdapter(q_w3f_nominators_update, { readOnlyMode: false }),
-      // new BullMQAdapter(q_w3f_pools_update, { readOnlyMode: false }),
+      new BullMQAdapter(q_getPricesCMC, { readOnlyMode: false }),
+      new BullMQAdapter(q_getPricesCG, { readOnlyMode: false }),
       // new BullMQAdapter(q_w3f_validator_location_stats_update, { readOnlyMode: false }),
       // new BullMQAdapter(q_w3f_validators_update, { readOnlyMode: false }),
       // new BullMQAdapter(q_w3f_nominations_update, { readOnlyMode: false }),

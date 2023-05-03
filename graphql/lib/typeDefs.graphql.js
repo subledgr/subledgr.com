@@ -16,7 +16,7 @@ type Query {
   Price(f_curr: String, t_curr: String): Price
   Prices(ids: [String], t_curr: String): [Price]
   SymbolPriceTicker(symbol: String): SymbolPriceTicker
-  Transactions(walletId: String, address: String, ids: [String], offset: Int, limit: Int): [Transaction]
+  Transactions(chainId: String, walletId: String, address: String, ids: [String], offset: Int, limit: Int): [Transaction]
   Wallets(page: Int, offset: Int, search: String): [Wallet] # WalletsResponse
   Wallet(id: String!): WalletResponse
   # books: [Book]
@@ -25,6 +25,7 @@ type Query {
 type Mutation {
   register(email: String, password: String): UserRegisterResponse
   login(email: String, password: String): UserLoginResponse
+  reset(token: String, email: String!, password: String): UserResetResponse
   createWallet(name: String!, currencyCode: String!, address: String!): CreateWalletResponse
   deleteWallet(id: Int!): DeleteWalletResponse
   addAsset(currencyCode: String): AddAssetResponse
@@ -76,6 +77,12 @@ type UserLoginResponse {
   email: String
   token: String
 }
+type UserResetResponse {
+  success: Boolean!
+  message: String!
+  id: Int
+  email: String
+}
 
 type AddAssetResponse {
   success: Boolean!
@@ -113,6 +120,7 @@ type Price {
   f_curr: String
   t_curr: String
   value: Float
+  source: String
 }
 
 type SymbolPriceTicker {

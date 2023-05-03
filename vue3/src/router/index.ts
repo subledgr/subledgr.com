@@ -24,11 +24,14 @@ import OrgDetails from '@/components/Settings/OrgDetails.vue'
 import Users from '@/components/Settings/Users.vue'
 import Currencies from '@/components/Settings/Currencies.vue'
 import Subscription from '@/components/Settings/Subscription.vue'
+import ResetPassword from '@/components/ResetPassword.vue'
 
 const routes = [
   { path: '/', name: 'home', component: HomeView },
   { path: '/login', name: 'Login', component: Login },
   { path: '/register', name: 'Register', component: Register },
+  { path: '/reset', name: 'ResetPassword', component: ResetPassword },
+  { path: '/reset/:resetToken', name: 'ResetPasswordLanding', component: ResetPassword },
   { path: '/dashboard', name: 'Dashboard', component: Dashboard },
   { path: '/asset', name: 'Assets', component: Assets },
   { path: '/asset/:currencyCode', name: 'Asset', component: Asset, props: true },

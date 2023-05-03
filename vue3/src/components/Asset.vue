@@ -11,7 +11,7 @@
         <v-btn :loading="loading" icon @click="refresh()">
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
-        <v-btn @click="showCurrencyPicker=true">+</v-btn>
+        <!-- <v-btn @click="showCurrencyPicker=true">+</v-btn> -->
       </v-toolbar-items>
     </v-toolbar>
     <v-list>

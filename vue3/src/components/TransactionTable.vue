@@ -15,7 +15,10 @@
     <tbody>
       <tr v-for="(tx, idx) in list" v-bind:key="idx">
         <!-- {{ tx }} -->
-        <td>{{ moment.unix(tx.timestamp).format('DD.MM.YYYY HH:mm:ss') }} <br>{{ tx.timestamp }}</td>
+        <td>
+          {{ moment.unix(tx.timestamp / 1000).format('DD.MM.YYYY HH:mm') }} 
+          <!-- <br>{{ tx.timestamp }} -->
+        </td>
         <td>{{ tx.height }}</td>
         <td>{{ tx.type }}</td>
         <!-- <td>{{ tx.subType }}</td> -->

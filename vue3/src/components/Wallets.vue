@@ -4,7 +4,7 @@
     <v-toolbar density="compact">
       <v-toolbar-title>Wallets</v-toolbar-title>
       <v-toolbar-items>
-        <v-btn flat class="text-none">GBP {{ totalValue.toLocaleString('en-GB', { currency: 'GBP', maximumFractionDigits: 2 }) }}</v-btn>
+        <v-btn flat class="text-none">{{ profile.defaultCurrency }} {{ totalValue.toLocaleString('en-GB', { currency: profile.defaultCurrency, maximumFractionDigits: 2 }) }}</v-btn>
         <v-btn :loading="loading" icon @click="refresh()">
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
@@ -140,10 +140,11 @@ export default defineComponent({
   },
   setup () {
     const apolloClient = useApolloClient()
-    console.log(apolloClient.resolveClient().cache)
+    // console.log(apolloClient.resolveClient().cache)
 
     const store = useStore()
     const router = useRouter()
+    const profile = computed(() => store.state.profile)
     const currencies = computed<ICurrency[]>(() => JSON.parse(JSON.stringify(store.state.currency.list)))
     // console.debug('currencies', currencies.value)
     const loggedIn = computed(() => store.getters.loggedIn)
@@ -152,7 +153,7 @@ export default defineComponent({
 
     const variables = {
       ids: ['KSM', 'DOT', 'DOCK'],
-      tCurr: 'GBP'
+      tCurr: profile.value.defaultCurrency // 'GBP'
     }
 
     // const queryResult = apolloClient.client.cache.readQuery({
@@ -169,7 +170,7 @@ export default defineComponent({
     //   console.debug('NOT IN CACHE')
     // }
 
-    console.debug('QUERY_WALLETS', QUERY_WALLETS)
+    // console.debug('QUERY_WALLETS', QUERY_WALLETS)
     var { result, loading, refetch, onResult } = useQuery(QUERY_WALLETS, variables, {
       // fetchPolicy: 'cache-only'
       fetchPolicy: 'cache-first'
@@ -223,7 +224,7 @@ export default defineComponent({
     }
 
     const calcTotalValue = () => {
-      console.debug('getWalletsValue', result.value?.Wallets)
+      // console.debug('getWalletsValue', result.value?.Wallets)
       totalValue.value = 0
       var ret = 0
       // todo :: reduce()
@@ -237,7 +238,7 @@ export default defineComponent({
         // console.debug('val', val, typeof val)
         // ret += val
       }
-      console.debug('totalVal', ret)
+      // console.debug('totalVal', ret)
       totalValue.value = ret
     }
 
@@ -281,6 +282,7 @@ export default defineComponent({
     calcTotalValue()
 
     return {
+      profile,
       // list: result || [],
       loggedIn,
       loading,

@@ -33,7 +33,8 @@
           </v-row>
           <v-row>
             <v-col>
-              Not registered? Register &nbsp;<router-link class="v-btn" to="/register">here</router-link>
+              Not registered? Register &nbsp;<router-link class="v-btn" to="/register">here</router-link><br>
+              Forgot your password? Reset &nbsp;<router-link class="v-btn" to="/reset">here</router-link>
             </v-col>
             <v-col align="end">
               <v-btn @click="navTo('/')">Cancel</v-btn>&nbsp;

@@ -1,5 +1,9 @@
 'use strict';
 
+// import * as dotenv from 'dotenv'
+// dotenv.config()
+import './dotenv.js'
+
 import fs from 'fs'
 import { ApolloServer } from '@apollo/server';
 import { startStandaloneServer } from '@apollo/server/standalone';
@@ -8,7 +12,7 @@ import { typeDefs } from './lib/typeDefs.graphql.js';
 import { resolvers } from './lib/resolvers.js';
 import { db } from './models/index.js'
 
-const SECRET_KEY = process.env.SECRET_KEY || 'SECRET_KEY'
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'SECRET_KEY'
 
 // handle running in docker...
 function shutdown(signal) {
@@ -21,6 +25,8 @@ function shutdown(signal) {
     }, 5000).unref();
   };
 }
+
+// handle crtl-c
 process
   .on('SIGTERM', shutdown('SIGTERM'))
   .on('SIGINT', shutdown('SIGINT'))
@@ -32,7 +38,7 @@ async function getUserFromToken(token) {
   try {
     token = token.split(' ')[1]
     console.debug('getUserFromToken', token)
-    const { userId } = jwt.verify(token, SECRET_KEY);
+    const { userId } = jwt.verify(token, JWT_SECRET_KEY);
     console.debug('userId', userId)
     const user = await db.User.findOne({ where: { id: userId } }) //.then((user) => {
     if (!user) console.log('we have no user for', userId)
@@ -73,3 +79,4 @@ const server = new ApolloServer({
   console.log(`🚀  Server ready at: ${url}`);
   
 })()
+

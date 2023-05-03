@@ -6,7 +6,7 @@
         Assets
       </v-toolbar-title>
       <v-toolbar-items>
-        <v-btn flat class="text-none">GBP {{ totalValue.toLocaleString('en-GB', { currency: 'GBP', maximumFractionDigits: 2 }) }}</v-btn>
+        <v-btn flat class="text-none">{{profile.defaultCurrency}} {{ totalValue.toLocaleString('en-GB', { currency: profile.defaultCurrency, maximumFractionDigits: 2 }) }}</v-btn>
         <v-btn :loading="loading" icon @click="refresh()">
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
@@ -109,6 +109,7 @@ export default defineComponent({
   },
   setup () {
     const store = useStore()
+    const profile = computed(() => store.state.profile)
     const loading = ref(false)
     const showCurrencyPicker = ref(false)
     var currencyCode = ''
@@ -118,7 +119,7 @@ export default defineComponent({
     const { mutate, error } = useMutation(MUT_ADD_ASSET)
     const variables = {
       ids: ['KSM', 'DOT', 'DOCK'],
-      tCurr: 'GBP'
+      tCurr: profile.value.defaultCurrency, // 'GBP'
     }
     const { result, refetch, onResult } = useQuery(QUERY_WALLETS, variables, {
       fetchPolicy: 'cache-first'
@@ -211,10 +212,10 @@ export default defineComponent({
       for(let i = 0; i < result.value?.Wallets?.length; i++) {
         const wallet = result.value.Wallets[i]
         // console.debug('calcTotalValue', wallet.Currency.code)
-        const val = toValue(wallet.currencyCode, wallet.balance?.free || 0)
-        ret += toValue(wallet.currencyCode, wallet.balance?.free || 0)
-        ret += toValue(wallet.currencyCode, wallet.balance?.reserved || 0)
-        ret += toValue(wallet.currencyCode, wallet.balance?.pooled || 0)
+        const val = toValue(wallet.Currency.code, wallet.balance?.free || 0)
+        ret += toValue(wallet.Currency.code, wallet.balance?.free || 0)
+        ret += toValue(wallet.Currency.code, wallet.balance?.reserved || 0)
+        ret += toValue(wallet.Currency.code, wallet.balance?.pooled || 0)
         // console.debug('val', val, typeof val)
         // ret += val
       }
@@ -252,6 +253,7 @@ export default defineComponent({
     summarise()
 
     return {
+      profile,
       loading,
       list,
       mutate,

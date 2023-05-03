@@ -28,9 +28,13 @@
     "graphql": "^16.6.0",
     "graphql-type-bigint": "^1.0.0",
     "jsonwebtoken": "^9.0.0",
+    "mjml": "^4.14.1",
     "moment": "^2.29.4",
+    "mustache": "^4.2.0",
+    "nodemailer": "^6.9.1",
     "pg": "^8.10.0",
-    "sequelize": "^6.29.3"
+    "sequelize": "^6.29.3",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@graphql-codegen/cli": "^3.2.2",

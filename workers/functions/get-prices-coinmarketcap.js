@@ -23,7 +23,7 @@ const apiKey = 'd2585f10-f0f8-4b05-811d-9cb20de495f5'
 const ds = new DataStore({ pruning: cfg.pruning })
 // const apiUrl = 'http://subledgr-api:4000/api/'
 
-export async function getPrices(job) {
+export async function getPricesCMC(job) {
   // console.log('job.data', job.data);
   // const { subdomain, member, service, monitorId } = job.data
   console.debug('[worker] getPrices', job.data)
@@ -48,7 +48,8 @@ export async function getPrices(job) {
             datetime: price.last_updated,
             f_curr: price.symbol,
             t_curr,
-            value: data.price
+            value: data.price,
+            source: 'coinmarketcap.com'
           // }, {
           //   fields: ['value'],
           //   conflictFields: ['datetime', 'f_curr', 't_curr']

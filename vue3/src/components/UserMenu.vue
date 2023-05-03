@@ -105,6 +105,7 @@ export default defineComponent({
       // const apolloClient = apolloProvider.defaultClient
       // apolloClient.cache.reset()
       const ret = await mutate()
+      await apolloClient.client.clearStore()
       // console.debug('logout', ret)
     }
 

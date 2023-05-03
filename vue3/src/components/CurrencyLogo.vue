@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, computed, watch } from 'vue'
 import { useStore } from 'vuex'
 import { ICurrency } from './types'
 
@@ -22,9 +22,18 @@ export default defineComponent({
   },
   setup(props) {
     const store = useStore()
-    const currencies: ICurrency[] = store.state.currency.list
-    const currency = currencies.find((f:ICurrency) => f.code === props.currencyCode) || { logo: '' }
-    const imgUrl = `/${currency.logo}`
+    const currencies = computed<ICurrency[]>(() => store.state.currency.list)
+    const currencyCode = computed(() => props.currencyCode)
+
+    const currency = computed(() => {
+      const cur = currencies.value.find((f:ICurrency) => f.code === currencyCode.value)
+      return cur || { logo: '' }
+    })
+
+    watch(() => currencyCode.value, newVal => {
+      console.debug('watch.currencyCode', newVal)
+    })
+    const imgUrl = computed(() => `/${currency.value.logo}`)
     return { imgUrl }
   },
 })

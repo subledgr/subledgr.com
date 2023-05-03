@@ -21,6 +21,10 @@ export const priceModel = {
       type: DataTypes.FLOAT,
       allowNull: false,
     },
+    source: {
+      type: DataTypes.STRING(64),
+      allowNull: true,
+    },
     // createdAt: {
     //   type: DataTypes.DATE,
     //   allowNull: false,

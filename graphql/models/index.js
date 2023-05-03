@@ -4,13 +4,11 @@ import fs, { readFileSync } from 'fs';
 import path from 'path';
 import Sequelize from 'sequelize';
 import process from 'process';
-import jwt from 'jsonwebtoken';
 // const { jwt } = pkg
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 import bcrypt from 'bcrypt'
 
-const SECRET_KEY = process.env.SECRET_KEY || 'SECRET_KEY'
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -61,9 +59,10 @@ import { portfolioModel } from './portfolio.js'
 import { priceModel } from './price.js';
 import { transactionModel } from './transaction.js';
 
-const User = sequelize.define('user', userModel.definition, { ...userModel.options, sequelize });
-User.prototype.generateToken = generateToken
-User.prototype.comparePassword = comparePassword
+// const User = sequelize.define('user', userModel.definition, { ...userModel.options, sequelize });
+const User = userModel.User.init(userModel.definition, { ...userModel.options, sequelize })
+// User.prototype.generateToken = generateToken
+// User.prototype.comparePassword = comparePassword
 
 const Currency = sequelize.define('currency', currencyModel.definition, { ...currencyModel.options, sequelize });
 const Wallet = sequelize.define('wallet', walletModel.definition, { ...walletModel.options, sequelize });
