@@ -1,0 +1,20 @@
+# https://www.apollographql.com/docs/federation/v1/quickstart/#3-compose-the-supergraph-schema
+federation_version: =2.3.2
+subgraphs:
+  # products:
+  #   routing_url: https://rover.apollo.dev/quickstart/products/graphql
+  #   schema:
+  #     subgraph_url: https://rover.apollo.dev/quickstart/products/graphql
+  # reviews:
+  #   routing_url: https://rover.apollo.dev/quickstart/reviews/graphql
+  #   schema:
+  #     subgraph_url: https://rover.apollo.dev/quickstart/reviews/graphql
+
+  default:
+    routing_url: http://localhost:4000/graphql
+    schema:
+      subgraph_url: http://localhost:4000/graphql
+  indexDb:
+    routing_url: http://localhost:4001/cubejs-api/graphql
+    schema:
+      subgraph_url: http://localhost:4001/cubejs-api/graphql

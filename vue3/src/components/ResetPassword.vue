@@ -1,8 +1,9 @@
 <template>
-  <v-container>
+  <v-container fluid class="fill-height" style="max-width: 600px">
 
     <v-row align="center" justify="center">
       <v-col>
+        <!-- {{ route.matched[0].path }} -->
         <v-spacer></v-spacer>
         <!-- Valid: {{ valid }} -->
         <v-form v-model="valid" @submit.prevent="resetUser">
@@ -52,12 +53,19 @@
               Already registered? Login <router-link class="v-btn" to="/login">here</router-link>
             </v-col>
             <v-col align="end">
-              <v-btn @click="navTo('/')">Cancel</v-btn>&nbsp;
-              <v-btn type="submit" :disabled="!valid" color="primary">Submit</v-btn>
+              <v-btn @click="navTo('/')">
+                <template v-slot:prepend><v-icon class="d-none d-sm-inline">mdi-cancel</v-icon></template>
+                Cancel
+              </v-btn>&nbsp;
+              <v-btn type="submit" :disabled="!valid" color="primary">
+                <template v-slot:prepend><v-icon class="d-none d-sm-inline">mdi-check</v-icon></template>
+                Submit</v-btn>
             </v-col>
           </v-row>
         </v-form>
+
         <v-progress-linear v-if="loading" indeterminate></v-progress-linear>
+        <br>
         <v-alert v-if="error" type="error">{{ error.message }}</v-alert>
         <!-- {{ registrationMessage }} -->
         <v-alert v-if="resetMessage" type="warning">{{ resetMessage }}</v-alert>
@@ -65,8 +73,7 @@
       </v-col>
     </v-row>
 
-    Token {{ resetToken }}<br>
-    <!-- {{ route }} -->
+    <!-- Token {{ resetToken }}<br> -->
   </v-container>  
 </template>
 
@@ -91,7 +98,7 @@ export default defineComponent({
   setup() {
     const route = useRoute()
     const router = useRouter()
-    const { resetToken } = route.params
+    const resetToken = ref<string | undefined>(route.params.resetToken?.toString())
     const valid = ref(false)
 
     const email = ref('');
@@ -112,7 +119,7 @@ export default defineComponent({
 
     var { mutate, loading, error } = useMutation(MUT_USER_RESET, () => ({
       variables: {
-        token: resetToken,
+        token: resetToken.value,
         email: email.value,
         password: password.value
       }
@@ -121,7 +128,7 @@ export default defineComponent({
 
     const resetUser = async () => {
       console.debug('registerUser()', email, password)
-      const input = { token: resetToken, email: email.value, password: password.value };
+      const input = { token: resetToken.value, email: email.value, password: password.value };
       const res: any = await mutate(input);
       // handle success
       console.debug(res.data.reset)

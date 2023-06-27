@@ -2,6 +2,7 @@ import gql from 'graphql-tag'
 import BigInt from 'graphql-type-bigint'
 
 const typeDefs = gql`
+extend schema @link(url: "https://specs.apollo.dev/federation/v2.0", import: ["@key", "@shareable"])
 scalar BigInt
 
 type Query {
@@ -11,10 +12,12 @@ type Query {
   Users: [User]
   Currencies: [Currency]
   CryptoCurrencies: [CryptoCurrencyCoinbase]
+  MarketData(fromCurrency: String, toCurrency: String, fromDate: String, interval: String, periods: Int): [Price]
   Portfolios(page: Int, offset: Int, search: String): [Portfolio]
   Portfolio(id: Int): Portfolio
   Price(f_curr: String, t_curr: String): Price
   Prices(ids: [String], t_curr: String): [Price]
+  Profile: UserProfile
   SymbolPriceTicker(symbol: String): SymbolPriceTicker
   Transactions(chainId: String, walletId: String, address: String, ids: [String], offset: Int, limit: Int): [Transaction]
   Wallets(page: Int, offset: Int, search: String): [Wallet] # WalletsResponse
@@ -25,24 +28,21 @@ type Query {
 type Mutation {
   register(email: String, password: String): UserRegisterResponse
   login(email: String, password: String): UserLoginResponse
+  saveProfile(dateTimeFormat: String, defaultCurrency: String, defaultDecimals: Int, itemsPerPage: Int): UserProfile
   reset(token: String, email: String!, password: String): UserResetResponse
   createWallet(name: String!, currencyCode: String!, address: String!): CreateWalletResponse
-  deleteWallet(id: Int!): DeleteWalletResponse
+  deleteWallet(id: String!): DeleteWalletResponse
   addAsset(currencyCode: String): AddAssetResponse
-  addBook(title: String, author: String): AddBookMutationResponse
+#  addBook(title: String, author: String): AddBookMutationResponse
 }
 
-type User {
-  id: Int
-  email: String
-#  password: String
-  token: String
-  Wallets: [Wallet]
-  portfolios: [Portfolio]
-  assets: [AssetBalance]
-}
+#type MeRseponse extends User {
+#  profile: UserProfile
+#}
 
-type AccountData {
+type AccountData 
+@key(fields: "id")
+{
   id: String
   free: BigInt
   reserved: BigInt
@@ -76,6 +76,7 @@ type UserLoginResponse {
   id: Int
   email: String
   token: String
+  profile: UserProfile
 }
 type UserResetResponse {
   success: Boolean!
@@ -91,7 +92,9 @@ type AddAssetResponse {
   #added: any
 }
 
-type Currency {
+type Currency
+@key(fields: "code")
+{
   code: String
   name: String
 #  price: Price
@@ -115,7 +118,9 @@ type CryptoCurrencyCoinbase {
   asset_id: String
 }
 
-type Price {
+type Price
+#@key(fields: ["datetime", "f_curr", "t_curr", "source"])
+{
   datetime: String
   f_curr: String
   t_curr: String
@@ -133,7 +138,19 @@ type SymbolPriceTicker {
 #  quote: String
 # }
 
-type Transaction {
+type Portfolio
+@key(fields: "id")
+{
+  id: Int # TODO: change to String UUID
+  User: User
+  name: String!
+  Currency: Currency
+  Wallets: [Wallet]
+}
+
+type Transaction 
+#@key(fields: ["chain", "id"])
+{
   chain: String
   id: String
   height: BigInt
@@ -142,12 +159,12 @@ type Transaction {
   subType: String
   event: String
   addData: String
-  timestamp: String
+  timestamp: BigInt
   specVersion: String
   transactionVersion: String
   authorId: String
   senderId: String
-  recipientId: String
+  recipientid: String
   amount: BigInt
   totalFee: BigInt
   feeBalances: BigInt
@@ -158,7 +175,33 @@ type Transaction {
   createdAt: String
 }
 
-type Wallet {
+type User 
+@key(fields: "id")
+{  
+  id: Int
+  email: String
+#  password: String
+  token: String
+  Wallets: [Wallet]
+  portfolios: [Portfolio]
+  assets: [AssetBalance]
+#  not here! just get this direct from Profile
+#  profile: UserProfile
+}
+
+type UserProfile
+@key(fields: "id")
+{
+  id: Int
+  dateTimeFormat: String
+  defaultCurrency: String
+  defaultDecimals: Int
+  itemsPerPage: Int
+}
+
+type Wallet
+@key(fields: "id")
+{
   id: String!
   User: User
   Currency: Currency
@@ -166,6 +209,12 @@ type Wallet {
   name: String!
   balance: AccountData
   transactions: [Transaction]
+  chartData(period: String): [WalletChartItem]
+}
+
+type WalletChartItem {
+  period: String
+  value: Float
 }
 
 type WalletsResponse {
@@ -180,18 +229,6 @@ type WalletResponse {
   message: String
 }
 
-type Book {
-  title: String
-  author: String
-}
-
-type AddBookMutationResponse {
-  code: String!
-  success: Boolean!
-  message: String!
-  book: Book
-}
-
 type CreateWalletResponse {
   success: Boolean!
   message: String
@@ -201,14 +238,6 @@ type CreateWalletResponse {
 type DeleteWalletResponse {
   success: Boolean!
   message: String!
-}
-
-type Portfolio {
-  id: Int
-  User: User
-  name: String!
-  Currency: Currency
-  Wallets: [Wallet]
 }
 
 `

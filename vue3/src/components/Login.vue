@@ -69,6 +69,11 @@ const MUT_USER_LOGIN = gql`
       message
       success
       token
+      profile {
+        dateTimeFormat
+        defaultCurrency
+        defaultDecimals
+      }
     }
   }
 `
@@ -109,13 +114,14 @@ export default defineComponent({
       // handle success
       console.debug(res.data.login)
       if (res.data.login) {
-        const { id, email, success, message, token } = res.data.login
+        const { id, email, success, message, token, profile } = res.data.login
         if (!success) {
           loginMessage.value = message
           snackbar.value = true
           setTimeout(() => { loginMessage.value = ''; snackbar.value = false }, 3000)
         } else {
-          store.dispatch('login', { id, email, token })
+          await store.dispatch('login', { id, email, token })
+          await store.dispatch('profile/setProfile', { profile } )
           router.push('/')
         }
       }

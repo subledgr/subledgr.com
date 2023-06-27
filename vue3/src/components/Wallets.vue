@@ -139,7 +139,7 @@ export default defineComponent({
     WalletAddDialog
   },
   setup () {
-    const apolloClient = useApolloClient()
+    // const apolloClient = useApolloClient()
     // console.log(apolloClient.resolveClient().cache)
 
     const store = useStore()

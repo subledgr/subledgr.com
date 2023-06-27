@@ -64,8 +64,8 @@ async function getUserFromToken(token) {
 // const supergraphSdl = readFileSync('./supergraph.graphql').toString();
 const gateway = new ApolloGateway({
   serviceList: [
-    // { name: 'default', url: 'http://localhost:4000' },
-    { name: 'indexDb', url: CUBEJS_API_URL },
+    { name: 'default', url: 'http://localhost:4000' },
+    { name: 'indexDb', url: GRAPHQL_SERVICE_URL },
   ],
   // supergraphSdl: new IntrospectAndCompose({
   //   subgraphs: [
@@ -83,11 +83,10 @@ const gateway = new ApolloGateway({
 // The ApolloServer constructor requires two parameters: your schema
 // definition and your set of resolvers.
 const server = new ApolloServer({
-  // gateway,
+  gateway,
+  // schema: buildSubgraphSchema({ typeDefs, resolvers }),
   // typeDefs,
   // resolvers
-  // to support federation, we need to build a subgraph schema
-  schema: buildSubgraphSchema({ typeDefs, resolvers }),
 });
 
 // Passing an ApolloServer instance to the `startStandaloneServer` function:

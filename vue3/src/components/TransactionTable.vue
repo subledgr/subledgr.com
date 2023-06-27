@@ -24,9 +24,9 @@
         <!-- <td>{{ tx.subType }}</td> -->
         <!-- <td>{{ tx.event }}</td> -->
         <td>
-          {{ shortStash(tx.senderId) }}<br>{{ shortStash(tx.recipientId) }}
+          {{ shortStash(tx.senderId) }}<br>{{ shortStash(tx.recipientid) }}
         </td>
-        <td class="text-right">{{ toCoin(wallet?.Currency?.code, tx.recipientId === wallet?.address ? tx.amount : -tx.amount) }}</td>
+        <td class="text-right">{{ toCoin(wallet?.Currency?.code, tx.recipientid === wallet?.address ? tx.amount : -tx.amount) }}</td>
         <td class="text-right">{{ toCoin(wallet?.Currency?.code, tx.totalFee) }}</td>
         <td>{{ tx.success }}</td>
       </tr>
@@ -50,10 +50,10 @@ export default defineComponent({
       type: Object as PropType<IWallet>,
     },
   },
-  setup(props) {
+  setup() {
     const store = useStore()
-    const { wallet } = props
-    watch(() => wallet, newVal => { console.debug('new wallet', newVal) })
+    // const wallet = computed(() => props.wallet)
+    // watch(() => wallet, newVal => { console.debug('new wallet', newVal) })
     const currencies = computed<ICurrency[]>(() => JSON.parse(JSON.stringify(store.state.currency.list)))
     const toCoin =  (currencyCode: string | undefined, val: BigInt) => {
       // const currs = {...currencies.value}

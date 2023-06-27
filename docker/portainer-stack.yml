@@ -1,0 +1,57 @@
+version: '3'
+# name: subledgr-aplha
+
+# PORTS
+# - 5432 - postgres
+# - 8080 - vue3 frontend, http
+# - 4000 - graphql api, http
+
+services:
+
+  subledgr-datastore:
+    image: postgres:15.2-alpine
+    restart: unless-stopped
+    environment:
+      # TODO: put this in a secret!
+      POSTGRES_PASSWORD: thisIsASecret
+      PGDATA: /data/postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      #- SUBLEDGR_PG_DATA:/data/postgres
+      - /mnt/Docker/subledgr/data/postgres:/data/postgres
+      #- SUBLEDGR_PG_DATA/schema.pgsql.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      - /mnt/Docker/subledgr/data/schema.pgsql.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+
+  subledgr-api:
+    image: docker.metaspan.io/subledgr/subledgr-api
+    ports:
+      - "4000:4000"
+    # we'll get this from secrets!
+    #environment:
+    #  - SUBLEDGR_DB_USER=${SUBLEDGR_DB_USER}
+    #  - SUBLEDGR_DB_HOST=${SUBLEDGR_DB_HOST}
+    #  - SUBLEDGR_DB_DATABASE=${SUBLEDGR_DB_DATABASE}
+    #  - SUBLEDGR_DB_PASSWORD=${SUBLEDGR_DB_PASSWORD}
+    #  - SUBLEDGR_DB_PORT=${SUBLEDGR_DB_PORT}
+
+    #volumes:
+    #  - ../config/config.local.js:/home/ibp/config/config.local.js
+    #  - ../keys:/home/ibp/keys
+    depends_on:
+      - subledgr-datastore
+
+  subledgr-frontend:
+    image: docker.metaspan.io/subledgr/subledgr-fe
+#    build:
+#      context: ../.
+#      dockerfile: docker/Dockerfile.frontend
+#      args:
+#        RELEASE: "latest"
+    ports:
+      - "5080:8080"
+    environment:
+      - API_HOST=subledgr-api
+      - API_PORT=4000
+    depends_on:
+      - subledgr-api

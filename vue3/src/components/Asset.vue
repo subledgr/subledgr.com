@@ -14,11 +14,12 @@
         <!-- <v-btn @click="showCurrencyPicker=true">+</v-btn> -->
       </v-toolbar-items>
     </v-toolbar>
+    <MarketData :fromCurrency="currencyCode2"></MarketData>
     <v-list>
       <v-list-item v-show="!loggedIn">
         <v-row>
           <v-col>
-            <v-btn to="/login">Login</v-btn> to see your wallets
+            <v-btn to="/login">Login</v-btn> to see your wallets {{ loggedIn }}
           </v-col>
         </v-row>
       </v-list-item>
@@ -58,6 +59,8 @@
       </v-list-item>
     </v-list>
     <!-- <CurrencyPickerDialog icon="mdi-wallet-plus-outline" :visible="showCurrencyPicker" @selectCurrency="onSelectCurrency"></CurrencyPickerDialog> -->
+
+    <TransactionList :list="transactions" :currencyCode="currencyCode"></TransactionList>
   </v-container>
 </template>
 
@@ -65,9 +68,11 @@
 import { defineComponent, ref, computed, TrackOpTypes } from 'vue'
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import { useStore } from 'vuex';
-import Currencies from './Currencies.vue';
-import CurrencyPickerDialog from './CurrencyPickerDialog.vue'
+// import Currencies from './Currencies.vue';
+// import CurrencyPickerDialog from './CurrencyPickerDialog.vue'
 import CurrencyLogo from './CurrencyLogo.vue'
+import MarketData from './MarketData.vue'
+import TransactionList from './TransactionList.vue'
 import gql from 'graphql-tag';
 import { ICurrency } from './types';
 import { QUERY_WALLETS } from '@/graphql/wallets.gql';
@@ -75,17 +80,34 @@ import { IWallet, IWalletData } from './types';
 import { useRouter } from 'vue-router';
 import { shortStash } from './utils';
 
-// const MUT_ADD_ASSET = gql`
-// mutation MutAddAsset ($currencyCode: String) {
-//   addAsset(currencyCode: $currencyCode) {
-//     success
-//     message
-//     currency {
-//       code
-//     }
-//   }
-// }
-// `
+const QUERY_ASSET = gql`
+  query AssetView($chainId: String, $ids: [String], $offset: Int, $limit: Int) {
+  Transactions(chainId: $chainId, ids: $ids, offset: $offset, limit: $limit) {
+    chain
+    id
+    height
+    blockHash
+    type
+    subType
+    event
+    addData
+    timestamp
+    specVersion
+    transactionVersion
+    authorId
+    senderId
+    recipientid
+    amount
+    totalFee
+    feeBalances
+    feeTreasury
+    tip
+    success
+    updatedAt
+    createdAt
+  }
+}
+`
 
 interface IAsset {
   // id: string
@@ -96,23 +118,27 @@ interface IAsset {
 export default defineComponent({
   components: {
     CurrencyLogo,
-    Currencies,
-    CurrencyPickerDialog
+    // Currencies,
+    // CurrencyPickerDialog,
+    MarketData,
+    TransactionList
   },
   props: {
     currencyCode: {
       type: String,
+      required: true
     }
   },
   setup (props) {
     const store = useStore()
-    const loggedIn = computed(() => store.getters.loggedIn)
+    const loggedIn = computed<boolean>(() => store.getters.loggedIn)
     const router = useRouter()
     // console.debug('props', props)
-    const { currencyCode } = props
+    const currencyCode2 = computed(() => props.currencyCode)
     // const loading = ref(false)
     const showCurrencyPicker = ref(false)
     const list = ref<IWallet[]>([])
+    const transactions = ref<any[]>([])
     const currencies = computed<ICurrency[]>(() => JSON.parse(JSON.stringify(store.state.currency.list)))
     const totalValue = ref(0.0)
     // const { mutate, error } = useMutation(MUT_ADD_ASSET)
@@ -124,16 +150,31 @@ export default defineComponent({
       fetchPolicy: 'cache-first'
     })
 
+    const variables2 = computed(() => { return {
+      // chain: '',
+      ids: list.value.map((wallet: IWallet) => wallet.address),
+      offset: 0,
+      limit: 50
+    }})
+    const {loading: loading2, result: result2, refetch: refetch2, onResult: onResult2 } = useQuery(QUERY_ASSET, variables2, {
+      fetchPolicy: 'cache-first'
+    })
+
+    onResult2((data) => {
+      console.debug('onResult2', data)
+      transactions.value = data.data.Transactions
+    })
+
     onResult((data) => {
       console.debug('onResult', data)
       // if(data.data) list.value = data.data.me?.assets || []
       // summarise()
-      list.value = data.data.Wallets.filter((wallet: IWallet, idx: number) => wallet.Currency.code === currencyCode)
+      list.value = data.data.Wallets.filter((wallet: IWallet, idx: number) => wallet.Currency.code === currencyCode2.value)
       calcTotalValue()
     })
 
     const summarise = () => {
-      list.value = result.value.Wallets.filter((wallet: IWallet, idx: number) => wallet.Currency.code === currencyCode)
+      list.value = result.value.Wallets.filter((wallet: IWallet, idx: number) => wallet.Currency.code === currencyCode2.value)
     //   // const wallets = result.value.Wallets.map((wallet, idx) => { return { currencyCode: model.wallets[idx].currencyCode, balance } })
     //   // console.debug('wallets items', wallets.length)
     //   var assetBals = result.value?.Wallets.reduce((acc: any, wallet: IWallet) => {
@@ -240,10 +281,12 @@ export default defineComponent({
 
     const refresh = async () => {
       console.debug('refresh firing...')
+      console.debug('refresh', variables2)
       loading.value = true
       setTimeout(async () => {
         await refetch()
         calcTotalValue()
+        await refetch2()
         loading.value = false
       }, 200)
     }
@@ -261,8 +304,9 @@ export default defineComponent({
     return {
       loading,
       loggedIn,
-      currencyCode,
+      currencyCode2,
       list,
+      transactions,
       // mutate,
       gotoWallet,
       showCurrencyPicker,

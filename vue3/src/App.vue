@@ -10,35 +10,62 @@
           </transition>
         </router-view>
       </v-main>
+      <BottomNavigation class="d-block d-sm-none"></BottomNavigation>
     </v-app>
   </v-theme-provider>
 </template>
 
 <script lang="ts">
-import { defineComponent, provide, watch } from 'vue'
+import { defineComponent, provide, watch, computed, onBeforeMount } from 'vue'
 import { useStore } from 'vuex'
+import { useRoute } from 'vue-router'
+import { useQuery } from '@vue/apollo-composable'
 import AppBar from './components/AppBar.vue'
 import NavDrawer from './components/NavDrawer.vue'
+import BottomNavigation from './components/BottomNavigation.vue'
+
+import { QUERY_PROFILE } from './graphql/profile.gql'
 
 export default defineComponent({
   name: 'App',
   components: {
     AppBar,
-    NavDrawer
+    NavDrawer,
+    BottomNavigation
   },
   setup () {
     const store = useStore()
-    // const { result, loading, error } = useQuery(QUERY_CURRENCIES);
-    // watch(result, value => {
-    //   console.log(value)
-    //   store.dispatch('setCurrencies', result.Currencies)
-    // })
-  },
-  computed: {
-    showAppBar (): boolean {
-      return !['/login', '/register'].includes(this.$route.path)
+    const profile = store.state.profile
+    const loggedIn = computed(() => store.getters.loggedIn)
+    const route = useRoute()
+    const showAppBar = computed(() => !['/login', '/register', '/reset', '/reset/:resetToken'].includes(route.matched[0]?.path))
+
+    const { loading, error, onResult, refetch } = useQuery(QUERY_PROFILE)
+
+    if (profile.initial) {
+      // console.debug('App:setup() initial', profile, 123)
+      refetch()
+    // } else {
+    //   console.debug('App:setup() !initial', profile)
+    }
+    onResult((value) => {
+      // console.debug('QUERY_PROFILE', value)
+      if (value.data.Profile !== null) {
+        store.dispatch('profile/setProfile', { profile: value.data.Profile })
+      }
+      store.dispatch('init')
+    })
+
+    return {
+      loggedIn,
+      showAppBar
     }
   },
+  // computed: {
+  //   showAppBar (): boolean {
+  //     return !['/login', '/register', '/reset', '/reset/:resetToken'].includes(this.$route.matched[0]?.path)
+  //   }
+  // },
   data: (): any => {
     return {
       isDark: false,

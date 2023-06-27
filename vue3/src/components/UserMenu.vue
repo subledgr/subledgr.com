@@ -61,7 +61,7 @@
 
 <script lang="ts">
 import { defineComponent, computed, watch, ref, reactive } from 'vue'
-
+import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
 import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
@@ -91,6 +91,7 @@ export default defineComponent({
   setup () {
     const apolloClient = useApolloClient()
     const store = useStore()
+    const router = useRouter()
     // only computed vars are reactive!
     const loggedIn = computed(() => store.getters.loggedIn)
     // const {result} = useQuery({ query: '' })
@@ -106,6 +107,8 @@ export default defineComponent({
       // apolloClient.cache.reset()
       const ret = await mutate()
       await apolloClient.client.clearStore()
+      // await apolloClient.client.resetStore()
+      router.push('/')
       // console.debug('logout', ret)
     }
 

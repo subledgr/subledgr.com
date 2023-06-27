@@ -8,6 +8,7 @@ export interface ICurrency {
   parent: string // ''
   parachain: boolean // false
   code: string // 'KSM'
+  symbol: string // '₭'
   logo: string // 'images/logos/chains/kusama.svg'
 }
 
@@ -25,7 +26,7 @@ export interface ITransaction {
   transactionVersion: string
   authorId: string
   senderId: string
-  recipientId: string
+  recipientid: string
   amount: bigint
   totalFee: bigint
   feeBalances: bigint

@@ -2,7 +2,7 @@
   <v-navigation-drawer
     app
     temporary
-    right
+    location="right"
     disable-resize-watcher
     v-model="xdrawer">
     <NavList></NavList>
@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from 'vue'
+import { defineComponent, ref, watch, computed } from 'vue'
 import { useStore } from 'vuex'
 // import { store } from '../store'
 import NavList from './NavList.vue'
@@ -22,17 +22,17 @@ export default defineComponent({
   },
   setup() {
     const store = useStore()
-    const drawer = store.state.drawer
+    const drawer = computed(() => store.state.drawer)
     const xdrawer = ref(false)
 
-    watch(() => drawer, (newVal) => {
+    watch(() => drawer.value, (newVal) => {
       console.debug('NavDrawer2', newVal)
       xdrawer.value = newVal
     })
 
     watch(() => xdrawer, (newVal) => {
-      console.debug('NavDrawer2', newVal)
-      store.dispatch('setDrawer', newVal)
+      console.debug('NavDrawer2', newVal.value)
+      store.dispatch('setDrawer', newVal.value)
     })
 
     return {

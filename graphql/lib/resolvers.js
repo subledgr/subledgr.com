@@ -36,6 +36,11 @@ const ccChain = {
   KSM: 'Kusama',
   DOCK: 'Dock'
 }
+const ccDenom = {
+  DOT: 10000000000,
+  KSM: 1000000000000,
+  DOCK: 1000000
+}
 
 class AuthenticationError extends Error {
   constructor(message) {
@@ -62,7 +67,7 @@ const resolvers = {
       if (!user) {
         throw new AuthenticationError('You must be logged in');
       }
-      const me = await db.User.findOne({ where: { id: user.id} }, { include: ['wallets', 'portfolios']});
+      const me = await db.User.findOne({ where: { id: user.id} }, { include: ['profile', 'wallets', 'portfolios']});
       return me;
     },
     Currencies: async (_, __, { db, user }) => {
@@ -80,6 +85,20 @@ const resolvers = {
         console.error(err)
       }
       return resp
+    },
+    MarketData: async (_, args, context, info) => {
+      console.debug('MarketData()', args)
+      var { fromCurrency = 'DOT', toCurrency = 'GBP', toDate, interval='h', periods=24 } = args
+      var fromDate = moment(toDate).add(-periods, interval)
+      const { user, db } = context
+      const prices = db.Price.findAll({ where: { f_curr: fromCurrency, t_curr: toCurrency }, limit: 50 })
+      // const intervalKeys = 
+      // const intervals = new Map()
+      // prices.forEach((price) => {
+      //   const hour = moment(price.datetime).format('HH');
+      //   hour.setMinutes(0, 0, 0);
+      // })
+      return prices
     },
     Users: async (parent, args, context, info) => {
       // console.debug(context)
@@ -145,6 +164,12 @@ const resolvers = {
       }
       return result
     },
+    Profile: async (_, args, context) => {
+      const { user, db } = context
+      console.debug('Profile()', user)
+      if (!user) { return { error: true, message: 'You must be logged in' } }
+      return await db.Profile.findOne({ where: { id: user.id } })
+    },
     SymbolPriceTicker: async (_, args, context) => {
       const { symbol } = args
       const price = await binance.prices({ symbol })
@@ -160,10 +185,10 @@ const resolvers = {
       if (walletId) {
         const wallet = await db.Wallet.findByPk(walletId)
         where.chain = ccChain[wallet.currencyCode]
-        where[Op.or] = { recipientId: wallet.address, senderId: wallet.address }
+        where[Op.or] = { recipientid: wallet.address, senderId: wallet.address }
       }
-      if (address) { where[Op.or] = { recipientId: address, senderId: address } }
-      if (ids) { where[Op.or] = { recipientId: { [Op.in]: ids }, senderId: { [Op.in]: ids } } }
+      if (address) { where[Op.or] = { recipientid: address, senderId: address } }
+      if (ids) { where[Op.or] = { recipientid: { [Op.in]: ids }, senderId: { [Op.in]: ids } } }
       // console.debug(where, offset, limit)
       const order = [['height', 'DESC'], ['id', 'DESC']]
       const list = await db.Transaction.findAll({ where, order, offset, limit })
@@ -194,6 +219,10 @@ const resolvers = {
   },
 
   User: {
+    __resolveReference: async (user, args, context) => {
+      const { fetchUserById } = context
+      return fetchUserById(user.id)
+    },
     Wallets: async (user, args, context) => {
       const { offset = 0, limit = 100 } = args
       const { db } = context
@@ -245,6 +274,9 @@ const resolvers = {
 
       return assetBals
     },
+    Profile: async (user, args, context) => {
+
+    }
   },
 
   Portfolio: {
@@ -276,37 +308,33 @@ const resolvers = {
     // },
   },
 
+  // Price: {
+  //   data: async (price, args, context) => {
+  //   }
+  // },
+
   Wallet: {
     balance: async (wallet, args, context) => {
-      console.debug('Wallet.balance', wallet.id)
+      console.debug('Wallet.balance', wallet.name, wallet.currencyCode)
       const { user, db } = context
-      var ret = { balance: 0 }
-      var chain = undefined
-      switch (wallet.currencyCode) {
-        case 'DOT':
-        case 'dot':
-          chain = 'polkadot'
-          break
-        case 'KSM':
-        case 'ksm':
-          chain = 'kusama'
-          break
-        case 'DOCK':
-        case 'dock':
-          chain = 'dock'
-          break
-      }
+      var ret = { balance: { feeFrozen: 0, free: 0, id: 0, miscFrozen: 0, pooled: 0, reserved: 0 } }
+      var chain = ccChain[wallet.currencyCode]
       if (!chain) return {}
-      var url = `${dotsamaRestApiBaseUrl}/${chain}/query/system/account/${wallet.address}`
-      console.debug('url', url)
-      var rest = await axios.get(url)
-      if (rest.data) ret = rest.data.data
-      // pooled value
-      url = `${dotsamaRestApiBaseUrl}/${chain}/query/nominationPools/poolMembersForAccount?accountId=${wallet.address}`
-      console.debug('url', url)
-      var rest = await axios.get(url)
-      if (rest.data) ret.pooled = rest.data.poolMembers?.points || 0
-      ret.id = wallet.id
+      chain = chain.toLowerCase()
+      try {
+        var url = `${dotsamaRestApiBaseUrl}/${chain}/query/system/account/${wallet.address}`
+        console.debug('url', url)
+        var rest = await axios.get(url)
+        if (rest.data) ret = rest.data.data
+        // pooled value
+        url = `${dotsamaRestApiBaseUrl}/${chain}/query/nominationPools/poolMembersForAccount?accountId=${wallet.address}`
+        console.debug('url', url)
+        var rest = await axios.get(url)
+        if (rest.data) ret.pooled = rest.data.poolMembers?.points || 0
+        ret.id = wallet.id
+      } catch(err) {
+        console.error('error', err.toString())
+      }
       return ret
     },
     User: async (wallet, args, context) => {
@@ -324,7 +352,7 @@ const resolvers = {
       const { user, db } = context
       const _receipts = await db.Transaction.findAll({ where: {
         chain: ccChain[wallet.currencyCode],
-        recipientId: wallet.address
+        recipientid: wallet.address
       }})
       const _payments = await db.Transaction.findAll({ where: {
         chain: ccChain[wallet.currencyCode],
@@ -335,6 +363,50 @@ const resolvers = {
         if(Number(a.height) < Number(b.height)) return 1
         return 0
       }).slice(0, 50)
+    },
+    chartData: async (wallet, args, context) => {
+      // let periodicity = {
+      //   D: { window: '24 hours', interval: 'hour', datePart: 'hour' },
+      //   W: { window: '7 days',   interval: 'day',  datePart: 'day' },
+      //   M: { window: '1 month',  interval: 'day',  datePart: 'day' },
+      //   Q: { window: '3 months', interval: 'week', datePart: 'week' }
+      // }
+      // const { user, db } = context
+      // const { period = 'D' } = args
+      // const { window, interval, datePart } = periodicity[period]
+      // let chain = ccChain[wallet.currencyCode]
+      // let denom = ccDenom[wallet.currencyCode]
+      // let sql = `WITH movements as (
+      //   SELECT
+      //     date_trunc('${datePart}', to_timestamp("timestamp" / 1000) ) AS "period",
+      //     SUM(amount/${denom}) AS movement
+      //   FROM transactions
+      //   WHERE chain = '${chain}'
+      //   AND ( recipientid = '${wallet.address}' 
+      //         OR "senderId" = '${wallet.address}' )
+      //   AND to_timestamp("timestamp" / 1000) >= cast( date_trunc('${datePart}', NOW() - INTERVAL '${window}') as timestamp)
+      //   AND to_timestamp("timestamp" / 1000) < cast( date_trunc('${datePart}', NOW()) as timestamp)
+      //   GROUP BY "period"       
+      //  	UNION
+      //   SELECT
+      //     date_trunc('${datePart}', to_timestamp("timestamp" / 1000) ) AS "period",
+      //     SUM(coalesce(amount/${denom} * -1, 0)) AS movement
+      //   FROM transactions
+      //   WHERE chain = '${chain}'
+      //   AND ( recipientid = '${wallet.address}'
+      //         OR "senderId" = '${wallet.address}' )
+      //   AND to_timestamp("timestamp" / 1000) >= cast( date_trunc('${datePart}', NOW() - INTERVAL '${window}') as timestamp)
+      //   AND to_timestamp("timestamp" / 1000) < cast( date_trunc('${datePart}', NOW()) as timestamp)
+      //   GROUP BY "period"
+      // )
+      // SELECT
+      //   "period",
+      //   SUM(movement) OVER (ORDER BY "period") AS balance
+      // FROM movements
+      // ORDER BY "period"`
+      // const [results, metadata] = await db.indexDb.query(sql)
+      // return results
+      return []
     },
     // Transactions: a
   },
@@ -355,7 +427,7 @@ const resolvers = {
     login: async (_, args, { db }) => {
       // const user = await findUserByEmail(email);
       const  { email, password } = args
-      const user = await db.User.scope('login').findOne({ where: { email } });
+      const user = await db.User.scope('login').findOne({ where: { email }, include: ['profile'] });
       // const user = await db.User.findOne({ where: { email } });
       console.log('user', user)
       if (!user) {
@@ -370,7 +442,18 @@ const resolvers = {
       }
       const token = db.User.generateToken(user);
       user.token = token
-      return { success: true, message: 'Login ok', id: user.id, email: user.email, token };
+      return { success: true, message: 'Login ok', id: user.id, email: user.email, token, profile: user.profile };
+    },
+    saveProfile: async (_, args, { user, db }) => {
+      console.debug('mutations.saveProfile()', args)
+      const { dateTimeFormat, defaultCurrency, defaultDecimals, itemsPerPage } = args
+      if (!user) throw new AuthenticationError('You must be logged in');
+      const [profile, created] = await db.Profile.upsert({
+        id: user.id, dateTimeFormat, defaultCurrency, defaultDecimals, itemsPerPage
+      }, { 
+        dateTimeFormat, defaultCurrency, defaultDecimals, itemsPerPage
+      })
+      return profile
     },
     reset: async (_, args, { db }) => {
       console.log('mutations.reset()', args)
@@ -449,6 +532,7 @@ const resolvers = {
       return { success: created, message: `Wallet ${created ? 'created' : 'retrieved'}`, wallet }
     },
     deleteWallet: async (parent, args, context) => {
+      console.debug('deleteWallet', parent, args)
       const { user, db } = context
       // check user login
       if (!user) throw new AuthenticationError('You must be logged in');
@@ -460,7 +544,9 @@ const resolvers = {
       var wallet = await db.Wallet.findOne({ where: { id, userId: user.id }})
       if (!wallet) throw new Error(`Invalid wallet ${id}`)
       const ret = await wallet.destroy()
-      return { success: ret, message: `Wallet deleted` }
+      // const ret = db.Wallet.destroy({ where: { id, userId: user.id } })
+      console.debug('deleteWallet - destroy', ret)
+      return { success: true, message: `Wallet deleted` }
     },
   },
 };

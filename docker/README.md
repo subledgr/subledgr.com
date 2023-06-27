@@ -21,12 +21,13 @@ docker login -u docker -p d0ck3r ${REGISTRY}
 # --load: load the image locally, this should make subsequent builds faster
 # --push: push the image to the registry
 
-docker buildx build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-api -f Dockerfile.api --push ../.
-# docker build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-api -f Dockerfile.api --push ../.
+# docker buildx build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-api -f Dockerfile.api --push ../.
+docker build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-api:latest -f Dockerfile.api --push ../.
 # docker tag subledgr/subledgr-api ${REGISTRY}/subledgr/subledgr-api
 # docker push ${REGISTRY}/subledgr/subledgr-api
 
-docker buildx build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-fe -f Dockerfile.frontend --push ../.
+# docker buildx build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-fe -f Dockerfile.frontend --push ../.
+docker build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-fe:latest -f Dockerfile.frontend --push ../.
 # docker tag subledgr/subledgr-fe ${REGISTRY}/subledgr/subledgr-fe
 # docker push ${REGISTRY}/subledgr/subledgr-fe
 

@@ -11,12 +11,12 @@ const transactionModel = {
     subType: { type: DataTypes.TEXT },
     event: { type: DataTypes.STRING(64) },
     addData: { type: DataTypes.TEXT },
-    timestamp: { type: DataTypes.NOW },
+    timestamp: { type: DataTypes.BIGINT },
     specVersion: { type: DataTypes.STRING(64) },
     transactionVersion: { type: DataTypes.STRING(64) },
     authorId: { type: DataTypes.STRING(64) },
     senderId: { type: DataTypes.STRING(64) },
-    recipientId: { type: DataTypes.STRING(64) },
+    recipientid: { type: DataTypes.STRING(64) },
     amount: { type: DataTypes.BIGINT },
     totalFee: { type: DataTypes.BIGINT },
     feeBalances: { type: DataTypes.BIGINT },
@@ -25,7 +25,7 @@ const transactionModel = {
     success: { type: DataTypes.BOOLEAN },
   },
   options: {
-    tableName: 'Transactions',
+    tableName: 'transactions',
     timestamps: false,
     createdAt: false,
     updatedAt: false

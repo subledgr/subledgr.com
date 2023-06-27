@@ -14,7 +14,7 @@
       </v-toolbar-items>
     </v-toolbar>
     <v-list>
-      <v-list-item>
+      <v-list-item v-if="!loggedIn">
         <v-row>
           <v-col>
             <v-btn to="/login">Login</v-btn> to see your assets
@@ -110,6 +110,8 @@ export default defineComponent({
   setup () {
     const store = useStore()
     const profile = computed(() => store.state.profile)
+    const loggedIn = computed(() => store.getters.loggedIn)
+
     const loading = ref(false)
     const showCurrencyPicker = ref(false)
     var currencyCode = ''
@@ -253,6 +255,7 @@ export default defineComponent({
     summarise()
 
     return {
+      loggedIn,
       profile,
       loading,
       list,

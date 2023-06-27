@@ -1,6 +1,7 @@
 {
   "name": "subledgr.com",
   "version": "0.0.0",
+  "license": "Apache-2.0",
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
@@ -9,12 +10,13 @@
   },
   "dependencies": {
     "@apollo/client": "^3.7.10",
+    "@cubejs-client/core": "^0.33.0",
     "@mdi/font": "7.0.96",
-    "@polkadot/apps-config": "^0.124.1",
     "@vue/apollo-components": "^4.0.0-beta.4",
     "@vue/apollo-composable": "^4.0.0-beta.4",
     "@vue/apollo-option": "^4.0.0-beta.4",
     "apollo3-cache-persist": "^0.14.1",
+    "chart.js": "^4.3.0",
     "graphql": "^16.6.0",
     "lodash": "^4.17.21",
     "moment": "^2.29.4",
@@ -22,7 +24,9 @@
     "plausible-tracker": "^0.3.8",
     "roboto-fontface": "*",
     "vue": "^3.2.38",
+    "vue-chartjs": "^5.2.0",
     "vue-router": "^4.0.0",
+    "vue-tradingview-widgets": "^1.2.4",
     "vuetify": "3.1.16",
     "vuex": "^4.1.0",
     "webfontloader": "^1.0.0"

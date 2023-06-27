@@ -31,7 +31,7 @@ let sequelize;
 // } else {
   sequelize = new Sequelize(config.database, config.username, config.password, config);
 // }
-console.debug('sequelize', sequelize)
+// console.debug('sequelize', sequelize)
 
 const indexDb = new Sequelize('polkastore', 'postgres', 'thisIsASecret', {
   dialect: "postgres",
@@ -42,34 +42,25 @@ const indexDb = new Sequelize('polkastore', 'postgres', 'thisIsASecret', {
   port:     5433,
 })
 
-function generateToken(user) {
-  const token = jwt.sign({ userId: user.id }, SECRET_KEY);
-  console.debug('generateToken:', user.id, token)
-  return token;
-}
-async function comparePassword(password) {
-  console.debug('comparePassword', password)
-  return bcrypt.compareSync(password, this.password);
-}
-
 import { userModel } from './user.js'
 import { currencyModel } from './currency.js'
 import { walletModel } from './wallet.js'
 import { portfolioModel } from './portfolio.js'
 import { priceModel } from './price.js';
+import { profileModel } from './profile.js';
 import { transactionModel } from './transaction.js';
 
 // const User = sequelize.define('user', userModel.definition, { ...userModel.options, sequelize });
 const User = userModel.User.init(userModel.definition, { ...userModel.options, sequelize })
-// User.prototype.generateToken = generateToken
-// User.prototype.comparePassword = comparePassword
 
 const Currency = sequelize.define('currency', currencyModel.definition, { ...currencyModel.options, sequelize });
+const Profile = sequelize.define('profile', profileModel.definition, { ...profileModel.options, sequelize });
 const Wallet = sequelize.define('wallet', walletModel.definition, { ...walletModel.options, sequelize });
 const Portfolio = sequelize.define('portfolio', portfolioModel.definition, { ...portfolioModel.options, sequelize });
 const Price = sequelize.define('price', priceModel.definition, { ...priceModel.options, sequelize });
 const Transaction = indexDb.define('transaction', transactionModel.definition, { ...transactionModel.options, sequelize: indexDb})
 
+User.hasOne(Profile, { as: 'profile', foreignKey: 'id' })
 User.hasMany(Portfolio, { as: 'portfolios', foreignKey: 'userId' })
 User.hasMany(Wallet, { as: 'wallets', foreignKey: 'userId' })
 
@@ -80,7 +71,7 @@ Currency.hasMany(Price, { as: 'prices', foreignKey: 'f_curr' })
 Wallet.belongsTo(Currency, { as: 'currency' })
 Wallet.belongsTo(User, { as: 'user', foreignKey: 'userId' })
 Wallet.belongsToMany(Portfolio, { as: 'portfolios', through: 'portfolio_wallet', foreignKey: 'walletId', otherKey: 'portfolioId'  })
-Wallet.hasMany(Transaction, { as: 'receipts', foreignKey: 'recipientId' })
+Wallet.hasMany(Transaction, { as: 'receipts', foreignKey: 'recipientid' })
 Wallet.hasMany(Transaction, { as: 'payments', foreignKey: 'senderId' })
 
 Portfolio.belongsTo(Currency, { as: 'currency' })
@@ -92,11 +83,13 @@ User.belongsToMany(Currency, { as: 'assets', through: 'user_asset', foreignKey: 
 sequelize.sync()
 
 db.User = User
+db.Profile = Profile
 db.Currency = Currency
 db.Portfolio = Portfolio
 db.Wallet = Wallet
 db.Price = Price
 db.Transaction = Transaction
+db.sequelize = sequelize
 db.indexDb = indexDb
 
 db.sequelize = sequelize;

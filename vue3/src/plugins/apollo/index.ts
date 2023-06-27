@@ -8,6 +8,7 @@ import { persistCacheSync, LocalStorageWrapper } from 'apollo3-cache-persist';
 import { gql } from '@apollo/client/core'
 import { resolvers } from './resolvers'
 import { typeDefs } from './type-defs'
+import { ITransaction } from '@/components/types';
 
 // Create the apollo client
 // https://v4.apollo.vuejs.org/guide-advanced/ssr.html#create-apollo-client
@@ -30,10 +31,26 @@ function createApolloClient (ssr = false) {
         keyFields: ['code']
       },
       Wallet: {
-        keyFields: ['id']
+        keyFields: ['id'],
       //   fields: {
       //     id: {}
       //   }
+        fields: {
+          transactions: {
+            merge(existing: ITransaction[] = [], incoming: ITransaction[] = []) {
+              const transactions = existing ? [...existing] : [];
+              const incomingIds = new Set(incoming.map(t => t.id));
+              transactions.forEach(t => incomingIds.add(t.id));
+              incomingIds.forEach(id => {
+                if (!transactions.some(t => t.id === id)) {
+                  transactions.push(incoming.find(t => t.id === id) || {} as ITransaction);
+                }
+              });
+
+              return transactions;
+            }
+          }
+        }
       },
       Price: {
         keyFields: ['datetime', 'f_curr', 't_curr'],
@@ -114,4 +131,5 @@ function createApolloClient (ssr = false) {
 // Create a provider
 export const apolloProvider = createApolloProvider({
   defaultClient: createApolloClient(typeof window === 'undefined'),
+  // indexDB: 
 })

@@ -8,9 +8,9 @@
     </v-toolbar>
     
     <v-list>
-      <v-list-item v-for="item in list" v-bind:key="item.id">
+      <!-- <v-list-item v-for="item in list" v-bind:key="item.id">
         {{ item.name }} ({{ item.currency }})
-      </v-list-item>
+      </v-list-item> -->
     </v-list>
   </v-container>
 </template>
@@ -21,8 +21,8 @@ export default defineComponent({
   data () {
     return {
       list: [
-        { id: 1, name: 'Wallet 1', currency: 'DOT' },
-        { id: 2, name: 'Wallet 2', currency: 'KSM' }
+        // { id: 1, name: 'Wallet 1', currency: 'DOT' },
+        // { id: 2, name: 'Wallet 2', currency: 'KSM' }
       ]
     }
   }

@@ -26,3 +26,14 @@ export const QUERY_WALLETS = gql`
     }
   }
 `
+
+export const QUERY_WALLET_CHART = gql`
+  query WalletChart($id: String!, $interval: String) {
+    Wallet {
+      chartData {
+        period
+        value
+      }
+    }
+  }
+`

@@ -6,7 +6,7 @@
       <v-card>
         <v-card-title>Add Wallet</v-card-title>
         <v-card-text>
-          <v-form ref="form" v-model="valid" validateOn="blur">
+          <v-form ref="form" v-model="valid" validateOn="input">
             <!-- Valid: {{ valid }} -->
             <v-row>
               <v-text-field v-model="name" label="Name" :rules="rules.name"></v-text-field>
@@ -15,14 +15,14 @@
               <!-- <v-text-field readonly :rules="rules.currency"></v-text-field> -->
               <v-text-field readonly
                 :error="false"
-                :errorMessages="!currency.symbol ? 'Currency is required' : undefined"
+                :errorMessages="!currency?.name ? 'Currency is required' : undefined"
                 @click="showCurrencyPicker=true">
                 <template v-slot:append-inner>
-                  <v-avatar  v-show="!!currency.logo" density="compact">
-                    <v-img :src="currency.logo"></v-img>
+                  <v-avatar  v-show="!!currency?.logo" density="compact">
+                    <v-img :src="currency?.logo"></v-img>
                   </v-avatar>
                 </template>
-                {{ currency.symbol }}
+                {{ currency?.name || currency?.code }}
               </v-text-field>
               <currency-picker-dialog :visible="showCurrencyPicker"
                 :closeOnSelect="true"
@@ -51,9 +51,10 @@ import { defineComponent, watch, ref } from 'vue'
 import CurrencyPickerDialog from './CurrencyPickerDialog.vue'
 import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
-import { SynchronousCachePersistor } from 'apollo3-cache-persist'
+// import { SynchronousCachePersistor } from 'apollo3-cache-persist'
 // import { emit } from 'process'
 // import { useForm } from 'vuetify'
+import { ICurrency } from './types'
 
 const MUT_WALLET_ADD = gql`
   mutation CreateWallet($name: String!, $currencyCode: String!, $address: String!) {
@@ -86,7 +87,10 @@ export default defineComponent({
     const name = ref('')
     const address = ref('')
     const rules = {
-      address: [(v: string) => !!v || 'Address is required'],
+      address: [
+        (v: string) => !!v || 'Address is required',
+        (v: string) => v.length >= 8 || 'Address must be more than 8 characters',
+      ],
       name: [ (val:string) => !!val || 'Name is required' ],
       currency: [ (val: any) => {
         console.debug('rules.currency', val)
@@ -97,7 +101,7 @@ export default defineComponent({
     const visible = ref(props.visible)
     const x_visible = ref(false)
     var showCurrencyPicker = ref(false)
-    var currency = ref({ symbol: '', logo: undefined })
+    var currency = ref<ICurrency>({} as ICurrency)
     var currencyEl = ref<HTMLFormElement>()
     var valid = ref(false)
 
@@ -114,7 +118,7 @@ export default defineComponent({
     const closeDialog = () => {
       showCurrencyPicker.value = false
       x_visible.value = false
-      currency.value = { symbol: '', logo: undefined }
+      currency.value = {} as ICurrency
       name.value = ''
       address.value = ''
     }
@@ -123,7 +127,7 @@ export default defineComponent({
       showCurrencyPicker.value = false
     }
 
-    const onSelectCurrency = (item: any) => {
+    const onSelectCurrency = (item: ICurrency) => {
       showCurrencyPicker.value = false
       console.debug('WalletAddDialog.vue: onSelectCurrency', item)
       currency.value = item
@@ -135,19 +139,22 @@ export default defineComponent({
     var { mutate, loading, error } = useMutation(MUT_WALLET_ADD, () => ({
       variables: {
         name: name.value,
-        currencyCode: currency.value.symbol,
+        currencyCode: currency?.value.symbol || '',
         address: address.value
       }
     }));
 
     const addWallet = async () => {
       console.debug('addWallet', name.value, {...currency.value}, address.value)
-      const input = { name: name.value, currencyCode: currency.value.symbol, address: address.value };
+      const input = { name: name.value, currencyCode: currency?.value.code, address: address.value };
       const res: any = await mutate(input);
       console.debug(res)
       if (res.data) {
         const { success, message, wallet } = res.data.createWallet
-        if(success) context.emit('walletAdded')
+        if(success) {
+          context.emit('walletAdded')
+          closeDialog()
+        }
       }
     }
 

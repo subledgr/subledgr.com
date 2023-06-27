@@ -9,9 +9,14 @@
       <v-divider></v-divider>
       <v-list-item-title>
         <v-row>
-          <v-col align="left">{{ typeName(tx.type) }}</v-col>
-          <v-col align="right" :class="tx.recipientId === wallet2.address ? 'text-green' : 'text-red'">{{ toCoin(wallet2?.Currency.code, tx.amount).toLocaleString('en-GB') }} {{ wallet?.Currency.code }}</v-col>
-        </v-row>        
+          <v-col align="left">
+            {{ typeName(tx.type) }}<span v-if="tx.type==='utility.batch'"> ({{ tx.event }})</span>
+          </v-col>
+          <v-col align="right" :class="tx.recipientid === wallet2.address ? 'text-green' : 'text-red'">
+            {{ toCoin(wallet2?.Currency.code || currencyCode, tx.amount).toLocaleString('en-GB') }} 
+            {{ wallet?.Currency.code || currencyCode }}
+          </v-col>
+        </v-row>
       </v-list-item-title>
       <!-- {{ tx }} -->
       <v-list-item-subtitle>
@@ -21,7 +26,7 @@
             {{ moment.unix(tx.timestamp/1000).fromNow() }}
           </v-col>
           <v-col>#{{ tx.height }}</v-col>
-          <v-col cols="5" align="right">Fee: {{ toCoin(wallet2?.Currency.code, tx.totalFee) }}</v-col>
+          <v-col cols="5" align="right">Fee: {{ toCoin(wallet2?.Currency.code || currencyCode, tx.totalFee) }}</v-col>
         </v-row>
       </v-list-item-subtitle>
       <!-- <template v-slot:append>
@@ -40,7 +45,7 @@
       </template> -->
 
     </v-list-item>
-    <transaction-dialog :transaction="transaction" :wallet="wallet" :showDialog="showDialog" @dialogClose="onDialogClosed"></transaction-dialog>
+    <transaction-dialog :transaction="transaction" :wallet="wallet" :currencyCode="currencyCode" :showDialog="showDialog" @dialogClose="onDialogClosed"></transaction-dialog>
   </v-list>
 </template>
 
@@ -59,6 +64,10 @@ export default defineComponent({
   props: {
     list: {
       type: Object as PropType<ITransaction[]>
+    },
+    currencyCode: {
+      type: String,
+      default: 'USD'
     },
     wallet: {
       type: Object as PropType<IWallet>,

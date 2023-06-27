@@ -1,5 +1,5 @@
 <template>
-  <v-container fluid class="">
+  <v-container fluid class="pa-0 ma-0">
     <v-data-table
       :headers="headers"
       :items="items"
@@ -9,7 +9,7 @@
       @click:row="onShowTransaction"
       no-data-text="No data">
       <template v-slot:[`item.amount`]="{ item }">
-        <span :class="item.raw.recipientId === wallet?.address ? 'text-green' : 'text-red'">
+        <span :class="item.raw.recipientid === wallet?.address ? 'text-green' : 'text-red'">
           {{ item.raw.amount }}
         </span>
       </template>
@@ -18,8 +18,8 @@
         <ClickToCopy :display="shortStash(item.raw.senderId, 7)" :text="item.raw.senderId"></ClickToCopy>
       </template>
 
-      <template v-slot:[`item.recipientId`]="{ item }">
-        <ClickToCopy :display="shortStash(item.raw.recipientId, 7)" :text="item.raw.recipientId"></ClickToCopy>
+      <template v-slot:[`item.recipientid`]="{ item }">
+        <ClickToCopy :display="shortStash(item.raw.recipientid, 7)" :text="item.raw.recipientid"></ClickToCopy>
       </template>
 
     </v-data-table>
@@ -93,7 +93,7 @@ export default defineComponent({
       { key: 'height', title: 'Block', align: 'middle', sortable: true },
       { key: 'type', title: 'Type', align: 'start', sortable: true },
       { key: 'senderId', title: 'Sender', align: 'start', sortable: true },
-      { key: 'recipientId', title: 'Receiver', align: 'start', sortable: true },
+      { key: 'recipientid', title: 'Receiver', align: 'start', sortable: true },
       { key: 'amount', title: 'Amount', align: 'end', sortable: true },
       { key: 'totalFee', title: 'Fees', align: 'end', sortable: true }
     ]
@@ -104,7 +104,7 @@ export default defineComponent({
         id: m.id,
         type: typeName(m.type),
         senderId: m.senderId,
-        recipientId: m.recipientId,
+        recipientid: m.recipientid,
         amount: toCoin(wallet.value.Currency?.code || wallet.value.currencyCode, m.amount).toLocaleString('en-GB', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }),
         totalFee: toCoin(wallet.value.Currency.code || wallet.value.currencyCode, m.totalFee).toLocaleString('en-GB', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals })
       }

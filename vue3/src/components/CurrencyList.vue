@@ -16,14 +16,16 @@
         {{ item.name }} <span v-show="item.parachain">(//{{ item.parent }})</span> active: {{ item.active }}
       </v-list-item-title>
       <template v-slot:append> 
-        price {{ item.code }}
+        <!-- price {{ item.code }} -->
+        <v-icon color="green" v-if="item.active">mdi-check-circle-outline</v-icon>
+        <v-icon color="red" v-if="!item.active">mdi-pause-circle-outline</v-icon>
       </template>
     </v-list-item>
   </v-list>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch } from "vue"
+import { defineComponent, ref, watch, onMounted, nextTick } from "vue"
 import { useStore } from 'vuex'
 import debounce from 'lodash/debounce'
 import { ICurrency } from "./types"
@@ -39,7 +41,7 @@ export default defineComponent({
 
     const onClick = (item: any) => {
       console.debug('CurrencyList.vue: onClick', {...item})
-      emit('selectCurrency', {...item})
+      if(item.active) emit('selectCurrency', {...item})
     }
 
     const onSearch = debounce((search: string) => {
@@ -48,8 +50,9 @@ export default defineComponent({
         currencies.value = []
       } else {
         currencies.value = store.state.currency.list.filter((f: any) => {
+          // console.debug('filter', {...f})
           return f.name.toLowerCase().includes(search.toLowerCase())
-            || f.symbol.toLowerCase().includes(search.toLowerCase())
+            || f.symbol?.toLowerCase().includes(search.toLowerCase())
         })
       }
     }, 400)
@@ -61,6 +64,15 @@ export default defineComponent({
     //   input
     // }
 
+    onMounted(() => {
+      // console.debug('CurrencyList.vue: mounted()')
+      nextTick(() => {
+        // this.$refs.input.$el.focus()
+        const el = document.getElementById('search')
+        if (el) el.focus()
+      })
+    })
+
     return {
       search,
       // emits,
@@ -69,14 +81,6 @@ export default defineComponent({
       onSearch,
       // onMounted
     }
-  },
-  mounted() {
-    console.debug('CurrencyList.vue: mounted()')
-    this.$nextTick(() => {
-      // this.$refs.input.$el.focus()
-      const el = document.getElementById('search')
-      if (el) el.focus()
-    })
   }
 })
 </script>

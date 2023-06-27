@@ -20,9 +20,9 @@
       Subledgr
     </v-app-bar-title>
 
-    <v-spacer class="d-inline d-sm-none"></v-spacer>
+    <v-spacer class="d-none d-md-inline"></v-spacer>
 
-    <v-toolbar-items>
+    <v-toolbar-items class="d-none d-sm-flex">
       <!-- <v-tabs>
         <v-tab
           v-for="(item, index) in items"
@@ -62,10 +62,10 @@
       <!-- <AccountingMenu></AccountingMenu> -->
     </v-toolbar-items>
 
-    <v-spacer></v-spacer>
+    <v-spacer class="d-none d-md-inline"></v-spacer>
 
     <template v-slot:append>
-      <v-app-bar-nav-icon class="d-inline d-md-none" @click="toggleDrawer()"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="toggleDrawer()"></v-app-bar-nav-icon>
       <!-- <v-btn icon>
         <v-icon small>mdi-plus</v-icon>
       </v-btn> -->

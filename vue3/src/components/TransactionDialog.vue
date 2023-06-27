@@ -2,7 +2,7 @@
   <v-dialog v-model="showMe">
     <v-card>
       <v-card-title>
-        <CurrencyLogo :currency-code="wallet?.Currency.code || ''"></CurrencyLogo> {{ wallet?.Currency.code }} Transaction on {{ transaction?.chain }}
+        <CurrencyLogo :currency-code="wallet?.Currency.code || currencyCode"></CurrencyLogo> {{ wallet?.Currency.code || currencyCode }} Transaction on {{ transaction?.chain }}
       </v-card-title>
       <v-container>
         <v-table class="full-width">
@@ -17,16 +17,16 @@
             <!-- {{ shortStash(transaction?.senderId) }} -->
             </td>
             <td></td></tr>
-          <tr v-show="transaction?.recipientId"><td>Receiver</td><td>
-            <ClickToCopy :display="shortStash(transaction?.recipientId, 7)" :text="transaction?.recipientId"></ClickToCopy>
+          <tr v-show="transaction?.recipientid"><td>Receiver</td><td>
+            <ClickToCopy :display="shortStash(transaction?.recipientid, 7)" :text="transaction?.recipientid"></ClickToCopy>
             <!-- {{ shortStash(transaction?.recipientId) }} -->
             </td>
             <td><a :href="`http://`" target="_blank" rel="noopener noreferrer"></a></td></tr>
-          <tr><td>Fee Balances</td><td>{{ toCoin(wallet?.Currency.code, transaction?.feeBalances || 0n) }}</td></tr>
-          <tr><td>Fee Treasury</td><td>{{ toCoin(wallet?.Currency.code, transaction?.feeTreasury || 0n) }}</td></tr>
+          <tr><td>Fee Balances</td><td>{{ toCoin(wallet?.Currency.code || currencyCode, transaction?.feeBalances || 0n) }}</td></tr>
+          <tr><td>Fee Treasury</td><td>{{ toCoin(wallet?.Currency.code || currencyCode, transaction?.feeTreasury || 0n) }}</td></tr>
           <tr><td>Total Fee</td><td>{{ toCoin(wallet?.Currency.code, transaction?.totalFee || 0n) }}</td></tr>
           <tr><td>Amount</td><td :class="wallet?.address === transaction?.senderId ? 'text-red' : 'text-green'">
-            {{ toCoin(wallet?.Currency.code, transaction?.amount || 0n) }}
+            {{ toCoin(wallet?.Currency.code || currencyCode, transaction?.amount || 0n) }}
           </td></tr>
           <tr><td>Success</td><td>{{ transaction?.success }}</td></tr>
         </v-table>
@@ -57,6 +57,10 @@ export default defineComponent({
   props: {
     wallet: {
       type: Object as PropType<IWallet>,
+    },
+    currencyCode: {
+      type: String,
+      default: ''
     },
     transaction: {
       type: Object as PropType<ITransaction>

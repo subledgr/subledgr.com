@@ -8,6 +8,7 @@ import { plausible } from './modules/plausible'
 const key = 'subledgr'
 
 interface IState {
+  initial: boolean
   drawer: boolean
   id: string | null
   email: string | null
@@ -25,6 +26,7 @@ const getStore = function (key: string): IState {
     return JSON.parse(store)
   } else {
     return {
+      initial: true,
       drawer: false,
       id: null,
       email: null,
@@ -46,6 +48,9 @@ export const store = createStore({
     }
   },
   mutations: {
+    INIT (state) {
+      state.initial = false
+    },
     SET_DRAWER (state, value) {
       state.drawer = value
     },
@@ -68,6 +73,10 @@ export const store = createStore({
     }
   },
   actions: {
+    init: ({ state, dispatch }) => {
+      // dispatch('profile/init', null, { root: true })
+      // dispatch('INIT')
+    },
     setDrawer ({ commit }, value) {
       console.debug('setDrawer()', value)
       commit('SET_DRAWER', value)
@@ -78,8 +87,9 @@ export const store = createStore({
     login ({ commit }, {email, id, token}: any) {
       commit('LOGIN', { email, id, token })
     },
-    logout ({ commit }) {
+    logout ({ commit, dispatch }) {
       commit('LOGOUT')
+      dispatch('profile/logout')
     },
   },
   modules: {
