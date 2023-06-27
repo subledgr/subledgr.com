@@ -5,10 +5,10 @@ ARG BUILDPLATFORM
 ARG TARGETPLATFORM
 RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
 
-ENV PORT 8080
-ENV SERVER_NAME localhost
-ENV API_HOST subledgr-api
-ENV API_PORT 4000
+ENV PORT=8080
+ENV SERVER_NAME=localhost
+ENV API_HOST=subledgr-api
+ENV API_PORT=4000
 
 # we need python + gcc to compile gyp
 RUN apt update \

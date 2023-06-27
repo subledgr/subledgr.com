@@ -4,7 +4,7 @@
 # env API_PORT;
 
 server {
-  listen 80;
+  listen 8080;
   # listen [::]:8080;
 
   server_name ${SERVER_NAME};

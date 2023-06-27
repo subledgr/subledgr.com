@@ -89,7 +89,11 @@ services:
     depends_on:
       - subledgr-api
 
-  # subledgr-proxy:
-  #   image: nginx
-  #   ports:
-  #     - 8080:8080
+  subledgr-proxy:
+    # image: nginx
+    image: subledgr/nginx:latest
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    ports:
+      - 8081:8080
