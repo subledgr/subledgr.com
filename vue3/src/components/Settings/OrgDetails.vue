@@ -45,7 +45,8 @@ export default defineComponent({
     return {
       breadcrumbs: [
         { title: '⚙️ Settings', disabled: false, link: true, exact: true, to: '/settings' },
-        { title: 'Organistation details', disabled: true, href: '' }
+        { title: 'Organistation details', disabled: true, href: '' },
+        { title: 'DUMMY SCREEN, does not function', disabled: true, href: ''}
       ]
     }
   }

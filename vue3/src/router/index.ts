@@ -4,6 +4,7 @@ import Plausible from 'plausible-tracker'
 
 import HomeView from '@/views/HomeView.vue'
 
+import MarketView from '@/components/MarketView.vue'
 import Login from '@/components/Login.vue'
 import Register from '@/components/Register.vue'
 import Profile from '@/components/Profile.vue'
@@ -29,6 +30,7 @@ import ResetPassword from '@/components/ResetPassword.vue'
 
 const routes = [
   { path: '/', name: 'home', component: HomeView },
+  { path: '/market', name: 'Market', component: MarketView },
   { path: '/login', name: 'Login', component: Login },
   { path: '/register', name: 'Register', component: Register },
   { path: '/reset', name: 'ResetPassword', component: ResetPassword },

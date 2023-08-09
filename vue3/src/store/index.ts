@@ -20,8 +20,8 @@ const saveStore = function(key: string, data: IState) {
   localStorage.setItem(key, JSON.stringify(data))
 }
 
-const getStore = function (key: string): IState {
-  var store = localStorage.getItem(key)
+const getStoreState = function (key: string): IState {
+  const store = localStorage.getItem(key)
   if (store) {
     return JSON.parse(store)
   } else {
@@ -37,7 +37,7 @@ const getStore = function (key: string): IState {
 }
 
 export const store = createStore({
-  state: getStore(key),
+  state: getStoreState(key),
   getters: {
     loggedIn (state: IState) {
       return state.token !== null
@@ -93,7 +93,7 @@ export const store = createStore({
     },
   },
   modules: {
-    currency,
+    currency: currency,
     profile,
     transaction,
     plausible

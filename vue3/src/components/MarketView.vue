@@ -5,16 +5,15 @@
     </v-hero> -->
     <v-toolbar density="compact">
       <v-toolbar-title>
-        Home
+        Example Market Overview (API to MarketView List)
       </v-toolbar-title>
     </v-toolbar>
-    <v-row>
+    <!-- <v-row>
       <v-col>
         <p class="text-caption text-center">todo: ...</p>
-
       </v-col>
-    </v-row>
-    <!-- <crypto-market :options="{ width:'100%', height: '800'}"></crypto-market> -->
+    </v-row> -->
+    <crypto-market :options="{ width:'100%', height: '800'}"></crypto-market>
   </v-container>
 </template>
 

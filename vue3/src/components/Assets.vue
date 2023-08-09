@@ -1,10 +1,8 @@
 <template>
-  <v-container fluid class="py-0 px-0">
+  <v-container class="py-1 px-1">
 
-    <v-toolbar density="compact">
-      <v-toolbar-title>
-        Assets
-      </v-toolbar-title>
+    <v-toolbar density="compact" :class="toolbarClass">
+      <v-toolbar-title>Assets</v-toolbar-title>
       <v-toolbar-items>
         <v-btn flat class="text-none">{{profile.defaultCurrency}} {{ totalValue.toLocaleString('en-GB', { currency: profile.defaultCurrency, maximumFractionDigits: 2 }) }}</v-btn>
         <v-btn :loading="loading" icon @click="refresh()">
@@ -72,6 +70,7 @@
 
 <script lang="ts">
 import { defineComponent, ref, computed, TrackOpTypes } from 'vue'
+import { useDisplay } from 'vuetify';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import { useStore } from 'vuex';
 import Currencies from './Currencies.vue';
@@ -108,6 +107,7 @@ export default defineComponent({
     CurrencyPickerDialog
   },
   setup () {
+    const display = useDisplay()
     const store = useStore()
     const profile = computed(() => store.state.profile)
     const loggedIn = computed(() => store.getters.loggedIn)
@@ -125,6 +125,11 @@ export default defineComponent({
     }
     const { result, refetch, onResult } = useQuery(QUERY_WALLETS, variables, {
       fetchPolicy: 'cache-first'
+    })
+
+    const toolbarClass = computed(() => {
+      const { mdAndUp } = display
+      return mdAndUp.value ? 'rounded-pill' : ''
     })
 
     onResult((data) => {
@@ -255,6 +260,7 @@ export default defineComponent({
     summarise()
 
     return {
+      toolbarClass,
       loggedIn,
       profile,
       loading,

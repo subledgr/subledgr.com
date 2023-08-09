@@ -1,7 +1,7 @@
 <template>
-  <v-container fluid class="py-0 px-0">
+  <v-container class="py-1 px-1">
 
-    <v-toolbar density="compact">
+    <v-toolbar density="compact" :class="toolbarClass">
       <v-toolbar-title>Wallets</v-toolbar-title>
       <v-toolbar-items>
         <v-btn flat class="text-none">{{ profile.defaultCurrency }} {{ totalValue.toLocaleString('en-GB', { currency: profile.defaultCurrency, maximumFractionDigits: 2 }) }}</v-btn>
@@ -77,6 +77,7 @@
 import { defineComponent, watch, computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
+import { useDisplay } from 'vuetify'
 
 import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
@@ -141,7 +142,7 @@ export default defineComponent({
   setup () {
     // const apolloClient = useApolloClient()
     // console.log(apolloClient.resolveClient().cache)
-
+    const display = useDisplay()
     const store = useStore()
     const router = useRouter()
     const profile = computed(() => store.state.profile)
@@ -279,9 +280,15 @@ export default defineComponent({
       return Number(value) / Number(denom) * price.value
     }
 
+    const toolbarClass = computed(() => {
+      const { mdAndUp } = display
+      return mdAndUp.value ? 'rounded-pill' : ''
+    })
+
     calcTotalValue()
 
     return {
+      toolbarClass,
       profile,
       // list: result || [],
       loggedIn,

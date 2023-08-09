@@ -34,10 +34,16 @@
           <span class="d-none d-sm-inline">&nbsp;{{ item.text }}</span>
         </v-tab>
       </v-tabs> -->
-      <v-btn :class="$route.fullPath==='/dashboard' ? 'active' : ''" text tile @click="navTo('/dashboard')">
+      <!-- <v-btn :class="$route.fullPath==='/dashboard' ? 'active' : ''" text tile @click="navTo('/dashboard')">
         <v-icon size="small" class="d-none d-sm-inline">mdi-view-dashboard-outline</v-icon>
         <v-icon size="x-large" class="d-inline d-sm-none">mdi-view-dashboard-outline</v-icon>
         <span class="d-none d-sm-inline">&nbsp;Dashboard</span>
+      </v-btn> -->
+
+      <v-btn text tile @click="navTo('/market')">
+        <v-icon size="small" class="d-none d-sm-inline">mdi-chart-box-outline</v-icon>
+        <v-icon size="x-large" class="d-inline d-sm-none">mdi-chart-box-outline</v-icon>
+        <span class="d-none d-sm-inline">&nbsp;Market</span>
       </v-btn>
 
       <v-btn text tile @click="navTo('/portfolio')">
