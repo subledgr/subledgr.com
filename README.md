@@ -4,15 +4,21 @@
 
 - frontend - vue3
   - api graphql client
+
 - api - graphql
   - sequelize 
-    => database (postgres, models, exchange rates)
+    => database (mariadb, models, exchange rates)
     => indexDb (postgres, history)
-  - dotsama REST api => RPC nodes (balances, ...)
+  - [dotsama REST api](https://github.com/metaspan/dotsama-rest-api) => RPC nodes (balances, ...)
+
 - cube - not integrated yet
   - => db + indexDB
+
 - indexing
   - subsquid (ksm, dot, dock)
+  - https://github.com/subledgr/subsquid-kusama
+  - https://github.com/subledgr/subsquid-polkadot
+
 - bullmq
   - redis
   - server 

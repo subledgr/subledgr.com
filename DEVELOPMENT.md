@@ -31,7 +31,9 @@ Configure the database connection in [config.js](./config/config.js)
 
 ### indexing job(s)
 
-TODO...
+subsquid indexer per chain
+- subledgr/subsquid-kusama [](https://github.com/subledgr/subsquid-kusama)
+- subledgr/subsquid-polkadot [](https://github.com/subledgr/subsquid-polkadot)
 
 ## api - graphql
 
