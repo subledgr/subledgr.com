@@ -1,11 +1,11 @@
 <template>
-  <v-container fluid class="pa-0 ma-0">
+  <v-container class="pt-1 mt-1">
     <!-- <v-hero>
       Hero section
     </v-hero> -->
     <v-toolbar density="compact">
       <v-toolbar-title>
-        Example Market Overview (API to MarketView List)
+        Example Market Overview (API to TradingView List)
       </v-toolbar-title>
     </v-toolbar>
     <!-- <v-row>

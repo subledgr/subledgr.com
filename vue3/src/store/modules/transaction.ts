@@ -7,12 +7,14 @@ const types = {
   'babe.planConfigChange': 'Config',
   'bagsList.putInFrontOf': 'Move',
   'bagsList.rebag': 'Rebag',
+  'balances.deposit': 'Deposit',
   'balances.forceTransfer': 'Transfer',
   'balances.forceUnreserve': 'Unreserve',
   'balances.setBalance': 'Set Balance',
   'balances.transfer': 'Transfer',
   'balances.transferAll': 'Transfer',
   'balances.transferKeepAlive': 'Transfer',
+  'balances.withdraw': 'Withdraw',
   'bounties.acceptCurator': 'Accept Curator',
   'bounties.awardBounty': 'Award Bounty',
   'bounties.claimBounty': 'Claim Bounty',
@@ -234,6 +236,7 @@ const types = {
   'staking.payoutValidator': '',
   'staking.reapStash': '',
   'staking.rebond': '',
+  'staking.rewarded': 'Rewarded',
   'staking.setController': '',
   'staking.setInvulnerables': '',
   'staking.setPayee': '',
@@ -272,6 +275,7 @@ const types = {
   'tips.slashTip': '',
   'tips.tip': '',
   'tips.tipNew': '',
+  'transactionPayment.transactionFeePaid': 'Fee Paid',
   'treasury.acceptCurator': '',
   'treasury.approveProposal': '',
   'treasury.closeTip': '',
@@ -310,6 +314,7 @@ const types = {
 }
 
 const transaction = {
+  namespaced: true,
   state: {
     // list: chains
     types

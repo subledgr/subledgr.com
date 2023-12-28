@@ -12,6 +12,7 @@ import Dashboard from '@/components/Dashboard.vue'
 import Wallets from '@/components/Wallets.vue'
 import Wallet from '@/components/Wallet.vue'
 import Portfolios from '@/components/Portfolios.vue'
+import Portfolio from '@/components/Portfolio.vue'
 import Assets from '@/components/Assets.vue'
 import Asset from '@/components/Asset.vue'
 
@@ -37,8 +38,9 @@ const routes = [
   { path: '/reset/:resetToken', name: 'ResetPasswordLanding', component: ResetPassword },
   { path: '/dashboard', name: 'Dashboard', component: Dashboard },
   { path: '/asset', name: 'Assets', component: Assets },
-  { path: '/asset/:currencyCode', name: 'Asset', component: Asset, props: true },
-  { path: '/portfolio', name: 'Portfolios', component: Portfolios },
+  { path: '/asset/:assetId', name: 'Asset', component: Asset, props: true },
+  { path: '/portfolio', name: 'Portfolios', component: Portfolios, props: true },
+  { path: '/portfolio/:portfolioId', name: 'Portfolio', component: Portfolio },
   { path: '/wallet', name: 'Wallets', component: Wallets },
   { path: '/wallet/:walletId', name: 'Wallet', component: Wallet, props: true },
   { path: '/profile', name: 'Profile', component: Profile },
@@ -93,15 +95,19 @@ const router = createRouter({
 // // TODO move this to a plugin?
 import { plausible as plausibleStore } from '../store/modules/plausible'
 const plausible = Plausible(plausibleStore.state.options)
-plausible.enableAutoPageviews();
+// automically track clicks
+// plausible.enableAutoPageviews();
 
 router.beforeEach((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
   // document.title = to.meta?.title || 'baseTitle'
   // const plausible = inject<typeof p>('$plausible') //|| new PlausiblePlugin()
+  console.debug('NODE_ENV', process.env.NODE_ENV)
   if (plausible) {
-    plausible.trackPageview({
-      url: to.path
-    })
+    if (!['test', 'development'].includes(process.env.NODE_ENV || '')) {
+      plausible.trackPageview({
+        url: to.path
+      })
+    }
   }
   return next()
 })

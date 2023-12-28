@@ -43,6 +43,19 @@
             @change="isDirty=true"
             :items="[0,1,2,3,4,5,6,7,8,9]"></v-select>
 
+          <!-- ||{{ locales }}|| -->
+          <v-select
+            v-model="profile.locale"
+            label="Locale"
+            @change="isDirty=true"
+            :items="locales"></v-select>
+
+          <v-select
+            v-model="profile.dateTimeFormat"
+            label="DateTime format"
+            @change="isDirty=true"
+            :items="['YYYY.MM.DD hh:mm', 'MM.DD.YYYY hh:mm', 'MMM DD, YYYY hh:mm']"></v-select>
+
           <div class="d-flex flex-column">
             <!-- <v-btn
               color="success"
@@ -91,7 +104,7 @@
         <v-spacer></v-spacer>
         <v-alert v-if="error" type="error">{{ error.message }}</v-alert>
 
-        {{ profile }}
+        <!-- {{ profile }} -->
 
       </v-card-text>
     </v-card>
@@ -107,12 +120,20 @@ import { useStore } from 'vuex';
 import { useRouter } from 'vue-router';
 import { useMutation } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
+import { IProfile } from './types'
 
 const MUT_PROFILE_SAVE = gql`
-  mutation saveProfile($dateTimeFormat: String, $itemsPerPage: Int, $defaultCurrency: String, $defaultDecimals: Int) {
-    saveProfile(dateTimeFormat: $dateTimeFormat, itemsPerPage: $itemsPerPage, defaultCurrency: $defaultCurrency, defaultDecimals: $defaultDecimals) {
+  mutation saveProfile($dateTimeFormat: String, $itemsPerPage: Int, $locale: String, $defaultCurrency: String, $defaultDecimals: Int) {
+    saveProfile(
+      dateTimeFormat: $dateTimeFormat, 
+      itemsPerPage: $itemsPerPage,
+      locale: $locale,
+      defaultCurrency: $defaultCurrency,
+      defaultDecimals: $defaultDecimals
+    ) {
       dateTimeFormat
       itemsPerPage
+      locale
       defaultCurrency
       defaultDecimals
     }
@@ -122,7 +143,8 @@ const MUT_PROFILE_SAVE = gql`
 export default defineComponent({
   setup () {
     const store = useStore()
-    const profile = ref(store.state.profile)
+    const profile = ref<IProfile>(store.state.profile)
+    const locales = ref(store.state.profile.locales)
     const loggedIn = computed(() => store.getters.loggedIn)
     const router = useRouter()
     
@@ -165,6 +187,7 @@ export default defineComponent({
       isDirty,
       user,
       profile,
+      locales,
       loading,
       error,
       save

@@ -3,7 +3,7 @@ import { DataTypes, Sequelize } from 'sequelize'
 export const priceModel = {
   definition: {
     datetime: {
-      type: DataTypes.STRING(128),
+      type: DataTypes.STRING(32), // moment().format('YYYY-MM-DDTHH:mm:ss.SSSZ') => 2023-09-25T22:20:32.538+01:00
       allowNull: false,
       primaryKey: true,
     },

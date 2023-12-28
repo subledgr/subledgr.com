@@ -5,8 +5,8 @@
         <v-list-item-title>{{ tx.type }} / {{ tx.subType }}</v-list-item-title>
         <!-- {{ tx }} -->
         <v-row>
-          <v-col>Amount: {{ toCoin(wallet2?.Currency.code, tx.amount) }}</v-col>
-          <v-col>Fee: {{ toCoin(wallet2?.Currency.code, tx.totalFee) }}</v-col>
+          <v-col>Amount: {{ toCoin(wallet2?.Asset.id, tx.amount) }}</v-col>
+          <v-col>Fee: {{ toCoin(wallet2?.Asset.id, tx.totalFee) }}</v-col>
         </v-row>
       </v-list-item>
 
@@ -27,11 +27,12 @@ export default defineComponent({
     },
     wallet: {
       type: Object as PropType<IWallet>,
+      required: true
     },
   },
   setup(props) {
     const { toCoin } = useGlobalUtils()
-    const wallet2 = computed<IWallet>(() => props.wallet || { address: '', Currency: {} } as IWallet)
+    const wallet2 = computed<IWallet>(() => props.wallet) // || { address: '', Currency: {} } as IWallet)
     const list = computed<ITransaction[]>(() => props.list)
     const items = ref<ITransaction[]>([])
     var marker = 0
@@ -40,6 +41,7 @@ export default defineComponent({
     const load = (evt: any) => {
       console.debug('load()', marker, pageSize, evt)
       const { done } = evt
+      // eslint-disable-next-line no-unsafe-optional-chaining
       items.value.push(...list.value?.slice(marker, pageSize))
       marker += pageSize
       done('ok')

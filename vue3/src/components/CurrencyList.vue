@@ -6,20 +6,20 @@
       </v-text-field>
     </v-list-item>
 
-    <v-list-item v-for="(item) in currencies" v-bind:key="item.id" @click="onClick(item)">
+    <v-list-item v-for="(item) in currencies" v-bind:key="item.code" @click="onClick(item)">
       <template v-slot:prepend>
         <v-avatar density="compact">
-          <v-img :class="!item.active ? 'inactive' : ''" :src="item.logo"></v-img>
+          <!-- <v-img :class="!item.active ? 'inactive' : ''" :src="item.logo"></v-img> -->
+          {{ item.code }}
         </v-avatar>
       </template>
       <v-list-item-title>
-        {{ item.name }} <span v-show="item.parachain">(//{{ item.parent }})</span> active: {{ item.active }}
+        {{ item.name }}
       </v-list-item-title>
-      <template v-slot:append> 
-        <!-- price {{ item.code }} -->
+      <!-- <template v-slot:append> 
         <v-icon color="green" v-if="item.active">mdi-check-circle-outline</v-icon>
         <v-icon color="red" v-if="!item.active">mdi-pause-circle-outline</v-icon>
-      </template>
+      </template> -->
     </v-list-item>
   </v-list>
 </template>
@@ -35,13 +35,11 @@ export default defineComponent({
     const store = useStore()
     const search = ref('')
     const currencies = ref<ICurrency[]>([])
-    const input = ref(null)
-
-    // const emits = defineEmits(['selectCurrency'])
+    // const input = ref(null)
 
     const onClick = (item: any) => {
       console.debug('CurrencyList.vue: onClick', {...item})
-      if(item.active) emit('selectCurrency', {...item})
+      emit('selectCurrency', {...item})
     }
 
     const onSearch = debounce((search: string) => {
@@ -49,9 +47,10 @@ export default defineComponent({
       if (search.length < 2) {
         currencies.value = []
       } else {
-        currencies.value = store.state.currency.list.filter((f: any) => {
+        currencies.value = store.state.currency.list.filter((f: ICurrency) => {
           // console.debug('filter', {...f})
           return f.name.toLowerCase().includes(search.toLowerCase())
+            || f.code?.toLowerCase().includes(search.toLowerCase())
             || f.symbol?.toLowerCase().includes(search.toLowerCase())
         })
       }
@@ -60,9 +59,6 @@ export default defineComponent({
     watch(() => search.value, (searchStr: string) => {
       console.debug('watch search', searchStr)
     })
-    // const onMounted = () => {
-    //   input
-    // }
 
     onMounted(() => {
       // console.debug('CurrencyList.vue: mounted()')

@@ -1,12 +1,7 @@
 <template>
   <v-app-bar
     app
-    dense
-    fixed
-    elevate-on-scroll
-    color="deep-purple accent-4"
-    dark
-    scroll-target="#scroll-target"
+    scroll-behavior="elevate"
     >
     <template v-slot:prepend>
     </template>
@@ -14,10 +9,9 @@
     <v-app-bar-title style="cursor: pointer;" @click="navTo('/')">
       <v-avatar class="rounded-circle" >
         <!-- <v-img color="white" src="/logo.png" width="24px" height="24px"></v-img> -->
-        <v-icon color="white">mdi-alpha-s-circle-outline</v-icon>
+        <v-icon>mdi-alpha-s-circle-outline</v-icon>
       </v-avatar>
-
-      Subledgr
+      <span>Subledgr</span>
     </v-app-bar-title>
 
     <v-spacer class="d-none d-md-inline"></v-spacer>
@@ -40,19 +34,19 @@
         <span class="d-none d-sm-inline">&nbsp;Dashboard</span>
       </v-btn> -->
 
-      <v-btn text tile @click="navTo('/market')">
+      <!-- <v-btn tile @click="navTo('/market')">
         <v-icon size="small" class="d-none d-sm-inline">mdi-chart-box-outline</v-icon>
         <v-icon size="x-large" class="d-inline d-sm-none">mdi-chart-box-outline</v-icon>
         <span class="d-none d-sm-inline">&nbsp;Market</span>
-      </v-btn>
+      </v-btn> -->
 
-      <v-btn text tile @click="navTo('/portfolio')">
+      <v-btn tile @click="navTo('/portfolio')">
         <v-icon size="small" class="d-none d-sm-inline">mdi-folder-pound-outline</v-icon>
         <v-icon size="x-large" class="d-inline d-sm-none">mdi-folder-pound-outline</v-icon>
         <span class="d-none d-sm-inline">&nbsp;Portfolio</span>
       </v-btn>
 
-      <v-btn text tile @click="navTo('/asset')">
+      <v-btn tile @click="navTo('/asset')">
         <v-icon size="small" class="d-none d-sm-inline">mdi-cash</v-icon>
         <v-icon size="x-large" class="d-inline d-sm-none">mdi-cash</v-icon>
         <span class="d-none d-sm-inline">&nbsp;Asset</span>
@@ -105,6 +99,7 @@ export default defineComponent({
     AccountingMenu,
     UserMenu
   },
+  emits: ['setDark'],
   setup () {
     const store = useStore()
     const drawer = computed(() => store.state.drawer);

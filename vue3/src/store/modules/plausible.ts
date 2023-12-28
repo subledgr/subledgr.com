@@ -1,5 +1,6 @@
 
 const plausible = {
+  namespaced: true,
   state: {
     options: {
       // see configuration section

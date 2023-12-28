@@ -1,5 +1,5 @@
 <template>
-  <v-theme-provider :theme="isDark ? 'dark' : 'light'">
+  <v-theme-provider :theme="isDarkMode ? 'dark' : 'light'">
     <v-app>
       <AppBar v-if="showAppBar"></AppBar>
       <NavDrawer></NavDrawer>
@@ -36,6 +36,7 @@ export default defineComponent({
   setup () {
     const store = useStore()
     const profile = store.state.profile
+    const isDarkMode = computed(() => store.state.isDarkMode)
     const loggedIn = computed(() => store.getters.loggedIn)
     const route = useRoute()
     const showAppBar = computed(() => !['/login', '/register', '/reset', '/reset/:resetToken'].includes(route.matched[0]?.path))
@@ -57,6 +58,7 @@ export default defineComponent({
     })
 
     return {
+      isDarkMode,
       loggedIn,
       showAppBar
     }
@@ -68,20 +70,24 @@ export default defineComponent({
   // },
   data: (): any => {
     return {
-      isDark: false,
+      // isDark: false,
       darkListener: {} as MediaQueryList
     }
   },
   methods: {
     onDarkChange (ev: MediaQueryListEvent | MediaQueryList) {
-      console.debug(ev)
+      console.debug('onDarkChange', ev)
       // this.$vuetify.theme.dark = ev.matches
-      this.isDark = ev.matches
+      // this.isDark = ev.matches
+      this.$store.dispatch('setDarkMode', ev.matches)
     }
   },
   mounted () {
+    // matcher for dark mode
     this.darkListener = window.matchMedia('(prefers-color-scheme: dark)')
+    // set initial value
     this.onDarkChange(this.darkListener)
+    // listen for changes
     this.darkListener.addEventListener('change', this.onDarkChange)
   }
 })

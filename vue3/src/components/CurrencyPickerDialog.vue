@@ -1,41 +1,41 @@
 <template>
-  <!-- <v-btn> -->
-    <!-- <v-icon :icon="icon"></v-icon> -->
-    <v-dialog v-model="dialog" persistent maxWidth="600">
-      <v-card>
-          <v-card-title>Select Currency</v-card-title>
-          <!-- <v-btn @click="dialog=false">Close</v-btn> -->
-          <v-divider></v-divider>
-          <v-card-text style="height: 300px;">
-            <currency-list @selectCurrency="onSelectCurrency"></currency-list>
-          </v-card-text>
-          <v-divider></v-divider>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              color="blue-darken-1"
-              variant="text"
-              @click="closeDialog()"
-            >
-              Close
-            </v-btn>
-            <!-- <v-btn
-              color="blue-darken-1"
-              variant="text"
-              @click="dialog = false"
-            >
-              Save
-            </v-btn> -->
-          </v-card-actions>
-        </v-card>
-    </v-dialog>
-  <!-- </v-btn> -->
+  <v-dialog v-model="dialog" persistent maxWidth="600">
+    <v-card>
+      <v-card-title>Select Currency</v-card-title>
+      <!-- <v-btn @click="dialog=false">Close</v-btn> -->
+      <v-divider></v-divider>
+      <v-card-text style="height: 300px;">
+        <currency-list @selectCurrency="onSelectCurrency"></currency-list>
+      </v-card-text>
+      <v-divider></v-divider>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn
+          color="blue-darken-1"
+          variant="text"
+          @click="closeDialog()"
+        >
+          Close
+        </v-btn>
+        <!-- <v-btn
+          color="blue-darken-1"
+          variant="text"
+          @click="dialog = false"
+        >
+          Save
+        </v-btn> -->
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
 import CurrencyList from './CurrencyList.vue';
 export default defineComponent({
+  components: {
+    CurrencyList
+  },
   props: {
     visible: {
       type: Boolean,
@@ -61,9 +61,6 @@ export default defineComponent({
     return {
       dialog
     }
-  },
-  components: {
-    CurrencyList
   },
   data: () => {
     return {

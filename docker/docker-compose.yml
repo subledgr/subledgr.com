@@ -1,10 +1,16 @@
+# production docker-compose.yml, 
+# see docker-compose.override.yml for DEVELOPMENT
+
 version: '3'
 name: subledgr-stack
 
 # PORTS
-# - 8080 - frontend, http
-# - 5432 - postgres, tcp
-# - 3000 - api, http
+# - 23000:3000 - bullmq workers
+# - 25432:5432 - postgres / default
+# - ????       - postgres / indexDb?
+# - 26379:6379 - redis
+# - 28080:8080 - vue3 frontend, http
+# - 24000:4000 - graphql api, http
 
 services:
 
@@ -13,87 +19,107 @@ services:
     image: redis
     restart: unless-stopped
     ports:
-      - '6379:6379'
+      - "26379:6379"
 
   subledgr-datastore:
     container_name: subledgr-datastore
-    # image: mariadb:10.11.2
-    # image: arm64v8/mysql #:5.7.41
-    image: postgres:15.2-alpine
-    # no build required
-    # build:
-    #   context: ../.
-    #   dockerfile: docker/Dockerfile.mariadb
-    #   args:
-    #     RELEASE: "latest"
+    image: mariadb:10.4
+    # build: nothing to build
     restart: unless-stopped
     environment:
-      # MARIADB_ROOT_PASSWORD: thisIsASecret
-      # POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: thisIsASecret
-      PGDATA: /data/postgres
+      MARIADB_ROOT_PASSWORD: ${SUBLEDGR_MARIADB_ROOT_PASSWORD} # see .env
+      PGDATA: /data/postgres # see volumes below
     ports:
-      - "5432:5432"
+      - "23306:3306"
     volumes:
-      - /mnt/Containers/subledgr/data/postgres:/data/postgres
-      - /mnt/Containers/subledgr/data/schema.pgsql.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      - ${SUBLEDGR_MARIADB_DATA:-./data}/mariadb:/var/lib/mysql:Z
+      - ${SUBLEDGR_MARIADB_DATA:-./data}/schema.pgsql.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      # - /mnt/Docker/subledgr/data/postgres:/data/postgres
+      # - /mnt/Docker/subledgr/data/schema.pgsql.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+  # subledgr-datastore:
+  #   container_name: subledgr-datastore
+  #   image: postgres:15.2-alpine
+  #   # build: nothing to build
+  #   restart: unless-stopped
+  #   environment:
+  #     POSTGRES_PASSWORD: ${SUBLEDGR_POSTGRES_PASSWORD} # see .env
+  #     PGDATA: /data/postgres # see volumes below
+  #   ports:
+  #     - "25432:5432"
+  #   volumes:
+  #     - ${SUBLEDGR_PG_DATA:-/mnt/Docker/subledgr/data}/postgres:/data/postgres
+  #     - ${SUBLEDGR_PG_DATA:-/mnt/Docker/subledgr/data}/schema.pgsql.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+  #     # - /mnt/Docker/subledgr/data/postgres:/data/postgres
+  #     # - /mnt/Docker/subledgr/data/schema.pgsql.sql:/docker-entrypoint-initdb.d/schema.sql:ro
 
+  # subledgr-indexDb:
+  #   container_name: subledgr-indexDb
+  #   image: postgres:15.2-alpine
+  #   restart: unless-stopped
+  #   # environment:
+  #   ports:
+  #     - "25432:5432"
+
+  # GraphQL API
   subledgr-api:
     container_name: subledgr-api
-    image: subledgr/subledgr-api
+    image: docker.metaspan.io/subledgr/subledgr-api
     build:
-      context: ../.
-      # dockerfile: docker/Dockerfile.graphql-express
+      context: ../
       dockerfile: docker/Dockerfile.api
       args:
-        RELEASE: "latest"
-        HTTP_PORT: 3000
-    # no ports, we'll proxy from frontend
+        - TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64} # see .env
+    restart: unless-stopped
     ports:
-      - "3000:3000"
-    environment:
-      - HTTP_PORT=3000
-    # volumes:
-      # - /mnt/Containers/subledgr/config/config.local.js:/home/ibp/config/config.local.js
-      # - /mnt/Containers/subledgr/keys:/home/ibp/keys
+      - "24000:4000"
     depends_on:
       - subledgr-datastore
+      # - subledgr-indexDb
 
+  # BullMQ workers
   subledgr-workers:
-    # <<: *subledgr-services
     container_name: subledgr-workers
-    restart: on-failure
-    build: 
-      context: ../.
+    image: docker.metaspan.io/subledgr/subledgr-workers
+    build:
+      context: ../
       dockerfile: docker/Dockerfile.workers
+      args:
+        - TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64}
     depends_on:
       - subledgr-redis
+      - subledgr-datastore
+    restart: unless-stopped
     ports:
-      - '3000:3000'
-    command: >
-      bash -c "node workers.js"
+      - '23000:3000'
+    command: ["node", "workers.js"]
 
+  # frontend - nginx with static vue3 files and proxy to /api
   subledgr-frontend:
     container_name: subledgr-frontend
-    image: subledgr/subledgr-fe
+    image: docker.metaspan.io/subledgr/subledgr-fe
     build:
-      context: ../.
+      context: ../
       dockerfile: docker/Dockerfile.frontend
       args:
-        RELEASE: "latest"
+        - TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64} # see .env
+    restart: unless-stopped
     ports:
-      - "8080:8080"
-    environment:
-      - API_HOST=subledgr-api
-      - API_PORT=3000
+      - "28080:8080"
+#    volumes:
+#      - ../static:/usr/share/nginx/html
     depends_on:
       - subledgr-api
+    environment:
+      - SERVER_NAME=alpha.subledgr.com
+      - API_HOST=subledgr-api
+      - API_PORT=4000
 
-  subledgr-proxy:
-    # image: nginx
-    image: subledgr/nginx:latest
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    ports:
-      - 8081:8080
+  # proxy the /api ?
+  # subledgr-proxy:
+  #   # image: nginx
+  #   image: subledgr/nginx:latest
+  #   build:
+  #     context: ./nginx
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - 8081:8080

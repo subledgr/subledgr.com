@@ -1,13 +1,26 @@
-FROM node:18-slim
+ARG TARGETPLATFORM=linux/amd64
+
+FROM  --platform=$TARGETPLATFORM node:18-slim 
+# as AS build-stage
 
 # RUN apt-get update
 # RUN apt-get install python3 make gcc g++ -y
-RUN npm install -g npm
+# RUN npm install -g npm
+
+RUN mkdir /app
 
 # assumes we're in <project>/. directory
-COPY workers/. /app
+COPY package*.json /app/
+COPY data/. /app/data/
+# COPY workers.js /app/
+COPY config/. /app/config
+COPY workers/. /app/workers
 
 WORKDIR /app
 
 RUN rm -rf node_modules
 RUN npm install
+
+EXPOSE 3000
+
+CMD [ "node", "workers/workers.js" ]

@@ -18,8 +18,8 @@
         <v-list-item to="/wallet">
           <v-icon small>mdi-wallet</v-icon>&nbsp;Wallets
         </v-list-item>
-        <v-list-item to="/currency">
-          <v-icon small>mdi-cash-multiple</v-icon>&nbsp;Currencies
+        <v-list-item to="/asset">
+          <v-icon small>mdi-cash-multiple</v-icon>&nbsp;Assets
         </v-list-item>
 
         <v-divider></v-divider>

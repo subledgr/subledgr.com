@@ -12,21 +12,32 @@ Settings > Docker Engine : Add insecure registries:
 ```
 
 ## Build & deploy process
+
+Process:
+- build the docker images, push to registry
+- re-build the stack in portainer
+- or, re-create the individual services in portainer (pull image, re-create container)
+
+
 ```bash
 # docker login -u docker -p d0ck3r localhost:5050
 REGISTRY=docker.metaspan.io
 docker login -u docker -p d0ck3r ${REGISTRY}
 
+VERSION="0.1.1-aplha" # "latest"
+
 # these can't be run together
 # --load: load the image locally, this should make subsequent builds faster
 # --push: push the image to the registry
 
-docker buildx build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-api -f Dockerfile.api --push ../.
+# TODO: how to tag the image with a version number?
+
+docker buildx build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-api:${VERSION} -f Dockerfile.api --push ../.
 # docker build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-api:latest -f Dockerfile.api --push ../.
 # docker tag subledgr/subledgr-api ${REGISTRY}/subledgr/subledgr-api
 # docker push ${REGISTRY}/subledgr/subledgr-api
 
-docker buildx build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-fe -f Dockerfile.frontend --push ../.
+docker buildx build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-fe:${VERSION} -f Dockerfile.frontend --push ../.
 # docker build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-fe:latest -f Dockerfile.frontend --push ../.
 # docker tag subledgr/subledgr-fe ${REGISTRY}/subledgr/subledgr-fe
 # docker push ${REGISTRY}/subledgr/subledgr-fe
@@ -36,7 +47,9 @@ docker buildx build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-fe -
 # docker push ${REGISTRY}/subledgr/subledgr-datastore
 
 # proxy on 8081 for / and /grapghql
-docker buildx build --platform linux/amd64 -t ${REGISTRY}/subledgr/nginx -f Dockerfile.nginx --push ../.
+docker buildx build --platform linux/amd64 -t ${REGISTRY}/subledgr/nginx:${VERSION} -f Dockerfile.nginx --push ../.
+
+docker buildx build --platform linux/amd64 -t ${REGISTRY}/subledgr/subledgr-workers:${VERSION} -f Dockerfile.workers --push ../.
 
 # Updates in portainer
 # for each service (in the stack), open the service and 

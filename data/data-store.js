@@ -143,3 +143,4 @@ class DataStore {
 }
 
 export { DataStore }
+// module.exports = { DataStore } // for ES6 module compatibility // workers/index.js needs this...?

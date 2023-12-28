@@ -1,0 +1,7 @@
+_archive/**
+node_modules
+prototype/**
+
+.DS_Store
+cube/.DS_Store
+cube/conf/.DS_Store

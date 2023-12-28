@@ -7,6 +7,9 @@ const profileModel = {
     dateTimeFormat: { type: DataTypes.STRING(64) },
     defaultCurrency: { type: DataTypes.STRING(64) },
     // resetToken: { type: DataTypes.STRING(64) },
+    locale: { type: DataTypes.STRING(64) },
+    defaultDecimals: { type: DataTypes.INTEGER },
+    locale: { type: DataTypes.STRING(64) },
   },
   options: {
     tableName: 'profile',

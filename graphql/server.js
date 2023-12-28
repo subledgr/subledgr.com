@@ -2,11 +2,21 @@
 
 // import * as dotenv from 'dotenv'
 // dotenv.config()
-import './dotenv.js'
+// import './dotenv.js'
+// import '../config/config.js'
+import { ConfigReader } from '../config/config-reader.js';
+const cr = new ConfigReader('../docker/.env');
+const cfg = cr.getConfig();
+console.debug('config', cfg)
 
-import fs from 'fs'
 import { ApolloServer } from '@apollo/server';
 import { ApolloGateway, IntrospectAndCompose, RemoteGraphQLDataSource } from '@apollo/gateway';
+// import { loadErrorMessages, loadDevMessages } from "@apollo/client/dev";
+// if (__DEV__) {  // Adds messages only in a dev environment
+//   loadDevMessages();
+//   loadErrorMessages();
+// }
+
 import { buildSubgraphSchema } from '@apollo/subgraph';
 import { startStandaloneServer } from '@apollo/server/standalone';
 import jwt from 'jsonwebtoken';
@@ -15,17 +25,20 @@ import { resolvers } from './lib/resolvers.js';
 import { db } from './models/index.js'
 import { readFileSync } from 'fs'
 
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'SECRET_KEY'
-const CUBEJS_API_URL = 'http://localhost:4001';
+// const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'SECRET_KEY'
+const JWT_SECRET_KEY = cr.readEnv('SUBLEDGR_GRAPHQL_JWT_SECRET_KEY', 'SECRET_KEY')
+const PORT = cr.readEnv('SUBLEDGR_GRAPHQL_PORT', 4000)
 
-class CubeJsDataSource extends RemoteGraphQLDataSource {
-  async load(options) {
-    const res = await fetch(`${CUBEJS_API_URL}/cubejs-api/v1/load?query=${encodeURIComponent(JSON.stringify(options))}`);
-    return res.json();
-  }
-}
+// // const CUBEJS_API_URL = 'http://localhost:4001'
+// const CUBEJS_API_URL = cr.readEnv('SUBLEDGR_CUBEJS_API_URL', 'http://localhost:4001')
+// class CubeJsDataSource extends RemoteGraphQLDataSource {
+//   async load(options) {
+//     const res = await fetch(`${CUBEJS_API_URL}/cubejs-api/v1/load?query=${encodeURIComponent(JSON.stringify(options))}`);
+//     return res.json();
+//   }
+// }
 
-// handle running in docker...
+// handle graceful shutdown, incl. running in docker...
 function shutdown(signal) {
   return (err) => {
     console.log(`${ signal }...`);
@@ -48,9 +61,9 @@ async function getUserFromToken(token) {
   if (token === '') return null
   try {
     token = token.split(' ')[1]
-    console.debug('getUserFromToken', token)
+    // console.debug('getUserFromToken', token)
     const { userId } = jwt.verify(token, JWT_SECRET_KEY);
-    console.debug('userId', userId)
+    // console.debug('userId', userId)
     const user = await db.User.findOne({ where: { id: userId } }) //.then((user) => {
     if (!user) console.log('we have no user for', userId)
     return user
@@ -61,24 +74,24 @@ async function getUserFromToken(token) {
   }
 }
 
-// const supergraphSdl = readFileSync('./supergraph.graphql').toString();
-const gateway = new ApolloGateway({
-  serviceList: [
-    // { name: 'default', url: 'http://localhost:4000' },
-    { name: 'indexDb', url: CUBEJS_API_URL },
-  ],
-  // supergraphSdl: new IntrospectAndCompose({
-  //   subgraphs: [
-  //     { name: 'indexDb', url: 'http://localhost:4001' }
-  //   ]
-  // }),
-  buildService({ name, url }) {
-    if(name === 'indexDb') {
-      return new CubeJsDataSource({ url });
-    }
-    return new RemoteGraphQLDataSource({ url });
-  }
-});
+// // const supergraphSdl = readFileSync('./supergraph.graphql').toString();
+// const gateway = new ApolloGateway({
+//   serviceList: [
+//     // { name: 'default', url: 'http://localhost:4000' },
+//     { name: 'indexDb', url: CUBEJS_API_URL },
+//   ],
+//   // supergraphSdl: new IntrospectAndCompose({
+//   //   subgraphs: [
+//   //     { name: 'indexDb', url: 'http://localhost:4001' }
+//   //   ]
+//   // }),
+//   buildService({ name, url }) {
+//     if(name === 'indexDb') {
+//       return new CubeJsDataSource({ url });
+//     }
+//     return new RemoteGraphQLDataSource({ url });
+//   }
+// });
 
 // The ApolloServer constructor requires two parameters: your schema
 // definition and your set of resolvers.
@@ -96,11 +109,11 @@ const server = new ApolloServer({
 //  3. prepares your app to handle incoming requests
 ;(async () => {
 
-  const pkg = JSON.parse(fs.readFileSync('./package.json', 'utf-8'))
-  console.log(`Package ${pkg.name} version ${pkg.version}`)
+  const pkg = JSON.parse(readFileSync('./package.json', 'utf-8'))
+  console.log(`Package: ${pkg.name} v. ${pkg.version}`)
 
   const { url } = await startStandaloneServer(server, {
-    listen: { port: 4000 },
+    listen: { port: PORT },
     context: async ({ req }) => {
       // this runs for each query! keep it light...
       // console.debug('context firing...', req)
@@ -112,4 +125,3 @@ const server = new ApolloServer({
   console.log(`🚀  Server ready at: ${url}`);
   
 })()
-

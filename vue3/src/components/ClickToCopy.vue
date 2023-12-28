@@ -10,11 +10,9 @@
     >
       {{ snackText }}
 
-      <template v-slot:action="{ attrs }">
+      <template v-slot:actions>
         <v-btn
           color="pink"
-          text
-          v-bind="attrs"
           @click="snackbar = false"
         >
           Close

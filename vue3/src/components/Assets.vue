@@ -1,16 +1,22 @@
 <template>
   <v-container class="py-1 px-1">
 
-    <v-toolbar density="compact" :class="toolbarClass">
-      <v-toolbar-title>Assets</v-toolbar-title>
+    <v-toolbar density="compact" style="background: none;" :class="toolbarClass">
+      <v-toolbar-title>
+        <v-icon>mdi-cash</v-icon>
+        Assets
+      </v-toolbar-title>
       <v-toolbar-items>
-        <v-btn flat class="text-none">{{profile.defaultCurrency}} {{ totalValue.toLocaleString('en-GB', { currency: profile.defaultCurrency, maximumFractionDigits: 2 }) }}</v-btn>
+        <v-btn flat class="text-none">{{ currency?.symbol }} {{ totalValue.toLocaleString(profile.locale, { currency: profile.defaultCurrency, maximumFractionDigits: 2 }) }}</v-btn>
         <v-btn :loading="loading" icon @click="refresh()">
-          <v-icon>mdi-refresh</v-icon>
+          <v-icon size="small">mdi-refresh</v-icon>
         </v-btn>
-        <v-btn @click="showCurrencyPicker=true">+</v-btn>
+        <v-btn @click="showAssetPicker=true">
+          <v-icon>mdi-wallet-plus-outline</v-icon>
+        </v-btn>
       </v-toolbar-items>
     </v-toolbar>
+
     <v-list>
       <v-list-item v-if="!loggedIn">
         <v-row>
@@ -18,53 +24,56 @@
             <v-btn to="/login">Login</v-btn> to see your assets
           </v-col>
         </v-row>
-
       </v-list-item>
-      <v-list-item v-for="item in list" v-bind:key="item.currencyCode" @click="gotoAsset(item.currencyCode)">
+
+      <v-list-item v-for="item in list" v-bind:key="item.assetId" @click="gotoAsset(item.assetId)">
         <v-divider></v-divider>
         <template v-slot:prepend>
-          <CurrencyLogo :size="24" :currencyCode="item.currencyCode"></CurrencyLogo><br>
+          <AssetLogo :size="24" :asset-id="item.assetId"></AssetLogo><br>
         </template>
 
         <v-list-item-title style="font-weight: 600;">
           <v-row>
             <v-col>
-              {{ item.currencyCode }}
+              {{ item.assetId.toLocaleUpperCase() }}
             </v-col>
             <v-col class="text-right">
-              {{ toCoin(item.currencyCode, sumBalance(item.balance)).toLocaleString('en-GB', { maximumFractionDigits: 2 }) }}
-              <span class="currency-code">{{ item.currencyCode }}</span>
+              {{ toCoin(item.assetId, sumBalance(item.balance)).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+              <span class="currency-code">{{ item.assetCode }}</span>
             </v-col>
             <v-col class="text-right">
-              £ {{ toValue(item.currencyCode, sumBalance(item.balance)).toLocaleString('en-GB', { maximumFractionDigits: 2 }) }}
+              {{ currency?.symbol }} {{ toValue(item.assetId, sumBalance(item.balance)).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
             </v-col>
           </v-row>
         </v-list-item-title>
         <v-row style="font-style: italic; font-size: smaller;">
-          <v-col>Free<br>Reserved<br>feeFrozen<br>miscFrozen<br>Pooled</v-col>
+          <v-col>Free<br>Reserved<br>feeFrozen<br>miscFrozen<br>Pooled<br>Pooled Claimable</v-col>
           <v-col class="text-right">
-            {{ toCoin(item.currencyCode, item.balance?.free).toLocaleString('en-GB', { maximumFractionDigits: 2 }) }}
-            <span class="currency-code">{{ item.currencyCode }}</span><br>
-            {{ toCoin(item.currencyCode, item.balance?.reserved).toLocaleString('en-GB', { maximumFractionDigits: 2 }) }}
-            <span class="currency-code">{{ item.currencyCode }}</span><br>
-            {{ toCoin(item.currencyCode, item.balance?.feeFrozen).toLocaleString('en-GB', { maximumFractionDigits: 2 }) }}
-            <span class="currency-code">{{ item.currencyCode }}</span><br>
-            {{ toCoin(item.currencyCode, item.balance?.miscFrozen).toLocaleString('en-GB', { maximumFractionDigits: 2 }) }}
-            <span class="currency-code">{{ item.currencyCode }}</span><br>
-            {{ toCoin(item.currencyCode, item.balance?.pooled).toLocaleString('en-GB', { maximumFractionDigits: 2 }) }}
-            <span class="currency-code">{{ item.currencyCode }}</span>
+            {{ toCoin(item.assetId, item.balance?.free).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+            <span class="currency-code">{{ item.assetCode }}</span><br>
+            {{ toCoin(item.assetId, item.balance?.reserved).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+            <span class="currency-code">{{ item.assetCode }}</span><br>
+            {{ toCoin(item.assetId, item.balance?.feeFrozen).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+            <span class="currency-code">{{ item.assetCode }}</span><br>
+            {{ toCoin(item.assetId, item.balance?.miscFrozen).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+            <span class="currency-code">{{ item.assetCode }}</span><br>
+            {{ toCoin(item.assetId, item.balance?.pooled).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+            <span class="currency-code">{{ item.assetCode }}</span><br>
+            {{ toCoin(item.assetId, item.balance?.pooledClaimable).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+            <span class="currency-code">{{ item.assetCode }}</span>
           </v-col>
           <v-col class="text-right">
-            £ {{ toValue(item.currencyCode, item.balance?.free).toLocaleString('en-GB', { maximumFractionDigits: 2 }) }}<br>
-            £ {{ toValue(item.currencyCode, item.balance?.reserved).toLocaleString('en-GB', { maximumFractionDigits: 2 }) }}<br>
-            £ {{ toValue(item.currencyCode, item.balance?.feeFrozen).toLocaleString('en-GB', { maximumFractionDigits: 2 }) }}<br>
-            £ {{ toValue(item.currencyCode, item.balance?.miscFrozen).toLocaleString('en-GB', { maximumFractionDigits: 2 }) }}<br>
-            £ {{ toValue(item.currencyCode, item.balance?.pooled).toLocaleString('en-GB', { maximumFractionDigits: 2 }) }}
+            {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.free).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br>
+            {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.reserved).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br>
+            {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.feeFrozen).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br>
+            {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.miscFrozen).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br>
+            {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.pooled).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br>
+            {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.pooledClaimable).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
           </v-col>
         </v-row>
       </v-list-item>
     </v-list>
-    <CurrencyPickerDialog icon="mdi-wallet-plus-outline" :visible="showCurrencyPicker" @selectCurrency="onSelectCurrency"></CurrencyPickerDialog>
+    <AssetPickerDialog icon="mdi-wallet-plus-outline" :visible="showAssetPicker" @selectAsset="onSelectAsset"></AssetPickerDialog>
   </v-container>
 </template>
 
@@ -73,57 +82,67 @@ import { defineComponent, ref, computed, TrackOpTypes } from 'vue'
 import { useDisplay } from 'vuetify';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import { useStore } from 'vuex';
-import Currencies from './Currencies.vue';
-import CurrencyPickerDialog from './CurrencyPickerDialog.vue'
-import CurrencyLogo from './CurrencyLogo.vue'
+import AssetPickerDialog from './AssetPickerDialog.vue'
+import AssetLogo from './AssetLogo.vue'
 import gql from 'graphql-tag';
-import { ICurrency } from './types';
+import { IAsset, ICurrency } from './types';
+// reusing the same query as the wallet list
 import { QUERY_WALLETS } from '@/graphql/wallets.gql';
-import { IWallet, IWalletData } from './types';
+import { QUERY_PRICES } from '@/graphql/prices.gql';
+import { IProfile, IWallet, IWalletData } from './types';
 import router from '@/router';
 
+// TODO - assetId vs assetId
 const MUT_ADD_ASSET = gql`
-mutation MutAddAsset ($currencyCode: String) {
-  addAsset(currencyCode: $currencyCode) {
+mutation MutAddAsset ($assetId: String) {
+  addAsset(assetId: $assetId) {
     success
     message
-    currency {
+    Asset {
+      id
       code
     }
   }
 }
 `
 
-interface IAsset {
+interface IAssetView {
   // id: string
-  currencyCode: string
+  assetId: string
+  assetName: string
+  assetCode: string
   balance: IWalletData
 }
 
 export default defineComponent({
   components: {
-    CurrencyLogo,
-    Currencies,
-    CurrencyPickerDialog
+    AssetLogo,
+    AssetPickerDialog
   },
   setup () {
     const display = useDisplay()
     const store = useStore()
-    const profile = computed(() => store.state.profile)
+    const profile = computed<IProfile>(() => store.state.profile)
     const loggedIn = computed(() => store.getters.loggedIn)
 
     const loading = ref(false)
-    const showCurrencyPicker = ref(false)
-    var currencyCode = ''
-    const list = ref<IAsset[]>([])
-    const currencies = computed<ICurrency[]>(() => JSON.parse(JSON.stringify(store.state.currency.list)))
+    const showAssetPicker = ref(false)
+    // var assetId = ''
+    const list = ref<IAssetView[]>([])
+    const assets = computed<IAsset[]>(() => store.state.asset.list)
+    const currencies = computed<ICurrency[]>(() => store.state.currency.list)
+    const currency = currencies.value.find(c => c.code === profile.value.defaultCurrency)
     const totalValue = ref(0.0)
     const { mutate, error } = useMutation(MUT_ADD_ASSET)
+
     const variables = {
       ids: ['KSM', 'DOT', 'DOCK'],
       tCurr: profile.value.defaultCurrency, // 'GBP'
     }
-    const { result, refetch, onResult } = useQuery(QUERY_WALLETS, variables, {
+    const { result: resultWallets, refetch: refetchWallets, onResult: onWallets } = useQuery(QUERY_WALLETS, {}, {
+      fetchPolicy: 'cache-first'
+    })
+    const { result: resultPrices, refetch: refetchPrices, onResult: onPrices } = useQuery(QUERY_PRICES, variables, {
       fetchPolicy: 'cache-first'
     })
 
@@ -132,30 +151,37 @@ export default defineComponent({
       return mdAndUp.value ? 'rounded-pill' : ''
     })
 
-    onResult((data) => {
+    onWallets((data) => {
       console.debug('onResult', data)
       // if(data.data) list.value = data.data.me?.assets || []
       summarise()
       calcTotalValue()
     })
 
+    onPrices((data) => {
+      console.debug('onPrices', data)
+    })
+
+    // summarise all wallets into asset balances
     const summarise = () => {
-      // const wallets = result.value.Wallets.map((wallet, idx) => { return { currencyCode: model.wallets[idx].currencyCode, balance } })
-      // console.debug('wallets items', wallets.length)
-      var assetBals = result.value?.Wallets.reduce((acc: any, wallet: IWallet) => {
+      console.debug('summarise...', resultWallets.value?.Wallets.length, 'wallets')
+      var assetBals = resultWallets.value?.Wallets.reduce((acc: any, wallet: IWallet) => {
         // console.debug('reduce...', wallet.id)
         // if (Array.isArray(acc)) {
-        const idx = acc.findIndex((x: IWallet) => x.currencyCode === wallet.Currency.code)
+        const idx = acc.findIndex((x: IAssetView) => x.assetId === wallet.Asset.id)
         if (idx === -1) {
           // console.debug('new...')
           const twal = { 
-            currencyCode: wallet.Currency.code, 
+            assetId: wallet.Asset.id,
+            assetName: wallet.Asset.name,
+            assetCode: wallet.Asset.code,
             balance: {
               free       : BigInt(wallet.balance?.free || 0) || 0n,
               reserved   : BigInt(wallet.balance?.reserved || 0) || 0n,
               miscFrozen : BigInt(wallet.balance?.miscFrozen || 0) || 0n,
               feeFrozen  : BigInt(wallet.balance?.feeFrozen || 0) || 0n,
-              pooled     : BigInt(wallet.balance?.pooled || 0) || 0n
+              pooled     : BigInt(wallet.balance?.pooled || 0) || 0n,
+              pooledClaimable: BigInt(wallet.balance?.pooledClaimable || 0) || 0n
             }
           }
           acc.push(twal)
@@ -166,6 +192,7 @@ export default defineComponent({
           acc[idx].balance.miscFrozen += BigInt(wallet.balance?.miscFrozen || 0) || 0n
           acc[idx].balance.feeFrozen  += BigInt(wallet.balance?.feeFrozen || 0) || 0n
           acc[idx].balance.pooled     += BigInt(wallet.balance?.pooled || 0) || 0n
+          acc[idx].balance.pooledClaimable += BigInt(wallet.balance?.pooledClaimable || 0) || 0n
         }
         // } else {
         //   console.debug('acc is not an array', acc)
@@ -181,30 +208,36 @@ export default defineComponent({
         // + balance.miscFrozen || 0
         // + balance.feeFrozen || 0
         + BigInt(balance.pooled || 0)
+        + BigInt(balance.pooledClaimable || 0)
       // console.debug('sumBalance()', bal)
       return bal
     }
   
-    const onSelectCurrency = async (curr: ICurrency) => {
-      console.debug('onSelectCurrency', curr)
-      showCurrencyPicker.value = false
-      currencyCode = curr.code
+    const onSelectAsset = async (item: IAsset) => {
+      console.debug('onSelectChain', item)
+      showAssetPicker.value = false
+      var assetId = item.id
       try {
         loading.value = true
-        const result = await mutate({ currencyCode })
+        const result = await mutate({ assetId })
         console.debug(result)
       } catch (err) {
         console.error(err)
       } finally {
         loading.value = false
       }
-      refetch()
+      refetchAll()
     }
 
-    const toCoin =  (currencyCode: string, val: BigInt) => {
-      // const currs = {...currencies.value}
+    const refetchAll = () => {
+      refetchPrices()
+      refetchWallets()
+    }
+
+    const toCoin =  (assetId: string, val: BigInt) => {
+      // const currs = {...chains.value}
       // console.debug('currs', currs)
-      const spec = currencies.value.find((f: ICurrency) => f.code === currencyCode) || { code: currencyCode, decimals: 2 }
+      const spec = assets.value.find((f: IAsset) => f.id === assetId) || { id: assetId, decimals: 2 }
       // console.debug('toCoin', currencyCode, spec)
       const denom = Math.pow(10, spec.decimals)
       // console.debug('denom', denom)
@@ -212,17 +245,18 @@ export default defineComponent({
     }
 
     const calcTotalValue = () => {
-      console.debug('getWalletsValue', result.value?.Wallets)
+      console.debug('calcTotalValue', resultWallets.value?.Wallets)
       totalValue.value = 0
       var ret = 0
       // todo :: reduce()
-      for(let i = 0; i < result.value?.Wallets?.length; i++) {
-        const wallet = result.value.Wallets[i]
-        // console.debug('calcTotalValue', wallet.Currency.code)
-        const val = toValue(wallet.Currency.code, wallet.balance?.free || 0)
-        ret += toValue(wallet.Currency.code, wallet.balance?.free || 0)
-        ret += toValue(wallet.Currency.code, wallet.balance?.reserved || 0)
-        ret += toValue(wallet.Currency.code, wallet.balance?.pooled || 0)
+      for(let i = 0; i < resultWallets.value?.Wallets?.length; i++) {
+        const wallet = resultWallets.value.Wallets[i]
+        // console.debug('calcTotalValue', wallet.Asset.id)
+        // const val = toValue(wallet.Asset.id, wallet.balance?.free || 0)
+        ret += toValue(wallet.Asset.id, wallet.balance?.free || 0)
+        ret += toValue(wallet.Asset.id, wallet.balance?.reserved || 0)
+        ret += toValue(wallet.Asset.id, wallet.balance?.pooled || 0)
+        ret += toValue(wallet.Asset.id, wallet.balance?.pooledClaimable || 0)
         // console.debug('val', val, typeof val)
         // ret += val
       }
@@ -230,13 +264,13 @@ export default defineComponent({
       totalValue.value = ret
     }
 
-    const toValue = (currencyCode: string, value: BigInt): number => {
-      // console.debug('toValue()', currencyCode, value)
+    const toValue = (assetId: string, value: BigInt): number => {
+      // console.debug('toValue()', assetId, value)
       if (!value) return 0
-      const spec = currencies.value.find((f: ICurrency) => f.code === currencyCode) || { code: currencyCode, decimals: 2 }
+      const spec = assets.value.find((f: IAsset) => f.id === assetId) || { id: assetId, code: assetId, decimals: 2 }
       // console.debug('spec', spec)
       const denom: BigInt = BigInt(Math.pow(10, spec.decimals || 2))
-      const price = result.value.Prices?.find((f: any) => f.f_curr === currencyCode) || { value: 0 }
+      const price = resultPrices.value?.Prices?.find((f: any) => f.f_curr === spec.code) || { value: 0 }
       // console.debug('toValue', price)
       // return parseFloat((value/denom * price.value).toFixed(decimals))
       return Number(value) / Number(denom) * price.value
@@ -245,14 +279,14 @@ export default defineComponent({
       console.debug('refresh firing...')
       loading.value = true
       setTimeout(() => {
-        refetch()
+        refetchAll()
         calcTotalValue()
         loading.value = false
       }, 200)
     }
 
-    const gotoAsset = (currencyCode: string) => {
-      router.push(`/asset/${currencyCode}`)
+    const gotoAsset = (assetId: string) => {
+      router.push(`/asset/${assetId}`)
     }
 
     // refetch()
@@ -265,9 +299,10 @@ export default defineComponent({
       profile,
       loading,
       list,
+      currency,
       mutate,
-      showCurrencyPicker,
-      onSelectCurrency,
+      showAssetPicker,
+      onSelectAsset,
       toCoin,
       toValue,
       totalValue,

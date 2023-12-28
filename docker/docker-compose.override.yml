@@ -1,0 +1,11 @@
+# override the default custom values for development
+
+version: '3.8'
+
+services:
+  subledgr-datastore:
+    volumes:
+      # - ./data/postgres:/data/postgres
+      # - ./data/schema.pgsql.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+      - ./data/mariadb:/var/lib/mysql:Z
+      - ./data/schema.mariadb.sql:/docker-entrypoint-initdb.d/schema.sql:ro

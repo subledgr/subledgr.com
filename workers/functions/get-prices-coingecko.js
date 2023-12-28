@@ -2,28 +2,22 @@
 
 import axios from 'axios'
 import moment from 'moment'
-// import fs from 'fs'
-// import { serializeError } from 'serialize-error'
-
 import path from "path"
 const __dirname = path.resolve();
 
 import { DataStore } from '../../data/data-store.js'
-// import pkg from '../../data/data-store.js';
-// const { DataStore } = pkg;
-
-// import { config } from '../../config/config.js'
-// import { config as configLocal } from '../config/config.local.js'
-// const cfg = Object.assign(config, configLocal)
 import cfg from '../../config/config.js'
 
 const baseUrl = 'https://api.coingecko.com'
 const service = '/api/v3/simple/price'
+// Using free api, TODO do we need an apiKey?
 // const apiKey = 'd2585f10-f0f8-4b05-811d-9cb20de495f5'
 
 const ds = new DataStore({ pruning: cfg.pruning })
+
 // const apiUrl = 'http://subledgr-api:4000/api/'
 
+// TODO move this to a central config / model?
 const currencies = {
   polkadot: { code: 'DOT', },
   kusama: { code: 'KSM' },
@@ -71,7 +65,7 @@ export async function getPricesCG(job) {
       }
     }
     // console.debug(ret)
-    if (ret.data && ret.data !== {}) {
+    if (ret.data && JSON.stringify(ret.data) !== '{}') {
       job.log('we have some data')
       console.log(ret.data)
       result = ret.data

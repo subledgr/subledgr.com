@@ -4,7 +4,8 @@ const typeDefs = gql`
 
 type Query {
   User: User
-  Currencies: [Currency]
+  Assets: [Asset]
+  #Currencies: [Currency]
   Counter: Int
   Wallets(page: Int, offset: Int, search: String): WalletsResponse
 }
@@ -18,13 +19,21 @@ type AccountData {
   pooled: BigInt
 }
 
-type Currency {
-  code: String!
+type Asset {
+  id: String!
   name: String
   symbol: String
   symbolPosition: Int
   decimals: Int
 }
+
+#type Currency {
+#  code: String!
+#  symbol: String
+#  name: String
+#  symbolPosition: Int
+#  decimals: Int
+#}
 
 type User {
   id: Int
@@ -38,7 +47,7 @@ type LogoutResponse {
 type Wallet {
   id: String!
   User: User
-  Currency: Currency
+  Asset: Asset
   address: String!
   name: String!
   balance: AccountData

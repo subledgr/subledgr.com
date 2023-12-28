@@ -10,6 +10,8 @@ type Query {
   UserByEmail(email: String): User
   UserById(id: Int): User
   Users: [User]
+  Asset(id: String!): Asset
+  Assets: [Asset]
   Currencies: [Currency]
   CryptoCurrencies: [CryptoCurrencyCoinbase]
   MarketData(fromCurrency: String, toCurrency: String, fromDate: String, interval: String, periods: Int): [Price]
@@ -17,28 +19,31 @@ type Query {
   Portfolio(id: Int): Portfolio
   Price(f_curr: String, t_curr: String): Price
   Prices(ids: [String], t_curr: String): [Price]
+  PriceHistory(f_curr: String, t_curr: String): [PriceHistoryItem]
   Profile: UserProfile
   SymbolPriceTicker(symbol: String): SymbolPriceTicker
   Transactions(chainId: String, walletId: String, address: String, ids: [String], offset: Int, limit: Int): [Transaction]
-  Wallets(page: Int, offset: Int, search: String): [Wallet] # WalletsResponse
+  Wallets(ids: [String], page: Int, offset: Int, search: String): [Wallet] # WalletsResponse
   Wallet(id: String!): WalletResponse
-  # books: [Book]
 }
 
 type Mutation {
   register(email: String, password: String): UserRegisterResponse
   login(email: String, password: String): UserLoginResponse
-  saveProfile(dateTimeFormat: String, defaultCurrency: String, defaultDecimals: Int, itemsPerPage: Int): UserProfile
+  saveProfile(dateTimeFormat: String, locale: String, defaultCurrency: String, defaultDecimals: Int, itemsPerPage: Int): UserProfile
   reset(token: String, email: String!, password: String): UserResetResponse
-  createWallet(name: String!, currencyCode: String!, address: String!): CreateWalletResponse
-  deleteWallet(id: String!): DeleteWalletResponse
-  addAsset(currencyCode: String): AddAssetResponse
-#  addBook(title: String, author: String): AddBookMutationResponse
-}
 
-#type MeRseponse extends User {
-#  profile: UserProfile
-#}
+  # Portfolio management
+  createPortfolio(name: String!, currencyCode: String!): CreatePortfolioResponse
+  setPortfolioWallets(id: Int!, walletIds: [String]!): CreatePortfolioResponse
+
+  # Wallet management
+  createWallet(name: String!, assetId: String!, address: String!): CreateWalletResponse
+  deleteWallet(id: String!): DeleteWalletResponse
+
+  # Asset management
+  addAsset(assetId: String): AddAssetResponse
+}
 
 type AccountData 
 @key(fields: "id")
@@ -49,6 +54,8 @@ type AccountData
   miscFrozen: BigInt
   feeFrozen: BigInt
   pooled: BigInt
+  pooledClaimable: BigInt
+  locks: [BalanceLock]
 }
 
 type Account {
@@ -60,8 +67,14 @@ type Account {
 }
 
 type AssetBalance {
-  currencyCode: String
+  assetId: String
   balance: AccountData
+}
+
+type BalanceLock {
+  id: String
+  amount: BigInt
+  reasons: String
 }
 
 type UserRegisterResponse {
@@ -88,8 +101,24 @@ type UserResetResponse {
 type AddAssetResponse {
   success: Boolean!
   message: String!
-  currency: Currency
+  asset: Asset
   #added: any
+}
+
+type Asset
+@key(fields: "id")
+{
+  id: String
+  code: String
+  type: String
+  name: String
+  active: Boolean
+  parent: String
+  decimals: Int
+  symbol: String
+  symbolPosition: Int
+  status: String
+  logo: String
 }
 
 type Currency
@@ -118,6 +147,58 @@ type CryptoCurrencyCoinbase {
   asset_id: String
 }
 
+type Judgement {
+  index: Int
+  judgement: String
+}
+
+type AccountDisplay {
+  address: String
+  display: String
+  judgements: [Judgement]
+  account_index: String
+  identity: Boolean
+  parent: AccountDisplayParent
+}
+type AccountDisplayParent {
+  address: String
+  display: String
+  sub_symbol: String
+  identity: Boolean
+}
+type Event {
+  event_index: String
+  block_num: BigInt
+  extrinsic_index: Int
+  module_id: String
+  event_id: String
+  params: String
+  phase: Int
+  event_idx: Int
+  extrinsic_hash: String
+  finalized: Boolean
+  block_timestamp: BigInt
+}
+type Extrinsic {
+  account_display: AccountDisplay
+  account_id: String
+  account_index: String
+  block_num: BigInt
+  block_timestamp: BigInt
+  call_module: String
+  call_module_function: String
+  extrinsic_hash: String
+  extrinsic_index: String
+  fee: BigInt
+  fee_used: BigInt
+  nonce: Int
+  params: String
+  signature: String
+  from_hex: String
+  finalized: Boolean
+  success: Boolean
+}
+
 type Price
 #@key(fields: ["datetime", "f_curr", "t_curr", "source"])
 {
@@ -144,36 +225,78 @@ type Portfolio
   id: Int # TODO: change to String UUID
   User: User
   name: String!
-  Currency: Currency
+  Currency: Currency # reporting currency
   Wallets: [Wallet]
+#  value: Float
 }
 
-type Transaction 
+type PriceHistoryItem {
+  f_curr: String
+  t_curr: String
+  key: String
+  price: Float
+}
+
+# this comes from indexDb
+type Transaction # matched to subsquid Transfer model
 #@key(fields: ["chain", "id"])
 {
-  chain: String
+  chainId: String # we will shard the database on chain_id
+  Asset: Asset
   id: String
-  height: BigInt
-  blockHash: String
-  type: String
-  subType: String
-  event: String
-  addData: String
-  timestamp: BigInt
-  specVersion: String
-  transactionVersion: String
-  authorId: String
-  senderId: String
-  recipientid: String
+  blockNumber: BigInt
+  timestamp: String
+  extrinsicId: String
+  extrinsicHash: String
+  #type: String
+  section: String
+  #subType: String
+  method: String
+  #event: String
+  #addData: String
+  # specVersion: String
+  # transactionVersion: String
+  #authorId: String
+  fromId: String
+  toId: String
   amount: BigInt
-  totalFee: BigInt
-  feeBalances: BigInt
-  feeTreasury: BigInt
-  tip: BigInt
+  # totalFee: BigInt
+  # feeBalances: BigInt
+  # feeTreasury: BigInt
+  # tip: BigInt
+  fee: BigInt
   success: Boolean
-  updatedAt: String
-  createdAt: String
+  #updatedAt: String
+  #createdAt: String
 }
+
+# type Transaction_polka_store
+# #@key(fields: ["chain", "id"])
+# {
+#   chain: String
+#   Asset: Asset
+#   id: String
+#   height: BigInt
+#   blockHash: String
+#   type: String
+#   subType: String
+#   event: String
+#   addData: String
+#   timestamp: BigInt
+#   specVersion: String
+#   transactionVersion: String
+#   authorId: String
+#   senderId: String
+#   recipientId: String
+#   amount: BigInt
+#   totalFee: BigInt
+#   feeBalances: BigInt
+#   feeTreasury: BigInt
+#   tip: BigInt
+#   success: Boolean
+#   updatedAt: String
+#   createdAt: String
+# }
 
 type User 
 @key(fields: "id")
@@ -195,6 +318,7 @@ type UserProfile
   id: Int
   dateTimeFormat: String
   defaultCurrency: String
+  locale: String
   defaultDecimals: Int
   itemsPerPage: Int
 }
@@ -204,12 +328,41 @@ type Wallet
 {
   id: String!
   User: User
-  Currency: Currency
+  # assetId: String
+  Asset: Asset
   address: String!
   name: String!
-  balance: AccountData
-  transactions: [Transaction]
+  # balance: AccountData
+  balance: WalletBalance
+  portfolios: [Portfolio]
+  transactions(limit: Int): [Transaction]
+  extrinsics: ExtrinsicsResponse
+  events: EventsResponse
   chartData(period: String): [WalletChartItem]
+  balanceHistory(fromBlock: BigInt, fromDate: String, limit: Int): [WalletBalance]
+  valueHistory(t_curr: String, periods: Int, granulatity: String): [WalletValueItem]
+}
+
+type WalletBalance
+# @key(fields: ["id", "blockNumber"])
+{
+  id: String
+  blockNumber: BigInt
+  timestamp: String
+  free: BigInt
+  reserved: BigInt
+  pooled: BigInt
+  claimable: BigInt
+  locked: BigInt
+  balance: BigInt
+  createdAt: String
+  updatedAt: String
+}
+
+type WalletValueItem {
+  datetime: String
+  closing_balance: BigInt
+  closing_price: Float
 }
 
 type WalletChartItem {
@@ -223,10 +376,30 @@ type WalletsResponse {
   message: String
 }
 
+type EventsResponse {
+  count: Int
+  page: Int
+  rows: Int
+  events: [Event]
+}
+
+type ExtrinsicsResponse {
+  count: Int
+  page: Int
+  rows: Int
+  extrinsics: [Extrinsic]
+}
+
 type WalletResponse {
   wallet: Wallet
   error: Boolean
   message: String
+}
+
+type CreatePortfolioResponse {
+  success: Boolean!
+  message: String
+  portfolio: Portfolio
 }
 
 type CreateWalletResponse {

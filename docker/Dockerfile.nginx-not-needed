@@ -1,6 +1,10 @@
 # Use the official Nginx image as the base image
 FROM nginx:latest
 
+# 
+# NOT NEEDED, WE CAN PROXY TO THE API IN THE FRONTEND
+# 
+
 ENV API_HOST=subledgr-api
 ENV API_PORT=4000
 ENV SERVER_NAME=subledgr-nginx

@@ -1,6 +1,6 @@
 <template>
-  <v-list>
-    <v-list-item v-for="(tx, idx) in list2" v-bind:key="idx" @click="onShowTransaction(tx)">
+  <v-list :loading="loading">
+    <v-list-item v-for="(tx, idx) in list" v-bind:key="idx" @click="onShowTransaction(tx)">
       <!-- <template v-slot:prepend>
         <v-avatar size="small" color="grey-lighten-2">
           <v-icon :color="tx.amount ? 'green' : 'red'" :icon="tx.amount ? 'mdi-plus' : 'mdi-minus'"></v-icon>
@@ -10,11 +10,13 @@
       <v-list-item-title>
         <v-row>
           <v-col align="left">
-            {{ typeName(tx.type) }}<span v-if="tx.type==='utility.batch'"> ({{ tx.event }})</span>
+            {{ typeName(`${ tx.section }.${ tx.method }`) }}
+            <!-- {{ tx.section }}.{{ tx.method }} -->
+            <!-- <span v-if="tx.type==='utility.batch'"> ({{ tx.event }})</span> -->
           </v-col>
-          <v-col align="right" :class="tx.recipientid === wallet2.address ? 'text-green' : 'text-red'">
-            {{ toCoin(wallet2?.Currency.code || currencyCode, tx.amount).toLocaleString('en-GB') }} 
-            {{ wallet?.Currency.code || currencyCode }}
+          <v-col align="right" :class="tx.toId === wallet?.address ? 'text-green' : tx.fromId === wallet?.address ? 'text-red' : 'text-grey'">
+            {{ toCoin(tx?.Asset?.id, tx.amount).toLocaleString('en-GB') }}
+            {{ tx?.Asset?.code }}
           </v-col>
         </v-row>
       </v-list-item-title>
@@ -23,29 +25,16 @@
         <v-row>
           <v-col align="left">
             <!-- {{ moment.unix(tx.timestamp/1000).format(profile.dateTimeFormat) }} -->
-            {{ moment.unix(tx.timestamp/1000).fromNow() }}
+            <!-- {{ moment.unix(tx.timestamp/1000).fromNow() }} -->
+            {{ toProfileDate(tx.timestamp) }}
           </v-col>
-          <v-col>#{{ tx.height }}</v-col>
-          <v-col cols="5" align="right">Fee: {{ toCoin(wallet2?.Currency.code || currencyCode, tx.totalFee) }}</v-col>
+          <v-col>#{{ tx.blockNumber }}</v-col>
+          <v-col cols="5" align="right">Fee: {{ toCoin(tx?.Asset.id || currency.code, tx.fee) }}</v-col>
         </v-row>
       </v-list-item-subtitle>
-      <!-- <template v-slot:append>
-        <v-btn icon size="small" elevation="0">
-          <v-icon>mdi-dots-vertical</v-icon>
-          <v-menu activator="parent">         
-            <v-list>
-              <v-list-item>
-                <a :href="`https://kusama.subscan.io/block/${tx.height}`" target="_blank" rel="noopener noreferrer">
-                  <v-img height="22" src="/images/logos/external/subscan.png"></v-img>
-                </a>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-btn>
-      </template> -->
 
     </v-list-item>
-    <transaction-dialog :transaction="transaction" :wallet="wallet" :currencyCode="currencyCode" :showDialog="showDialog" @dialogClose="onDialogClosed"></transaction-dialog>
+    <transaction-dialog :transaction="transaction" :wallet="wallet" :showDialog="showDialog" @dialogClose="onDialogClosed"></transaction-dialog>
   </v-list>
 </template>
 
@@ -65,30 +54,40 @@ export default defineComponent({
     list: {
       type: Object as PropType<ITransaction[]>
     },
-    currencyCode: {
-      type: String,
-      default: 'USD'
+    loading: {
+      type: Boolean,
+      default: false
     },
     wallet: {
       type: Object as PropType<IWallet>,
+      required: false
     },
+    // get this from transaction.Asset.id
+    // assetId: {
+    //   type: String,
+    //   required: false
+    // }
   },
   setup(props) {
     const store = useStore()
     const profile = store.state.profile
+    const currency = computed(() => store.state.currency.list.find((c: ICurrency) => c.code === profile.defaultCurrency))
     const transactionState = store.state.transaction
+    // const assetId = ref('')
 
-    const { toCoin } = useGlobalUtils()
-    const wallet2 = computed<IWallet>(() => props.wallet || { address: '', Currency: {} } as IWallet)
-    const list2 = computed<ITransaction[]>(() => props.list || [])
+    const { toCoin, toProfileDate } = useGlobalUtils()
+    // const wallet2 = computed<IWallet>(() => props.wallet || { address: '', Currency: {} } as IWallet)
+    // const list2 = computed<ITransaction[]>(() => props.list || [])
 
     const typeName = (_type: string) => {
-      // const [module, method] = _type.split('.')
-      var name = transactionState.types[_type]
-      // console.debug('typeName', _type, name)
+      var [module, method] = _type.split('.')
+      module = module.charAt(0).toLowerCase()+module.slice(1)
+      method = method.charAt(0).toLowerCase()+method.slice(1)
+      var name = transactionState.types[`${module}.${method}`]
       if (!name || name === '') {
         const parts = _type.split('.')
-        // console.debug('parts', parts)
+        console.debug('typeName', module, method, _type, name)
+        console.debug('parts', parts)
         name = parts[1].charAt(0).toUpperCase()+parts[1].slice(1)
           .split(/(?=[A-Z])/)
           .join(' ');
@@ -110,10 +109,12 @@ export default defineComponent({
     return {
       moment,
       profile,
+      currency,
       toCoin,
+      toProfileDate,
       typeName,
-      wallet2,
-      list2,
+      // wallet2,
+      // list2,
       transaction,
       onShowTransaction,
       showDialog,

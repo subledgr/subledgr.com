@@ -15,8 +15,8 @@
               <!-- <v-text-field readonly :rules="rules.currency"></v-text-field> -->
               <v-text-field readonly
                 :error="false"
-                :errorMessages="!currency.symbol ? 'Currency is required' : undefined"
-                @click="showCurrencyPicker=true">
+                :errorMessages="!currency.symbol ? 'Asset is required' : undefined"
+                @click="showAssetPicker=true">
                 <template v-slot:append-inner>
                   <v-avatar  v-show="!!currency.logo" density="compact">
                     <v-img :src="currency.logo"></v-img>
@@ -24,10 +24,10 @@
                 </template>
                 {{ currency.symbol }}
               </v-text-field>
-              <currency-picker-dialog :visible="showCurrencyPicker"
+              <currency-picker-dialog :visible="showAssetPicker"
                 :closeOnSelect="true"
-                @selectCurrency="onSelectCurrency"
-                @closeDialog="onCloseCurrencyPicker"></currency-picker-dialog>
+                @selectAsset="onSelectAsset"
+                @closeDialog="onCloseAssetPicker"></currency-picker-dialog>
             </v-row>
             <v-row>
               <v-text-field v-model="address" label="address" :rules="rules.address"></v-text-field>
@@ -48,7 +48,7 @@
 
 <script lang="ts">
 import { defineComponent, watch, ref } from 'vue'
-import CurrencyPickerDialog from './CurrencyPickerDialog.vue'
+import AssetPickerDialog from './AssetPickerDialog.vue'
 import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
 import { SynchronousCachePersistor } from 'apollo3-cache-persist'
@@ -71,7 +71,7 @@ const MUT_WALLET_ADD = gql`
 
 export default defineComponent({
   components: {
-    CurrencyPickerDialog
+    AssetPickerDialog
   },
   props: {
     visible: Boolean,
@@ -90,14 +90,14 @@ export default defineComponent({
       name: [ (val:string) => !!val || 'Name is required' ],
       currency: [ (val: any) => {
         console.debug('rules.currency', val)
-        return !!val?.symbol || 'Currency is required'
+        return !!val?.symbol || 'Asset is required'
       } ]
     }
     // const emits = defineEmits(['walletAdded'])
 
     const visible = ref(props.visible)
     const x_visible = ref(false)
-    var showCurrencyPicker = ref(false)
+    var showAssetPicker = ref(false)
     var currency = ref({ symbol: '', logo: undefined })
     var currencyEl = ref<HTMLFormElement>()
     var valid = ref(false)
@@ -107,26 +107,26 @@ export default defineComponent({
       x_visible.value = newVal
     })
 
-    watch(() => showCurrencyPicker.value, (newVal) => {
-      console.debug('watch.showCurrencyPicker', newVal)
-      showCurrencyPicker.value = newVal
+    watch(() => showAssetPicker.value, (newVal) => {
+      console.debug('watch.showAssetPicker', newVal)
+      showAssetPicker.value = newVal
     })
 
     const closeDialog = () => {
-      showCurrencyPicker.value = false
+      showAssetPicker.value = false
       x_visible.value = false
       currency.value = { symbol: '', logo: undefined }
       name.value = ''
       address.value = ''
     }
 
-    const onCloseCurrencyPicker = () => {
-      showCurrencyPicker.value = false
+    const onCloseAssetPicker = () => {
+      showAssetPicker.value = false
     }
 
-    const onSelectCurrency = (item: any) => {
-      showCurrencyPicker.value = false
-      console.debug('WalletAddDialog.vue: onSelectCurrency', item)
+    const onSelectAsset = (item: any) => {
+      showAssetPicker.value = false
+      console.debug('WalletAddDialog.vue: onSelectAsset', item)
       currency.value = item
       console.log('checking validity')
       form.value?.checkValidity()
@@ -156,13 +156,13 @@ export default defineComponent({
       x_visible,
       currency,
       currencyEl,
-      showCurrencyPicker,
+      showAssetPicker,
       name,
       address,
       valid,
       rules,
-      onCloseCurrencyPicker,
-      onSelectCurrency,
+      onCloseAssetPicker,
+      onSelectAsset,
       addWallet,
       closeDialog,
     }

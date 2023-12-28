@@ -1,16 +1,11 @@
 <template>
-  <v-container fluid class="ma-0 pa-0">
-    <!-- <SymbolOverview :options="symbolOverviewOptions"></SymbolOverview> -->
+  <v-container style="width: fit-content;">
     <Chart :options="chartOptions"></Chart>
-    <!-- <CryptoMarket /> -->
-    <!-- <Snaps/> -->
-    <!-- <Screener/> -->
   </v-container>
-   <!-- <Bar :data="chartData" /> -->
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, computed, onMounted, onBeforeUnmount } from 'vue'
 import { useStore } from 'vuex';
 // import cubejs from '@cubejs-client/core';
 // // import { QueryRenderer } from '@cubejs-client/react';
@@ -47,10 +42,13 @@ interface ISymbol {
 const symbols = {
   'DOTUSD': { symbol: 'DOTUSD', exchange: 'COINBASE'},
   'DOTGBP': { symbol: 'DOTGBP', exchange: 'COINBASE'},
+  'DOTEUR': { symbol: 'DOTEUR', exchange: 'COINBASE'},
   'KSMGBP': { symbol: 'KSMGBP', exchange: 'KRAKEN' },
   'KSMUSD': { symbol: 'KSMUSD', exchange: 'COINBASE' },
+  'KSMEUR': { symbol: 'KSMEUR', exchange: 'KRAKEN' },
   'DOCKGBP': { symbol: 'DOCKGBP', exchange: 'CRYPTO' },
-  'DOCKUSD': { symbol: 'DOCKUSD', exchange: 'CRYPTO' },
+  'DOCKEUR': { symbol: 'DOCKEUR', exchange: 'CRYPTO' },
+  'DOCKUSD': { symbol: 'DOCKUSD', exchange: 'COINBASE' },
 } as Record<string, ISymbol>
 
 export default defineComponent({
@@ -73,8 +71,8 @@ export default defineComponent({
   },
   setup(props) {
     const store = useStore()
-    const profile = store.state.profile
-    const symbolKey = `${props.fromCurrency || 'DOT'}${profile.defaultCurrency || 'GBP'}`
+    const profile = computed(() => store.state.profile)
+    const symbolKey = `${props.fromCurrency || 'DOT'}${profile.value.defaultCurrency || 'GBP'}`
     const ticker = `${symbols[symbolKey].exchange}:${symbols[symbolKey].symbol}`
     console.debug('symbolKey', symbolKey, ticker)
     const symbolOverviewOptions = {
@@ -110,9 +108,30 @@ export default defineComponent({
     //   "lineType": 0
     }
     // use this to check config: https://www.tradingview.com/widget/advanced-chart/
+
+    const el = ref()
+    const onResize = () => {
+      console.debug('resize')
+      chartOptions.value.width = el.value.offsetWidth - 25
+      chartOptions.value.height = Math.min(window.innerWidth * .6, 350)
+    }
+
+    onMounted(() => {
+      el.value = document.getElementById('MarketData')
+      // console.debug('mounted', el.value.offsetWidth, el.value.offsetHeight)
+      chartOptions.value.width = el.value.offsetWidth - 25
+      window.addEventListener('resize', onResize)
+    })
+
+    onBeforeUnmount(() => {
+      console.debug('unmounted')
+      window.removeEventListener('resize', onResize)
+    })
+
     const chartOptions = ref({
       autosize: false,
-      width: window.innerWidth || 800,
+      // width: window.innerWidth || 800,
+      width: 800, // el.value?.offsetWidth || 800,
       height: Math.min(window.innerWidth * .6, 350),
       theme: 'light',
       chartOnly: true,

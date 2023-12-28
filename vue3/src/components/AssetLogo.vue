@@ -7,11 +7,11 @@
 <script lang="ts">
 import { defineComponent, computed, watch } from 'vue'
 import { useStore } from 'vuex'
-import { ICurrency } from './types'
+import { IAsset } from './types'
 
 export default defineComponent({
   props: {
-    currencyCode: {
+    assetId: {
       type: String,
       required: true
     },
@@ -22,16 +22,17 @@ export default defineComponent({
   },
   setup(props) {
     const store = useStore()
-    const currencies = computed<ICurrency[]>(() => store.state.currency.list)
-    const currencyCode = computed(() => props.currencyCode)
+    const assets = computed<IAsset[]>(() => store.state.asset.list)
+    // console.debug('assets', assets.value)
+    const assetId = computed(() => props.assetId)
 
     const currency = computed(() => {
-      const cur = currencies.value.find((f:ICurrency) => f.code === currencyCode.value)
+      const cur = assets.value?.find((f:IAsset) => f.id === assetId.value)
       return cur || { logo: '' }
     })
 
-    watch(() => currencyCode.value, newVal => {
-      console.debug('watch.currencyCode', newVal)
+    watch(() => assetId.value, newVal => {
+      console.debug('watch.assetId', newVal)
     })
     const imgUrl = computed(() => `/${currency.value.logo}`)
     return { imgUrl }
