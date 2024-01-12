@@ -21,7 +21,7 @@ const walletModel = {
     name: { type: DataTypes.STRING(64) },
     assetId: { type: DataTypes.STRING(32), allowNull: false },
     address: { type: DataTypes.STRING(64), allowNull: false },
-    balance: { type: DataTypes.BIGINT, defaultValue: 0 },
+    // balance: { type: DataTypes.BIGINT, defaultValue: 0 },
     // status: { type: DataTypes.STRING(16) },
     // multiaddrs: { type: DataTypes.JSON }
     userId: { type: DataTypes.INTEGER, allowNull: false },

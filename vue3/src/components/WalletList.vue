@@ -130,6 +130,7 @@ export default defineComponent({
         + BigInt(balance?.reserved || 0)
         // + balance.miscFrozen || 0
         // + balance.feeFrozen || 0
+        + BigInt(balance?.locked || 0)
         + BigInt(balance?.pooled || 0)
         + BigInt(balance?.pooledClaimable || 0)
       // console.debug('sumBalance()', bal)

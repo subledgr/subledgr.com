@@ -11,7 +11,7 @@ ARG TARGETPLATFORM
 RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
 
 # nginx port
-ENV PORT=8080
+ENV HTTP_PORT=8080
 # nginx server name TODO do we need this?
 ENV SERVER_NAME=localhost
 # nginx proxypass to api
@@ -43,7 +43,7 @@ RUN chmod +x /entrypoint.sh
 # HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 #   CMD curl -f http://localhost:$PORT/version || exit 1
 
-EXPOSE ${PORT}
+EXPOSE ${HTTP_PORT}
 
 # CMD [ "yarn", "dev" ]
 # CMD [ "http-server", "dist", "--proxy", "http://localhost:8080?", "--proxy-options" ]

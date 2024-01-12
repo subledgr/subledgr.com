@@ -201,6 +201,7 @@ export default defineComponent({
     const sumBalance = (balance: IWalletData): BigInt => {
       const bal = BigInt(balance.free || 0)
         + BigInt(balance.reserved || 0)
+        + BigInt(balance.locked || 0)
         // + balance.miscFrozen || 0
         // + balance.feeFrozen || 0
         + BigInt(balance.pooled || 0)
@@ -241,8 +242,8 @@ export default defineComponent({
         // const val = toValue(wallet.Asset.id, BigInt(wallet.balance?.free || 0))
         ret += toValue(wallet.Asset.id, BigInt(wallet.balance?.free || 0))
         ret += toValue(wallet.Asset.id, BigInt(wallet.balance?.reserved || 0))
-        ret += toValue(wallet.Asset.id, BigInt(wallet.balance?.pooled || 0))
-        ret += toValue(wallet.Asset.id, BigInt(wallet.balance?.pooledClaimable || 0))
+        // ret += toValue(wallet.Asset.id, BigInt(wallet.balance?.pooled || 0))
+        ret += toValue(wallet.Asset.id, BigInt(wallet.balance?.claimable || 0))
         // console.debug('val', val, typeof val)
         // ret += val
       }

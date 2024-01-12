@@ -3,7 +3,7 @@
 ## components
 
 - frontend - vue3
-  - api graphql client
+  => api graphql client
 
 - api - graphql
   - sequelize 

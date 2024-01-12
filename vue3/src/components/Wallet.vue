@@ -18,6 +18,11 @@
           <v-icon>mdi-dots-vertical</v-icon>
           <v-menu activator="parent">
             <v-list>
+              <v-list-item>
+                <a :href="`https://${result?.Wallet?.wallet?.Asset?.id || ''}.subscan.io/account/${result?.Wallet?.wallet?.address}`" target="_blank">
+                  <v-icon>mdi-magnify</v-icon>&nbsp;View
+                </a>
+              </v-list-item>
               <v-list-item @click="showConfirmDialog = true">
                 <v-icon color="red">mdi-delete-alert-outline</v-icon>&nbsp;Delete
               </v-list-item>

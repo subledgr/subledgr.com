@@ -498,38 +498,48 @@ const resolvers = {
       // if (!chain) return {}
       // chain = chain.toLowerCase()
       try {
-        // var url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/query/system/account/${wallet.address}`
-        // console.debug('url', url)
-        // var rest = await axios.get(url)
-        // if (rest.data) ret = rest.data.data
-        // // pooled value
-        // url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/query/nominationPools/poolMembersForAccount?accountId=${wallet.address}`
-        // console.debug('url', url)
-        // var rest = await axios.get(url)
-        // if (rest.data) ret.pooled = rest.data.poolMembers?.points || 0
-        // // locks
-        // url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/query/balances/locks?accountId=${wallet.address}`
-        // // console.debug('url', url)
-        // var rest = await axios.get(url)
-        // if (rest.data) ret.locks = rest.data.locks.map(lock => {
-        //   return { id: lock.id, amount: Number(lock.amount), reasons: lock.reasons }
-        // }) || []
-        // // pending pool rewards
-        // url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/api/call/nominationPoolsApi/pendingRewards?accountId=${wallet.address}`
-        // // console.debug('url', url)
-        // var rest = await axios.get(url)
-        // console.log('rest.data', rest.data)
-        // if (rest.data) ret.pooledClaimable = rest.data.pendingRewards || 0
-        // ret.id = wallet.id
-        const where = { id: wallet.id }
-        const latest = await db.WalletBalance.findAll({ where, order: [['timestamp', 'DESC']], limit: 1 })
-        ret = latest[0]
+        if (wallet.assetId === 'dock') {
+          // read balance from chain (via api)
+          var url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/query/system/account/${wallet.address}`
+          console.debug('url', url)
+          var rest = await axios.get(url)
+          if (rest.data) ret = rest.data.data
+          // pooled value
+          url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/query/nominationPools/poolMembersForAccount?accountId=${wallet.address}`
+          console.debug('url', url)
+          var rest = await axios.get(url)
+          if (rest.data) ret.pooled = rest.data.poolMembers?.points || 0
+          // locks
+          url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/query/balances/locks?accountId=${wallet.address}`
+          // console.debug('url', url)
+          var rest = await axios.get(url)
+          if (rest.data) ret.locks = rest.data.locks.map(lock => {
+            return { id: lock.id, amount: Number(lock.amount), reasons: lock.reasons }
+          }) || []
+          // pending pool rewards
+          url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/api/call/nominationPoolsApi/pendingRewards?accountId=${wallet.address}`
+          // console.debug('url', url)
+          var rest = await axios.get(url)
+          console.log('rest.data', rest.data)
+          if (rest.data) ret.pooledClaimable = rest.data.pendingRewards || 0
+          // balance
+          ret.balance = ret.free + ret.pooledClaimable + ret.pooled
+          ret.id = wallet.id
+
+        } else {
+          // read balance from db
+          const where = { id: wallet.id }
+          const latest = await db.WalletBalance.findAll({ where, order: [['timestamp', 'DESC']], limit: 1 })
+          ret = latest[0]
+  
+        }
       } catch(err) {
         // console.warn('last url', url)
         console.error('error', err.toString())
       }
       return ret
     },
+
     balanceHistory: async (wallet, args, context) => {
       console.debug('Wallet.balanceHistory', wallet.assetId, wallet.id, wallet.address)
       const { user, db } = context
