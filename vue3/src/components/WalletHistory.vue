@@ -2,10 +2,10 @@
   <v-card elevation="0">
     <v-card-title>
       History ({{ profile.defaultCurrency }})
-      <v-btn flat icon @click="refetch"><v-icon size="v-small">mdi-refresh</v-icon></v-btn>
+      <v-btn flat icon @click="refetch" :loading="loading"><v-icon size="v-small">mdi-refresh</v-icon></v-btn>
     </v-card-title>
     <v-card-text>
-      <v-progress-linear indeterminate v-show="loading"></v-progress-linear>
+      <!-- <v-progress-linear indeterminate v-show="loading"></v-progress-linear> -->
       <Line id="price-history" :options="chartOptions" :data="chartData"></Line>
     </v-card-text>
   </v-card>
@@ -60,6 +60,9 @@ export default defineComponent({
     const chartOptions = computed<any>(() => {
       return {
         responsive: true,
+        animation: {
+          duration: 0
+        },
         title: {
           display: false,
           // text: 'Price History'
