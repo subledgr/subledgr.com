@@ -53,7 +53,7 @@ const chains = [
 
 
   { id: 'debio', type: 'crypto', name: 'DeBio', active: false, parent: '', parachain: false, code: '', logo: 'images/logos/chains/debio.svg' },
-  { id: 'dock', type: 'crypto', name: 'Dock', active: true, parent: '', parachain: false, code: 'DOCK', decimals: 6, logo: 'images/logos/nodes/dock-mainnet.png' },
+  { id: 'dock', type: 'crypto', name: 'Dock', active: false, parent: '', parachain: false, code: 'DOCK', decimals: 6, logo: 'images/logos/nodes/dock-mainnet.png' },
 
 
 
