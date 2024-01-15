@@ -69,6 +69,7 @@ export async function getWalletHistory(job) {
     }
 
     console.debug('fromBlock', fromBlock)
+    job.log(`[worker] ${JOB_NAME} processing wallet ${wallet.id} ${wallet.assetId} ${wallet.address} fromBlock ${fromBlock}`)
     // process.exit(0)
 
     // TODO: limit this to the last 1000 blocks where an address/blockNumber has no balance?
@@ -85,6 +86,7 @@ export async function getWalletHistory(job) {
       // group: ['blockNumber']
     })
     console.log('found blocks', blockNumbers.length)
+    job.log(`[worker] ${JOB_NAME} found blocks ${blockNumbers.length}`)
 
     var ret = { free: 0, reserved: 0, frozen: 0, pooled: 0, locked: 0 }
     for (let i = 0; i < blockNumbers.length; i++) {
@@ -95,6 +97,7 @@ export async function getWalletHistory(job) {
       // // if( i > 10 ) break
 
       console.log('block', blockNumber)
+      job.log(`processing block: ${blockNumber}`)
       const params = { at: blockNumber }
       const atHash = await api.rpc.chain.getBlockHash(blockNumber)
       const apiAt = await api.at(atHash)

@@ -18,6 +18,8 @@ const PORT = cfg.bullmq.port // process.env.SUBLEDGR_BULLMQ_PORT || 3000
 // import { asyncForeach } from './lib/utils.js'
 import { getPricesCMC } from './functions/get-prices-coinmarketcap.js'
 import { getPricesCG } from './functions/get-prices-coingecko.js'
+import { getWalletsHistory } from './functions/get-wallets-history.js'
+import { getWalletHistory } from './functions/get-wallet-history.js'
 
 async function asyncForeach(array, callback) {
   for (let index = 0; index < array.length; index++) {
@@ -36,6 +38,8 @@ const qOpts = {
 const jobs = [
   'getPricesCMC',
   'getPricesCG',
+  'getWalletsHistory',
+  'getWalletHistory',
 ]
 
 async function onError(job, err) {
@@ -50,9 +54,13 @@ async function onFailed(job, event) {
 
 const q_getPricesCMC = new Queue('getPricesCMC', qOpts)
 const q_getPricesCG = new Queue('getPricesCG', qOpts)
+const q_getWalletsHistory = new Queue('getWalletsHistory', qOpts)
+const q_getWalletHistory = new Queue('getWalletHistory', qOpts)
 
 const w_getPricesCMC = new Worker('getPricesCMC', getPricesCMC, qOpts)
 const w_getPricesCG = new Worker('getPricesCG', getPricesCG, qOpts)
+const w_getWalletsHistory = new Worker('getWalletsHistory', getWalletsHistory, qOpts)
+const w_getWalletHistory = new Worker('getWalletHistory', getWalletHistory, qOpts)
 
 // handle all error/failed
 jobs.forEach((job) => {
@@ -97,6 +105,10 @@ async function clearQueue(jobname) {
       repeat: { pattern: '0,15,30,45 * * * *' },
       ...jobRetention
     })
+    await q_getWalletsHistory.add('sl:getWalletsHistory', jOpts, {
+      repeat: { pattern: '0,15,30,45 * * * *' },
+      ...jobRetention
+    })
   }
 
   await clearQueues()
@@ -109,6 +121,8 @@ async function clearQueue(jobname) {
     queues: [
       new BullMQAdapter(q_getPricesCMC, { readOnlyMode: false }),
       new BullMQAdapter(q_getPricesCG, { readOnlyMode: false }),
+      new BullMQAdapter(q_getWalletsHistory, { readOnlyMode: false }),
+      new BullMQAdapter(q_getWalletHistory, { readOnlyMode: false }),
     ],
     serverAdapter: serverAdapter,
   })
