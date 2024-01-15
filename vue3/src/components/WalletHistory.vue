@@ -57,7 +57,7 @@ export default defineComponent({
       fetchPolicy: 'cache-and-network', // 'cache-first'
     })
 
-    const chartOptions = computed(() => {
+    const chartOptions = computed<any>(() => {
       return {
         responsive: true,
         title: {
@@ -132,14 +132,14 @@ export default defineComponent({
       return {
         // labels: [ 'January', 'February', 'March' ],
         // labels: result.value?.PriceHistory?.slice(0, periods.value).map((m) => m.key) || [],
-        labels: result.value?.Wallet.wallet?.valueHistory?.map((m) => m.datetime) || [],
+        labels: result.value?.Wallet.wallet?.valueHistory?.map((m: any) => m.datetime) || [],
         datasets: [ {
           // data: [40, 20, 12]
           // data: result.value?.PriceHistory?.slice(0, periods.value).map((m) => m.price) || []
           yAxisID: 'y',
           borderColor: 'red', // isDarkMode.value ? 'red' : 'rgba(0,0,0,0.5)',
           label: 'Value',
-          data: result.value?.Wallet.wallet?.valueHistory?.map((m) => {
+          data: result.value?.Wallet.wallet?.valueHistory?.map((m: any) => {
             const assetId = result.value.Wallet.wallet.Asset.id
             const coinVal = toCoin(assetId, m.closing_balance)
             console.debug('coinVal', assetId, coinVal)
@@ -149,7 +149,7 @@ export default defineComponent({
           yAxisID: 'y1',
           borderColor: 'blue', // isDarkMode.value ? 'blue' : 'rgba(0,0,0,0.5)',
           label: 'Token',
-          data: result.value?.Wallet.wallet?.valueHistory?.map((m) => {
+          data: result.value?.Wallet.wallet?.valueHistory?.map((m: any) => {
             const assetId = result.value.Wallet.wallet.Asset.id
             return toCoin(assetId, m.closing_balance)
           }) || []

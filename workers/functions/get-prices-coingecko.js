@@ -7,6 +7,7 @@ const __dirname = path.resolve();
 
 import { DataStore } from '../../data/data-store.js'
 import cfg from '../../config/config.js'
+console.debug('cfg', cfg)
 
 const baseUrl = 'https://api.coingecko.com'
 const service = '/api/v3/simple/price'
@@ -27,6 +28,7 @@ const currencies = {
 export async function getPricesCG(job) {
   // console.log('job.data', job.data);
   console.debug('[worker] getPrices:coingecko', job.data)
+  console.log('cfg', cfg)
 
   var result = {}
   try {
@@ -73,13 +75,18 @@ export async function getPricesCG(job) {
       for (const [currency, data] of Object.entries(ret.data)) {
         for (const [quote, price] of Object.entries(data)) {
           job.log(`Create price for ${last_updated}, ${currencies[currency]}, ${quote.toUpperCase()}, ${price}`)
-          const res = await ds.Price.create({
-            datetime: last_updated,
-            f_curr: currencies[currency].code,
-            t_curr: quote.toUpperCase(),
-            value: price,
-            source: 'coingecko.com'
-          })
+          let res
+          try {
+            res = await ds.Price.create({
+              datetime: last_updated,
+              f_curr: currencies[currency].code,
+              t_curr: quote.toUpperCase(),
+              value: price,
+              source: 'coingecko.com'
+            })
+          } catch (err) {
+            console.error(err)
+          }
           if (res) {
             console.log(res)
           }

@@ -91,7 +91,7 @@ import AssetLogo from './AssetLogo.vue'
 import MarketData from './MarketData.vue'
 import TransactionList from './TransactionList.vue'
 import AssetPriceHistory from './AssetPriceHistory.vue';
-import { IAsset, IWallet, IWalletData } from './types';
+import { IAsset, IWallet, IWalletBalance } from './types';
 import { useRouter } from 'vue-router';
 import { shortStash } from './utils';
 // import { currency } from '@/store/modules/currency';
@@ -198,14 +198,14 @@ export default defineComponent({
     //   list.value = assetBals
     }
 
-    const sumBalance = (balance: IWalletData): BigInt => {
+    const sumBalance = (balance: IWalletBalance): BigInt => {
       const bal = BigInt(balance.free || 0)
         + BigInt(balance.reserved || 0)
         + BigInt(balance.locked || 0)
         // + balance.miscFrozen || 0
         // + balance.feeFrozen || 0
         + BigInt(balance.pooled || 0)
-        + BigInt(balance.pooledClaimable || 0)
+        + BigInt(balance.claimable || 0)
       // console.debug('sumBalance()', bal)
       return bal
     }

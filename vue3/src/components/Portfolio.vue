@@ -10,7 +10,7 @@
       </v-toolbar-title>
       <v-toolbar-items>
         <!-- <v-btn flat class="text-none">{{ result?.Portfolio?.Currency?.code }} {{ portfolioValue?.toLocaleString('en-GB', { currency: result?.portfolio?.Currency.code, maximumFractionDigits: profile.defaultDecimals }) }}</v-btn> -->
-        <v-btn flat class="text-none">{{ currency?.symbol }} {{ portfolioValue?.toLocaleString('en-GB', { currency: currency.code, maximumFractionDigits: profile.defaultDecimals }) }}</v-btn>
+        <v-btn flat class="text-none">{{ currency?.symbol }} {{ portfolioValue?.toLocaleString('en-GB', { currency: currency?.code, maximumFractionDigits: profile.defaultDecimals }) }}</v-btn>
 
         <v-btn :loading="loading" @click="reload()">
           <v-icon>mdi-refresh</v-icon>

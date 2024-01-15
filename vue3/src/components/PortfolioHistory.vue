@@ -114,10 +114,10 @@ export default defineComponent({
     const chartData = computed(() => {
       return {
         // labels: [ 'January', 'February', 'March' ],
-        labels: result.value?.PriceHistory?.slice(0, periods.value).map((m) => m.key) || [],
+        labels: result.value?.PriceHistory?.slice(0, periods.value).map((m: any) => m.key) || [],
         datasets: [ {
           // data: [40, 20, 12]
-          data: result.value?.PriceHistory?.slice(0, periods.value).map((m) => m.price) || []
+          data: result.value?.PriceHistory?.slice(0, periods.value).map((m: any) => m.price) || []
         } ]
       }
     })

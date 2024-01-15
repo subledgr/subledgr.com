@@ -75,7 +75,7 @@ export default defineComponent({
 
     const list = ref<IWallet[]>()
     const search = ref('')
-    const filteredList = computed<IWallet[]>(() => {
+    const filteredList = computed(() => {
       return search.value === ''
         ? list.value
         : list.value?.filter((f: IWallet) => {

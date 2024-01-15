@@ -24,7 +24,7 @@ Process:
 REGISTRY=docker.metaspan.io
 docker login -u docker -p d0ck3r ${REGISTRY}
 
-VERSION="0.1.1-aplha" # "latest"
+VERSION="0.2.1-beta" # "latest" !REQUIRED
 
 # these can't be run together
 # --load: load the image locally, this should make subsequent builds faster

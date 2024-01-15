@@ -1,7 +1,6 @@
 ARG TARGETPLATFORM=linux/amd64
 
-FROM  --platform=$TARGETPLATFORM node:18-slim 
-# as AS build-stage
+FROM  --platform=$TARGETPLATFORM node:18-slim
 
 # RUN apt-get update
 # RUN apt-get install python3 make gcc g++ -y
@@ -14,13 +13,16 @@ COPY package*.json /app/
 COPY data/. /app/data/
 # COPY workers.js /app/
 COPY config/. /app/config
+# we read all config from docker/.env
+COPY docker/. /app/docker
+COPY graphql/. /app/graphql
 COPY workers/. /app/workers
 
-WORKDIR /app
+WORKDIR /app/workers
 
-RUN rm -rf node_modules
+RUN rm -rf package-lock.json node_modules
 RUN npm install
 
 EXPOSE 3000
 
-CMD [ "node", "workers/workers.js" ]
+CMD [ "node", "workers.js" ]

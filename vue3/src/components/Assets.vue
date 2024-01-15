@@ -178,10 +178,10 @@ export default defineComponent({
             balance: {
               free       : BigInt(wallet.balance?.free || 0) || 0n,
               reserved   : BigInt(wallet.balance?.reserved || 0) || 0n,
-              miscFrozen : BigInt(wallet.balance?.miscFrozen || 0) || 0n,
+              // miscFrozen : BigInt(wallet.balance?.miscFrozen || 0) || 0n,
               feeFrozen  : BigInt(wallet.balance?.feeFrozen || 0) || 0n,
               pooled     : BigInt(wallet.balance?.pooled || 0) || 0n,
-              pooledClaimable: BigInt(wallet.balance?.pooledClaimable || 0) || 0n
+              claimable  : BigInt(wallet.balance?.claimable || 0) || 0n
             }
           }
           acc.push(twal)
@@ -189,10 +189,10 @@ export default defineComponent({
           // console.debug('existing...')
           acc[idx].balance.free       += BigInt(wallet.balance?.free || 0) || 0n
           acc[idx].balance.reserved   += BigInt(wallet.balance?.reserved || 0) || 0n
-          acc[idx].balance.miscFrozen += BigInt(wallet.balance?.miscFrozen || 0) || 0n
+          // acc[idx].balance.miscFrozen += BigInt(wallet.balance?.miscFrozen || 0) || 0n
           acc[idx].balance.feeFrozen  += BigInt(wallet.balance?.feeFrozen || 0) || 0n
           acc[idx].balance.pooled     += BigInt(wallet.balance?.pooled || 0) || 0n
-          acc[idx].balance.pooledClaimable += BigInt(wallet.balance?.pooledClaimable || 0) || 0n
+          acc[idx].balance.claimable  += BigInt(wallet.balance?.claimable || 0) || 0n
         }
         // } else {
         //   console.debug('acc is not an array', acc)
