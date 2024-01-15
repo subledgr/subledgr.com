@@ -7,7 +7,7 @@ ARG BUILDPLATFORM
 ARG TARGETPLATFORM
 RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
 
-RUN apt update && apt upgrade -y
+# RUN apt update && apt upgrade -y
 
 ENV PORT 4000
 
@@ -31,11 +31,9 @@ WORKDIR /app/graphql
 #   && apt install -y curl python gcc \
 #   && npm i -g npm@latest
 
-RUN npm install -g npm@10.3.0
-
 # TODO find out why this fails during docker compose build...
-RUN rm -rf package-lock.json node_modules \
-  && npm i
+# RUN rm -rf package-lock.json node_modules \
+#   && npm i
 
 # HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
 #   CMD curl -f http://localhost:$PORT/version || exit 1
