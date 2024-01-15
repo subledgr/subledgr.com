@@ -13,12 +13,12 @@
         </v-avatar>
       </template>
       <v-list-item-title>
-        {{ item.name }} <span v-show="item.parachain">(//{{ item.parent }})</span> active: {{ item.active }}
+        {{ item.name }} <span v-show="item.parachain">(//{{ item.parent }})</span>
       </v-list-item-title>
       <template v-slot:append> 
         <!-- price {{ item.code }} -->
         <v-icon color="green" v-if="item.active">mdi-check-circle-outline</v-icon>
-        <v-icon color="red" v-if="!item.active">mdi-pause-circle-outline</v-icon>
+        <v-icon color="red" v-if="!item.active">mdi-close-circle-outline</v-icon>
       </template>
     </v-list-item>
   </v-list>
