@@ -62,6 +62,9 @@ export default defineComponent({
     const chartOptions = computed<any>(() => {
       return {
         responsive: true,
+        animation: {
+          duration: 0
+       },
         title: {
           display: false,
           text: 'Price History'
