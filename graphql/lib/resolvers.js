@@ -573,7 +573,7 @@ const resolvers = {
           ds.datetime as 'datetime',
           COALESCE(
             (SELECT wb.balance
-            FROM subledgr_dev.wallet_balance wb
+            FROM wallet_balance wb
             WHERE DATE(wb.timestamp) <= ds.datetime
             AND wb.id = "${wallet.id}"
             ORDER BY wb.timestamp DESC LIMIT 1),
@@ -581,7 +581,7 @@ const resolvers = {
           ) as closing_balance,
           COALESCE(
             (SELECT p.value
-            FROM subledgr_dev.price p
+            FROM price p
             WHERE DATE(p.datetime) <= ds.datetime
             AND p.f_curr = '${asset.code}'
             AND p.t_curr = '${t_curr}'
