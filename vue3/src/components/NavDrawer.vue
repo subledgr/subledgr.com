@@ -26,13 +26,13 @@ export default defineComponent({
     const xdrawer = ref(false)
 
     watch(() => drawer.value, (newVal) => {
-      console.debug('NavDrawer2', newVal)
+      // console.debug('drawer.value', newVal)
       xdrawer.value = newVal
     })
 
-    watch(() => xdrawer, (newVal) => {
-      console.debug('NavDrawer2', newVal.value)
-      store.dispatch('setDrawer', newVal.value)
+    watch(() => xdrawer.value, (newVal) => {
+      // console.debug('xdrawer', newVal)
+      store.dispatch('setDrawer', newVal)
     })
 
     return {
