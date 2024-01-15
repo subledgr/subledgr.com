@@ -15,11 +15,12 @@ COPY data/. /app/data/
 COPY config/. /app/config
 # we read all config from docker/.env
 COPY docker/. /app/docker
+COPY graphql/. /app/graphql
 COPY workers/. /app/workers
 
 WORKDIR /app/workers
 
-RUN rm -rf node_modules
+RUN rm -rf package-lock.json node_modules
 RUN npm install
 
 EXPOSE 3000
