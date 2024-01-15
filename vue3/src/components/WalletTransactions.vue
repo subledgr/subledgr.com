@@ -59,7 +59,7 @@ export default defineComponent({
     });
 
     onResult((data) => {
-      console.debug('onTransactions', data)
+      // console.debug('onTransactions', data)
       wallet.value = data?.data?.Wallet?.wallet || {}
       list.value = data?.data?.Wallet?.wallet?.transactions || []
     })

@@ -86,8 +86,8 @@ export default defineComponent({
     const showMe = ref(false)
 
     watch(() => props.showDialog, newVal => {
-      console.debug('watch.showDialog()', newVal)
-      console.debug('watch.showDialog()', props.transaction)
+      // console.debug('watch.showDialog()', newVal)
+      // console.debug('watch.showDialog()', props.transaction)
       showMe.value = newVal
     })
 
@@ -96,7 +96,7 @@ export default defineComponent({
     })
 
     const closeDialog = () => {
-      console.debug('closeDialog()')
+      // console.debug('closeDialog()')
       showMe.value = false
       context.emit('dialogClose', false)
     }

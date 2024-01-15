@@ -126,36 +126,12 @@ function createApolloClient (ssr = false) {
     console.log('plugins/apollo/index.ts: server: hello from ssr...!')
   } else {
     // If on the client, recover & injected state from browser
-
-    console.log('plugins/apollo/index.ts: client: hello from ssr...!')
-    // const state = JSON.parse(localStorage.getItem('subledgr') || '{}')
-    // console.debug('got state', state)
-    // pre-populate cache - note: beware of SSR!!
-    // cache.writeQuery({
-    //   query: gql`
-    //     mutation Mut {
-    //       state
-    //     }`,
-    //     data: {
-    //       state
-    //     }
-    // })
-    // // if (typeof window !== 'undefined') {
-    // console.debug(window)
-    // const state = window.__APOLLO_STATE__
-    // if (state) {
-    //   // If you have multiple clients, use `state.<client_id>`
-    //   console.debug('ssr, got this from window.__APOLLO_STATE__)', state)
-    //   cache.restore(state.defaultClient)
-    // } else {
-    //   console.debug('well, window.__APOLLO_STATE__ was empty...!')
-    // }
+    // console.log('plugins/apollo/index.ts: client: hello from ssr...!')
     persistCacheSync({
       debug: true,
       cache,
       storage: new LocalStorageWrapper(window.localStorage),
     });
-    // // }
   }
 
   // add the authorization to the headers

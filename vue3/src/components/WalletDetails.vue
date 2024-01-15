@@ -131,9 +131,9 @@ export default defineComponent({
       fetchPolicy: 'cache-and-network',
     });
 
-    onResult((data) => {
-      console.debug('onResult', data)
-    })
+    // onResult((data) => {
+    //   console.debug('onResult', data)
+    // })
     
     const maxLocked: any = computed(() => {
       if (!result.value?.Wallet?.wallet?.balance?.locks) return 0

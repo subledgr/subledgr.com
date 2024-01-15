@@ -47,10 +47,10 @@
     <WalletTransactions :walletId="walletId" title="Transactions"></WalletTransactions>
 
   <ConfirmDialog v-model="showConfirmDialog"
-      :confirm="confirmDeleteWallet"
-      :title="`Delete wallet ${walletId}`"
-      :message="`Do you want to delete this wallet`"
-      :close="onCloseDeleteWallet"></ConfirmDialog>
+    :confirm="confirmDeleteWallet"
+    :title="`Delete wallet ${walletId}`"
+    :message="`Do you want to delete this wallet`"
+    :close="onCloseDeleteWallet"></ConfirmDialog>
   </v-container>
 </template>
 
@@ -90,15 +90,12 @@ export default defineComponent({
     ConfirmDialog,
   },
   setup() {
-    // const transactionList = markRaw(TransactionList)
-    // const transactionTable = markRaw(TransactionTable)
     const route = useRoute()
     const walletId = ref(route.params.walletId as string)
     const router = useRouter()
     const store = useStore()
     const profile = computed(() => store.state.profile)
     const { shortStash } = useGlobalUtils()
-    // const profile = store.state.profile
     const loggedIn = ref(store.getters.loggedIn)
     if( !loggedIn.value ) router.push({ name: 'Login', params: {message: 'You must be logged in to see wallets' } })
 
@@ -114,19 +111,9 @@ export default defineComponent({
       // pollInterval: 1000,
     });
 
-    onResult((data) => {
-      console.debug('onResult', data)
-    })
-
-    // const toCoin =  (assetId: string | undefined, val: BigInt) => {
-    //   // const currs = {...chains.value}
-    //   // console.debug('currs', currs)
-    //   const spec = assets.value.find((f: IAsset) => f.id === assetId) || { decimals: 2 }
-    //   // console.debug('toCoin', assetId, spec)
-    //   const denom = Math.pow(10, spec.decimals)
-    //   // console.debug('denom', denom)
-    //   return Number(val) / denom
-    // }
+    // onResult((data) => {
+    //   console.debug('onResult', data)
+    // })
 
     const { mutate: mutDeleteWallet, error: deleteError, loading: deleting } = useMutation(gql`
       mutation DeleteWallet($id: String!) {

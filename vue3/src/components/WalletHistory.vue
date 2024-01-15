@@ -20,7 +20,7 @@ import { QUERY_WALLET_VALUE_HISTORY } from '@/graphql';
 import { useGlobalUtils } from './utils'
 
 import { Line } from 'vue-chartjs'
-import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, TimeSeriesScale, CategoryScale, LinearScale } from 'chart.js'
+// import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, TimeSeriesScale, CategoryScale, LinearScale } from 'chart.js'
 import 'chartjs-adapter-moment'
 
 export default defineComponent({
@@ -145,7 +145,7 @@ export default defineComponent({
           data: result.value?.Wallet.wallet?.valueHistory?.map((m: any) => {
             const assetId = result.value.Wallet.wallet.Asset.id
             const coinVal = toCoin(assetId, m.closing_balance)
-            console.debug('coinVal', assetId, coinVal)
+            // console.debug('coinVal', assetId, coinVal)
             return coinVal * m.closing_price
           }) || []
         }, {

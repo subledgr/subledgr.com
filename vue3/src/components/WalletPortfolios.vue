@@ -101,8 +101,8 @@ export default defineComponent({
     });
 
     onResult((result) => {
-      console.debug('onResult', result)
-      list.value = result.data.Wallet.wallet.portfolios
+      // console.debug('onResult', result)
+      list.value = result.data?.Wallet?.wallet.portfolios || []
     })
 
     return {

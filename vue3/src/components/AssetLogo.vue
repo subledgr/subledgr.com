@@ -31,9 +31,9 @@ export default defineComponent({
       return cur || { logo: '' }
     })
 
-    watch(() => assetId.value, newVal => {
-      console.debug('watch.assetId', newVal)
-    })
+    // watch(() => assetId.value, newVal => {
+    //   console.debug('watch.assetId', newVal)
+    // })
     const imgUrl = computed(() => `/${currency.value.logo}`)
     return { imgUrl }
   },

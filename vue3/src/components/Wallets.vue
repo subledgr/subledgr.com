@@ -98,7 +98,7 @@ export default defineComponent({
 
     onResult(queryResult => {
       // console.log('got data', queryResult.data)
-      list.value = queryResult.data.Wallets
+      list.value = queryResult.data?.Wallets || []
       prices.value = queryResult.data.Prices
       calcTotalValue()
     })

@@ -78,11 +78,11 @@ export const store = createStore({
       // dispatch('INIT')
     },
     setDarkMode ({ commit }, value) {
-      console.debug('setDarkMode()', value)
+      // console.debug('setDarkMode()', value)
       commit('SET_DARK_MODE', value)
     },
     setDrawer ({ commit }, value) {
-      console.debug('setDrawer()', value)
+      // console.debug('setDrawer()', value)
       commit('SET_DRAWER', value)
     },
     login ({ commit }, {email, id, token}: any) {
