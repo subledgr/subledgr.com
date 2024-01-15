@@ -44,14 +44,11 @@ export default defineComponent({
     const { loading, error, onResult, refetch } = useQuery(QUERY_PROFILE)
 
     if (profile.initial) {
-      // console.debug('App:setup() initial', profile, 123)
       refetch()
-    // } else {
-    //   console.debug('App:setup() !initial', profile)
     }
     onResult((value) => {
       // console.debug('QUERY_PROFILE', value)
-      if (value.data.Profile !== null) {
+      if (value.data?.Profile !== null) {
         store.dispatch('profile/setProfile', { profile: value.data.Profile })
       }
       store.dispatch('init')
@@ -76,9 +73,7 @@ export default defineComponent({
   },
   methods: {
     onDarkChange (ev: MediaQueryListEvent | MediaQueryList) {
-      console.debug('onDarkChange', ev)
-      // this.$vuetify.theme.dark = ev.matches
-      // this.isDark = ev.matches
+      // console.debug('onDarkChange', ev)
       this.$store.dispatch('setDarkMode', ev.matches)
     }
   },
