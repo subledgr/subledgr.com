@@ -231,7 +231,7 @@ export default defineComponent({
 
     const calcTotalValue = () => {
       // console.debug('getWalletsValue', result.value?.Wallets)
-      console.debug('getWalletsValue', list.value) // this is new
+      // console.debug('getWalletsValue', list.value) // this is new
       totalValue.value = 0
       var ret = 0
       // todo :: reduce()
@@ -270,8 +270,8 @@ export default defineComponent({
     }
 
     const refresh = async () => {
-      console.debug('refresh firing...')
-      console.debug('refresh', variables2)
+      // console.debug('refresh firing...')
+      // console.debug('refresh', variables2)
       loading.value = true
       setTimeout(async () => {
         await refetch()
@@ -282,7 +282,7 @@ export default defineComponent({
     }
 
     const gotoWallet = (id: string) => {
-      console.debug('gotoWallet()', id)
+      // console.debug('gotoWallet()', id)
       router.push(`/wallet/${id}`)
     }
 

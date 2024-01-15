@@ -106,7 +106,7 @@ export default defineComponent({
     })
 
     onResult(queryResult => {
-      console.log('got data', queryResult.data)
+      // console.log('got data', queryResult.data)
       list.value = queryResult.data.Portfolios
       // calcTotalValue()
     })
@@ -171,12 +171,12 @@ export default defineComponent({
     }
 
     const gotoPortfolio = (item: any) => {
-      console.debug('gotoPortfolio', item)
+      // console.debug('gotoPortfolio', item)
       router.push(`/portfolio/${item.id}`)
     }
 
     const refresh = () => {
-      console.debug('refresh firing...')
+      // console.debug('refresh firing...')
       loading.value = true
       setTimeout(() => {
         refetch()
@@ -184,7 +184,7 @@ export default defineComponent({
     }
 
     const onPortfolioAdded = (wallet: any) => {
-      console.debug('Wallets.vue: onWalletAdded()', wallet)
+      // console.debug('Wallets.vue: onWalletAdded()', wallet)
       refetch()
     }
 

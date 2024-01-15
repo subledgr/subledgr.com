@@ -99,7 +99,7 @@ export default defineComponent({
     const loggedIn = ref(store.getters.loggedIn)
     if( !loggedIn.value ) router.push({ name: 'Login', params: {message: 'You must be logged in to see wallets' } })
 
-    watch(() => route.params.walletId, async (newId) => { console.debug('walletId', newId) })
+    // watch(() => route.params.walletId, async (newId) => { console.debug('walletId', newId) })
     watch(() => loggedIn.value, (newVal) => { if(!newVal) router.push('/wallet')})
 
     const assets = computed<IAsset[]>(() => JSON.parse(JSON.stringify(store.state.asset.list)))

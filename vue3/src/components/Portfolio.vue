@@ -166,14 +166,14 @@ export default defineComponent({
         // // console.debug('val', val)
         const val = BigInt(w.balance?.balance || 0)
         const val2 = toValue(w.Asset.id, BigInt(val))
-        console.debug('val2', val2)
+        // console.debug('val2', val2)
         return acc + val2
         // return BigInt(acc) + BigInt(w.balance?.balance || 0)
       }, 0)
       // return Number(1)
     })
 
-    watch(() => route.params.portfolioId, async (newId) => { console.debug('portfolioId', newId) })
+    // watch(() => route.params.portfolioId, async (newId) => { console.debug('portfolioId', newId) })
     watch(() => loggedIn.value, (newVal) => { if(!newVal) router.push('/portfolio')})
 
     const reload = async () => {
@@ -222,12 +222,12 @@ export default defineComponent({
     //   showPortfolioWalletsDialog.value = false
     // }
     const onClosePortfolioWalletsDialog = () => {
-      console.debug('onClosePortfolioWalletsDialog')
+      // console.debug('onClosePortfolioWalletsDialog')
       showPortfolioWalletsDialog.value = false
     }
 
     const onSelectAsset = (assetId: string) => {
-      console.debug('onSelectAsset', assetId)
+      // console.debug('onSelectAsset', assetId)
       router.push(`/asset/${assetId}`)
     }
 

@@ -101,7 +101,7 @@ const plausible = Plausible(plausibleStore.state.options)
 router.beforeEach((to: RouteLocationNormalized, from: RouteLocationNormalized, next: NavigationGuardNext) => {
   // document.title = to.meta?.title || 'baseTitle'
   // const plausible = inject<typeof p>('$plausible') //|| new PlausiblePlugin()
-  console.debug('NODE_ENV', process.env.NODE_ENV)
+  // console.debug('router/index.ts: NODE_ENV', process.env.NODE_ENV)
   if (plausible) {
     if (!['test', 'development'].includes(process.env.NODE_ENV || '')) {
       plausible.trackPageview({

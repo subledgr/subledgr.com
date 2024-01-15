@@ -162,7 +162,7 @@ export default defineComponent({
     }
 
     const gotoWallet = (item: any) => {
-      console.debug('gotoWallet', item)
+      // console.debug('gotoWallet', item)
       router.push(`/wallet/${item.id}`)
     }
 
@@ -202,7 +202,7 @@ export default defineComponent({
 
     const toolbarClass = computed(() => {
       const { mdAndUp } = display
-      console.debug('toolbarClass', mdAndUp.value)
+      // console.debug('toolbarClass', mdAndUp.value)
       return mdAndUp.value ? 'rounded-pill' : ''
     })
 

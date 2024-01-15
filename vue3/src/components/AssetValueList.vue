@@ -160,7 +160,7 @@ export default defineComponent({
 
     // summarise all wallets into asset balances
     const summarise = () => {
-      console.debug('summarise...', props.wallets.length, 'wallets')
+      // console.debug('summarise...', props.wallets.length, 'wallets')
       var assetBals = props.wallets.reduce((acc: any, wallet: IWallet) => {
         // console.debug('reduce...', wallet.id)
         // if (Array.isArray(acc)) {
@@ -200,7 +200,7 @@ export default defineComponent({
     }
 
     const onSelectAsset = async (assetId: string) => {
-      console.debug('onSelectAsset', assetId)
+      // console.debug('onSelectAsset', assetId)
       context.emit('selectAsset', assetId)
     }
 
@@ -216,7 +216,7 @@ export default defineComponent({
     }
 
     const calcTotalValue = () => {
-      console.debug('calcTotalValue', props.wallets)
+      // console.debug('calcTotalValue', props.wallets)
       totalValue.value = 0
       var ret = 0
       // todo :: reduce()
@@ -231,7 +231,7 @@ export default defineComponent({
         // console.debug('val', val, typeof val)
         // ret += val
       }
-      console.debug('totalVal', ret)
+      // console.debug('totalVal', ret)
       totalValue.value = ret
     }
 
@@ -248,7 +248,7 @@ export default defineComponent({
     }
 
     watch(() => props.wallets, (newVal, oldVal) => {
-      console.debug('wallets changed', newVal, oldVal)
+      // console.debug('wallets changed', newVal, oldVal)
       summarise()
       calcTotalValue()
     })

@@ -78,8 +78,8 @@ export default defineComponent({
       var name = transactionState.types[`${module}.${method}`]
       if (!name || name === '') {
         const parts = _type.split('.')
-        console.debug('typeName', module, method, _type, name)
-        console.debug('parts', parts)
+        // console.debug('typeName', module, method, _type, name)
+        // console.debug('parts', parts)
         name = parts[1].charAt(0).toUpperCase()+parts[1].slice(1)
           .split(/(?=[A-Z])/)
           .join(' ');

@@ -46,7 +46,7 @@ export default defineComponent({
     // const emits = defineEmits(['selectCurrency'])
 
     const onClick = (item: any) => {
-      console.debug('PortfolioList.vue: onClick', {...item})
+      // console.debug('PortfolioList.vue: onClick', {...item})
       emit('selectPortfolio', {...item})
     }
 

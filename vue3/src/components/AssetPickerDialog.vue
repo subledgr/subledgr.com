@@ -51,11 +51,11 @@ export default defineComponent({
     }
   },
   setup (props) {
-    console.log('props', props)
+    // console.log('props', props)
     // const visible = props.visible
     const dialog = ref(false)
     watch(props, () => {
-      console.debug('watch.props', props.visible)
+      // console.debug('watch.props', props.visible)
       dialog.value = props.visible
     })
     return {

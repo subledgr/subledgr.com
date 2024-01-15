@@ -152,19 +152,19 @@ export default defineComponent({
     })
 
     onWallets((data) => {
-      console.debug('onResult', data)
+      // console.debug('onResult', data)
       // if(data.data) list.value = data.data.me?.assets || []
       summarise()
       calcTotalValue()
     })
 
-    onPrices((data) => {
-      console.debug('onPrices', data)
-    })
+    // onPrices((data) => {
+    //   console.debug('onPrices', data)
+    // })
 
     // summarise all wallets into asset balances
     const summarise = () => {
-      console.debug('summarise...', resultWallets.value?.Wallets.length, 'wallets')
+      // console.debug('summarise...', resultWallets.value?.Wallets.length, 'wallets')
       var assetBals = resultWallets.value?.Wallets.reduce((acc: any, wallet: IWallet) => {
         // console.debug('reduce...', wallet.id)
         // if (Array.isArray(acc)) {
@@ -245,7 +245,7 @@ export default defineComponent({
     }
 
     const calcTotalValue = () => {
-      console.debug('calcTotalValue', resultWallets.value?.Wallets)
+      // console.debug('calcTotalValue', resultWallets.value?.Wallets)
       totalValue.value = 0
       var ret = 0
       // todo :: reduce()
@@ -260,7 +260,7 @@ export default defineComponent({
         // console.debug('val', val, typeof val)
         // ret += val
       }
-      console.debug('totalVal', ret)
+      // console.debug('totalVal', ret)
       totalValue.value = ret
     }
 
@@ -276,7 +276,7 @@ export default defineComponent({
       return Number(value) / Number(denom) * price.value
     }
     const refresh = () => {
-      console.debug('refresh firing...')
+      // console.debug('refresh firing...')
       loading.value = true
       setTimeout(() => {
         refetchAll()
