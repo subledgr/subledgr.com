@@ -2,11 +2,11 @@
   <v-infinite-scroll :height="300" :items="items" :onLoad="load">
     <template v-for="(tx, idx) in items" v-bind:key="idx">
       <v-list-item >
-        <v-list-item-title>{{ tx.type }} / {{ tx.subType }}</v-list-item-title>
+        <v-list-item-title>{{ tx.section }} / {{ tx.method }}</v-list-item-title>
         <!-- {{ tx }} -->
         <v-row>
           <v-col>Amount: {{ toCoin(wallet2?.Asset.id, tx.amount) }}</v-col>
-          <v-col>Fee: {{ toCoin(wallet2?.Asset.id, tx.totalFee) }}</v-col>
+          <v-col>Fee: {{ toCoin(wallet2?.Asset.id, tx.fee) }}</v-col>
         </v-row>
       </v-list-item>
 

@@ -45,7 +45,7 @@ import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
 import { gql } from '@apollo/client/core';
 
 import { shortStash } from './utils';
-import { IAsset, ICurrency, IPortfolio, IWallet, IWalletData } from './types';
+import { IAsset, ICurrency, IPortfolio, IWallet, IWalletBalance } from './types';
 
 import PortfolioList from './PortfolioList.vue';
 import PortfolioAddDialog from './PortfolioAddDialog.vue';
@@ -111,13 +111,13 @@ export default defineComponent({
       // calcTotalValue()
     })
 
-    const sumBalance = (balance: IWalletData): BigInt => {
+    const sumBalance = (balance: IWalletBalance): BigInt => {
       const bal = BigInt(balance.free || 0)
         + BigInt(balance.reserved || 0)
         // + balance.miscFrozen || 0
         // + balance.feeFrozen || 0
         + BigInt(balance.pooled || 0)
-        + BigInt(balance.pooledClaimable || 0)
+        + BigInt(balance.claimable || 0)
       // console.debug('sumBalance()', bal)
       return bal
     }

@@ -19,15 +19,15 @@
           {{ moment.unix(tx.timestamp / 1000).format('DD.MM.YYYY HH:mm') }} 
           <!-- <br>{{ tx.timestamp }} -->
         </td>
-        <td>{{ tx.height }}</td>
-        <td>{{ tx.type }}</td>
+        <td>{{ tx.blockNumber }}</td>
+        <td>{{ tx.section }} {{ tx.method }}</td>
         <!-- <td>{{ tx.subType }}</td> -->
         <!-- <td>{{ tx.event }}</td> -->
         <td>
-          {{ shortStash(tx.senderId) }}<br>{{ shortStash(tx.recipientId) }}
+          {{ shortStash(tx.fromId) }}<br>{{ shortStash(tx.toId) }}
         </td>
-        <td class="text-right">{{ toCoin(wallet?.Asset?.id, tx.recipientId === wallet?.address ? tx.amount : -tx.amount) }}</td>
-        <td class="text-right">{{ toCoin(wallet?.Asset?.id, tx.totalFee) }}</td>
+        <td class="text-right">{{ toCoin(wallet?.Asset?.id, tx.toId === wallet?.address ? tx.amount : -tx.amount) }}</td>
+        <td class="text-right">{{ toCoin(wallet?.Asset?.id, tx.fee) }}</td>
         <td>{{ tx.success }}</td>
       </tr>
     </tbody>

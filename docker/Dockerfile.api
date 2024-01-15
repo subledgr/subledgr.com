@@ -1,15 +1,29 @@
-FROM --platform=$TARGETPLATFORM node:18-slim
+# FROM --platform=$TARGETPLATFORM node:18-slim
+FROM node
+# :16-slim
 
 # https://docs.docker.com/build/building/multi-platform/
 ARG BUILDPLATFORM
 ARG TARGETPLATFORM
 RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
 
+RUN apt update && apt upgrade -y
+
 ENV PORT 4000
 
-WORKDIR /
+RUN mkdir /app
+# RUN mkdir /app/config
+# RUN mkdir /app/docker
+# RUN mkdir /app/graphql
 
-COPY /graphql /app
+WORKDIR /app
+
+# COPY docker/.env ./docker/.
+# COPY config config
+# COPY graphql ./graphql
+COPY . .
+
+RUN ls -la /app
 
 WORKDIR /app/graphql
 
@@ -17,6 +31,9 @@ WORKDIR /app/graphql
 #   && apt install -y curl python gcc \
 #   && npm i -g npm@latest
 
+RUN npm install -g npm@10.3.0
+
+# TODO find out why this fails during docker compose build...
 RUN rm -rf node_modules \
   && npm i
 

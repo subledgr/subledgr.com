@@ -143,7 +143,7 @@ export default defineComponent({
       headers,
       items,
       itemsPerPage,
-      sortBy: [{ key: 'timestamp', order: 'desc' }],
+      sortBy: [{ key: 'timestamp', order: 'desc' }] as any[],
       toCoin,
       shortStash,
       toProfileDate,

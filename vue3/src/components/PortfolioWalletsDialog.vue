@@ -152,7 +152,7 @@ export default defineComponent({
       }
     })
 
-    var { mutate, loading2, error2 } = useMutation(MUT_PORTFOLIO_SET_WALLETS, () => ({
+    var { mutate, loading: loading2, error: error2 } = useMutation(MUT_PORTFOLIO_SET_WALLETS, () => ({
       variables: {
         id: props.portfolio?.id,
         walletIds: selected.value,

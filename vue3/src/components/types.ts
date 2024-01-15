@@ -122,7 +122,7 @@ export interface ITransaction {
   // feeBalances: bigint
   // feeTreasury: bigint
   // tip: bigint
-  // success: boolean
+  success?: boolean
   // updatedAt: string
   // createdAt: string
 }

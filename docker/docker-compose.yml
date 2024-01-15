@@ -22,18 +22,18 @@ services:
     image: redis
     restart: unless-stopped
     ports:
-      - "${PORT_PREFIX}${REDIS_PORT:-6379}:6379"
+      - "${SUBLEDGR_PORT_PREFIX}${SUBLEDGR_REDIS_PORT:-6379}:6379"
 
   subledgr-datastore:
     container_name: subledgr-datastore
     image: mariadb:10.4
-    # build: nothing to build
     restart: unless-stopped
+    # build: nothing to build
     environment:
       MARIADB_ROOT_PASSWORD: ${SUBLEDGR_MARIADB_ROOT_PASSWORD} # see .env
       PGDATA: /data/postgres # see volumes below
     ports:
-      - "${PORT_PREFIX}${DB_PORT:-3306}:3306"
+      - "${SUBLEDGR_PORT_PREFIX}${SUBLEDGR_DB_PORT:-3306}:3306"
     volumes:
       - ${SUBLEDGR_MARIADB_DATA:-./data}/mariadb:/var/lib/mysql:Z
       - ${SUBLEDGR_MARIADB_DATA:-./data}/schema.pgsql.sql:/docker-entrypoint-initdb.d/schema.sql:ro
@@ -71,14 +71,14 @@ services:
   subledgr-api:
     container_name: subledgr-api
     image: docker.metaspan.io/subledgr/subledgr-api
+    restart: unless-stopped
     build:
       context: ../
       dockerfile: docker/Dockerfile.api
       args:
         - TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64} # see .env
-    restart: unless-stopped
     ports:
-      - "${PORT_PREFIX}${API_PORT:-4000}:4000"
+      - "${SUBLEDGR_PORT_PREFIX}${SUBLEDGR_GRAPHQL_PORT:-4000}:4000"
     depends_on:
       - subledgr-datastore
       # - subledgr-indexDb
@@ -87,6 +87,7 @@ services:
   subledgr-workers:
     container_name: subledgr-workers
     image: docker.metaspan.io/subledgr/subledgr-workers
+    restart: unless-stopped
     build:
       context: ../
       dockerfile: docker/Dockerfile.workers
@@ -95,23 +96,22 @@ services:
     depends_on:
       - subledgr-redis
       - subledgr-datastore
-    restart: unless-stopped
     ports:
-      - '${PORT_PREFIX}${BULLMQ_PORT:-3000}:3000'
+      - '${SUBLEDGR_PORT_PREFIX}${SUBLEDGR_BULLMQ_PORT:-3000}:3000'
     command: ["node", "workers.js"]
 
   # frontend - nginx with static vue3 files and proxy to /api
   subledgr-frontend:
     container_name: subledgr-frontend
     image: docker.metaspan.io/subledgr/subledgr-fe
+    restart: unless-stopped
     build:
       context: ../
       dockerfile: docker/Dockerfile.frontend
       args:
         - TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64} # see .env
-    restart: unless-stopped
     ports:
-      - "${PORT_PREFIX}${HTTP_PORT:-8080}:8080"
+      - "${SUBLEDGR_PORT_PREFIX}${SUBLEDGR_HTTP_PORT:-8080}:8080"
 #    volumes:
 #      - ../static:/usr/share/nginx/html
     depends_on:
