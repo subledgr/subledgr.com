@@ -4,7 +4,7 @@ const plausible = {
   state: {
     options: {
       // see configuration section
-      domain: 'alpha.subledgr.com',
+      domain: process.env.SUBLEDGR_DOMAIN || 'app.subledgr.com',
       hashMode: true,
       trackLocalhost: true,
       apiHost: 'https://click.metaspan.io',
