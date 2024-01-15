@@ -64,7 +64,7 @@ export default defineComponent({
         responsive: true,
         animation: {
           duration: 0
-       },
+        },
         title: {
           display: false,
           text: 'Price History'
