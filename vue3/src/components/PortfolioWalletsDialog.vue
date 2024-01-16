@@ -15,10 +15,10 @@
               :items="items"
               show-select>
               <template v-slot:[`item.active`]="{ item }">
-                {{ item.columns?.active ? 'Yes' : 'No' }}
+                {{ item.active ? 'Yes' : 'No' }}
               </template>
               <template v-slot:[`item.address`]="{ item }">
-                {{ item.columns?.address }}
+                {{ item.address }}
               </template>
             </v-data-table>
           </v-card-text>

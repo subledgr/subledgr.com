@@ -18,11 +18,11 @@
       </template>
 
       <template v-slot:[`item.fromId`]="{ item }">
-        <ClickToCopy :display="shortStash(item.fromId, 7)" :text="item.raw?.fromId"></ClickToCopy>
+        <ClickToCopy :display="shortStash(item.fromId, 7)" :text="item.fromId"></ClickToCopy>
       </template>
 
       <template v-slot:[`item.toId`]="{ item }">
-        <ClickToCopy :display="shortStash(item.toId, 7)" :text="item.raw?.toId"></ClickToCopy>
+        <ClickToCopy :display="shortStash(item.toId, 7)" :text="item.toId"></ClickToCopy>
       </template>
 
       <template v-slot:[`item.timestamp`]="{ item }">
@@ -139,7 +139,7 @@ export default defineComponent({
         : ''
     }
 
-    const sortBy = ref([{ key: 'timestamp', order: 'desc' }])
+    const sortBy = ref<any[]>([{ key: 'timestamp', order: 'desc' }])
 
     return {
       profile,
