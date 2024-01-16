@@ -43,15 +43,15 @@ export default defineComponent({
     // const input = ref(null)
 
     const onClick = (item: any) => {
-      console.debug('AssetList.vue: onClick', {...item})
+      // console.debug('AssetList.vue: onClick', {...item})
       if(item.active) {
-        console.debug('AssetList.vue: onClick: emitting', {...item})
+        // console.debug('AssetList.vue: onClick: emitting', {...item})
         emit('selectAsset', {...item})
       }
     }
 
     const onSearch = debounce((search: string) => {
-      console.debug('debounceSearch', search)
+      // console.debug('debounceSearch', search)
       if (search.length < 2) {
         assets.value = []
       } else {
@@ -64,9 +64,9 @@ export default defineComponent({
       }
     }, 400)
 
-    watch(() => search.value, (searchStr: string) => {
-      console.debug('watch search', searchStr)
-    })
+    // watch(() => search.value, (searchStr: string) => {
+    //   console.debug('watch search', searchStr)
+    // })
 
     onMounted(() => {
       // console.debug('CurrencyList.vue: mounted()')

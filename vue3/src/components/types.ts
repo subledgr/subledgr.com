@@ -161,7 +161,7 @@ export interface IWalletData {
   miscFrozen: bigint
   reserved: bigint
   pooled: bigint
-  pooledClaimable: bigint
+  claimable: bigint
 }
 
 export interface IWalletBalance {

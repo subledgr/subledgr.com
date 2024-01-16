@@ -47,28 +47,34 @@
           </v-row>
         </v-list-item-title>
         <v-row style="font-style: italic; font-size: smaller;">
-          <v-col>Free<br>Reserved<br>feeFrozen<br>miscFrozen<br>Pooled<br>Pooled Claimable</v-col>
+          <v-col>Free<br>
+            Reserved<br>
+            <!-- feeFrozen<br> -->
+            <!-- miscFrozen<br> -->
+            Pooled<br>
+            Pooled Claimable
+          </v-col>
           <v-col class="text-right">
             {{ toCoin(item.assetId, item.balance?.free).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
             <span class="currency-code">{{ item.assetCode }}</span><br>
             {{ toCoin(item.assetId, item.balance?.reserved).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
-            <span class="currency-code">{{ item.assetCode }}</span><br>
-            {{ toCoin(item.assetId, item.balance?.feeFrozen).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
-            <span class="currency-code">{{ item.assetCode }}</span><br>
-            {{ toCoin(item.assetId, item.balance?.miscFrozen).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+            <!-- <span class="currency-code">{{ item.assetCode }}</span><br>
+            {{ toCoin(item.assetId, item.balance?.feeFrozen).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }} -->
+            <!-- <span class="currency-code">{{ item.assetCode }}</span><br>
+            {{ toCoin(item.assetId, item.balance?.miscFrozen).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }} -->
             <span class="currency-code">{{ item.assetCode }}</span><br>
             {{ toCoin(item.assetId, item.balance?.pooled).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
             <span class="currency-code">{{ item.assetCode }}</span><br>
-            {{ toCoin(item.assetId, item.balance?.pooledClaimable).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+            {{ toCoin(item.assetId, item.balance?.claimable).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
             <span class="currency-code">{{ item.assetCode }}</span>
           </v-col>
           <v-col class="text-right">
             {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.free).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br>
             {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.reserved).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br>
-            {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.feeFrozen).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br>
-            {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.miscFrozen).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br>
+            <!-- {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.feeFrozen || 0n).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br> -->
+            <!-- {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.miscFrozen || 0n).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br> -->
             {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.pooled).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br>
-            {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.pooledClaimable).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+            {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.claimable).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
           </v-col>
         </v-row>
       </v-list-item>
@@ -208,15 +214,20 @@ export default defineComponent({
         // + balance.miscFrozen || 0
         // + balance.feeFrozen || 0
         + BigInt(balance.pooled || 0)
-        + BigInt(balance.pooledClaimable || 0)
+        + BigInt(balance.claimable || 0)
       // console.debug('sumBalance()', bal)
       return bal
     }
   
     const onSelectAsset = async (item: IAsset) => {
-      console.debug('onSelectChain', item)
+      console.debug('onSelectAsset', item)
       showAssetPicker.value = false
       var assetId = item.id
+      const found = list.value.find((f: IAssetView) => f.assetId === assetId)
+      if (found) {
+        console.debug('already have', found.assetId)
+        return
+      }
       try {
         loading.value = true
         const result = await mutate({ assetId })
