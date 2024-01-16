@@ -145,7 +145,8 @@ export default defineComponent({
       limit: 50
     }})
     const {loading: loading2, result: result2, refetch: refetch2, onResult: onResult2 } = useQuery(QUERY_TRANSACTIONS, variables2, {
-      fetchPolicy: 'cache-first'
+      //fetchPolicy: 'cache-first',
+      fetchPolicy: 'cache-and-network'
     })
 
     onResult2((data) => {

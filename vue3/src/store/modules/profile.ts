@@ -428,7 +428,7 @@ const locales = [
 const initialState = {
   // list: chains
   initial: true,
-  dateTimeFormat: 'YYYY.MM.DD hh:mm:sss',
+  dateTimeFormat: 'YYYY.MM.DD HH:mm:sss',
   itemsPerPage: 10,
   defaultCurrency: 'USD', // 'GBP', // 'EUR',
   defaultDecimals: 3,

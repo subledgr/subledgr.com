@@ -18,7 +18,7 @@
             label="DateTime Format"
             @change="isDirty=true"
             clearable
-            @click:clear="profile.dateTimeFormat='YYYY.MM.DD hh:mm'"
+            @click:clear="profile.dateTimeFormat='YYYY.MM.DD HH:mm'"
             ></v-text-field>
           <div class="text-right mb-5" style="margin-bottom: 10;">
               DateTime Format: <a href="https://momentjs.com/docs/#/displaying/format/" target="_blank">https://momentjs.com/docs/#/displaying/format</a> <br>
@@ -54,7 +54,7 @@
             v-model="profile.dateTimeFormat"
             label="DateTime format"
             @change="isDirty=true"
-            :items="['YYYY.MM.DD hh:mm', 'MM.DD.YYYY hh:mm', 'MMM DD, YYYY hh:mm']"></v-select>
+            :items="['YYYY.MM.DD HH:mm', 'MM.DD.YYYY HH:mm', 'MMM DD, YYYY HH:mm']"></v-select>
 
           <div class="d-flex flex-column">
             <!-- <v-btn

@@ -26,7 +26,7 @@
       </template>
 
       <template v-slot:[`item.timestamp`]="{ item }">
-          {{ toProfileDate(item.timestamp) }}
+        {{ toProfileDate(item.timestamp) }}
       </template>
 
     </v-data-table>
@@ -101,6 +101,7 @@ export default defineComponent({
       // console.debug(m.Asset.id, BigInt(m.amount))
       return {
         timestamp: m.timestamp, // moment.unix(m.timestamp/1000), // .format(profile.value.dateTimeFormat),
+        // timestamp: moment.unix(m.timestamp/1000), // .format(profile.value.dateTimeFormat),
         extrinsicHash: m.extrinsicHash,
         height: m.blockNumber,
         id: m.id,
@@ -138,12 +139,14 @@ export default defineComponent({
         : ''
     }
 
+    const sortBy = ref([{ key: 'timestamp', order: 'desc' }])
+
     return {
       profile,
       headers,
       items,
       itemsPerPage,
-      sortBy: [{ key: 'timestamp', order: 'desc' }] as any[],
+      sortBy,
       toCoin,
       shortStash,
       toProfileDate,
