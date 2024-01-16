@@ -103,44 +103,6 @@ export default defineComponent({
       calcTotalValue()
     })
 
-    // const sumBalance = (balance: IWalletData): BigInt => {
-    //   const bal = BigInt(balance.free || 0)
-    //     + BigInt(balance.reserved || 0)
-    //     // + balance.miscFrozen || 0
-    //     // + balance.feeFrozen || 0
-    //     + BigInt(balance.pooled || 0)
-    //   // console.debug('sumBalance()', bal)
-    //   return bal
-    // }
-  
-    // const sortedResult = computed((): IWallet[] => {
-    //   // console.debug('sortedResult', result.value?.Wallets?.list)
-    //   if (!result.value?.Wallets) return []
-    //   const list = [...result.value?.Wallets] || []
-    //   // console.debug('list', list)
-    //   var sortedList = list.sort((a: IWallet, b: IWallet) => {
-    //     // console.debug(a, b)
-    //     const valA = walletValue(a)
-    //     const valB = walletValue(b)
-    //     // console.debug('sortedList', valA, valB)
-    //     if (valA > valB) return 1 * order.value
-    //     if (valB > valA) return -1 * order.value        
-    //     return 0
-    //   })
-    //   // console.debug('sortedList', sortedList)
-    //   return sortedList ? [...sortedList] : []
-    // })
-
-    // const toCoin =  (assetId: string, val: BigInt) => {
-    //   // const currs = {...chains.value}
-    //   // console.debug('currs', currs)
-    //   const spec = assets.value.find((f: IAsset) => f.id === assetId) || { id: assetId, decimals: 2 }
-    //   // console.debug('toCoin', currencyCode, spec)
-    //   const denom = Math.pow(10, spec.decimals)
-    //   // console.debug('denom', denom)
-    //   return Number(val) / denom
-    // }
-
     const calcTotalValue = () => {
       // console.debug('getWalletsValue', result.value?.Wallets)
       totalValue.value = 0
@@ -178,13 +140,6 @@ export default defineComponent({
       console.debug('Wallets.vue: onWalletAdded()', wallet)
       refetch()
     }
-
-    // const walletValue = (wallet: IWallet): number => {
-    //   // console.debug('walletValue', wallet)
-    //   const totalTokens = sumBalance(wallet.balance)
-    //   const value = toValue(wallet.Asset?.id, totalTokens)
-    //   return value
-    // }
 
     const toValue = (assetId: string, value: BigInt): number => {
       // console.debug('toValue', assetId, value)

@@ -59,7 +59,9 @@ import { defineComponent, watch, ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 
-import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
+import { useQuery, useMutation } from '@vue/apollo-composable'
+import { apolloProvider } from '@/plugins/apollo/index';
+
 import gql from 'graphql-tag'
 import TransactionList from './TransactionList.vue';
 // import TransactionTable from './TransactionTable.vue';
@@ -115,7 +117,7 @@ export default defineComponent({
     //   console.debug('onResult', data)
     // })
 
-    const { mutate: mutDeleteWallet, error: deleteError, loading: deleting } = useMutation(gql`
+    const { mutate: mutDeleteWallet, error: deleteError, loading: deleting, onDone, onError } = useMutation(gql`
       mutation DeleteWallet($id: String!) {
         deleteWallet(id: $id) {
           success
@@ -124,16 +126,26 @@ export default defineComponent({
       }
     `)
 
+    onDone((data) => {
+      console.debug('onDone', data)
+    })
+
+    onError((data) => {
+      console.debug('onError', data)
+    })
+
     const confirmDeleteWallet = async () => {
       showConfirmDialog.value = false
       const result = await mutDeleteWallet({ id: route.params.walletId })
       console.debug('deleteWallet', result)
       if (result?.data.deleteWallet.success) {
-        const apollo = useApolloClient()
+        // const apolloClient = useApolloClient()
+        const apolloClient = apolloProvider.defaultClient
+        // console.debug('apollo', apolloClient)
         const cacheId = `Wallet:{"id": "${route.params.walletId}"}`
-        console.debug('cacheId', cacheId)
-        const evicted = apollo.client.cache.evict({ id: `Wallet:{"id":"${route.params.walletId}"}` })
-        console.debug('evicted', evicted)
+        // console.debug('cacheId', cacheId)
+        const evicted = apolloClient.cache.evict({ id: `Wallet:{"id":"${route.params.walletId}"}` })
+        // console.debug('evicted', evicted)
         router.push('/wallet')
       }
     }
@@ -146,15 +158,7 @@ export default defineComponent({
       profile,
       shortStash,
       result,
-      // result2,
-      // loading,
-      // loading2,
-      // reload,
-      // error,
-      // maxLocked,
       walletId,
-      // toCoin,
-      // transactionList
       confirmDeleteWallet,
       showConfirmDialog,
       onCloseDeleteWallet

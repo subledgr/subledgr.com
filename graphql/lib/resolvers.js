@@ -19,7 +19,9 @@ import mustache from 'mustache'
 import nodemailer from 'nodemailer'
 
 import { ConfigReader }  from '../../config/config-reader.js'
+import { Queue } from 'bullmq';
 const cr = new ConfigReader('../docker/.env')
+const cfg = cr.getConfig()
 
 // const cb = new Coinbase({ apiKey: secrets.apiKey, apiSecret: secrets.apiSecret })
 const cb = new Coinbase({ apiKey: cr.readEnv('COINBASE_API_KEY', ''), apiSecret: cr.readEnv('COINBASE_API_SECRET', '') })
@@ -543,12 +545,42 @@ const resolvers = {
     balanceHistory: async (wallet, args, context) => {
       console.debug('Wallet.balanceHistory', wallet.assetId, wallet.id, wallet.address)
       const { user, db } = context
-      const { fromBlock, fromDate, limit = 50 } = args
-      const where = { id: wallet.id }
-      if (fromBlock) where.blockNumber = { [Op.gte]: fromBlock }
-      if (fromDate) where.timestamp = { [Op.gte]: fromDate }
-      const ret = await db.WalletBalance.findAll({ where, order: [['timestamp', 'DESC']], limit })
-      return ret
+      var ret
+      if (wallet.assetId === 'dock') {
+        var url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/query/system/account/${wallet.address}`
+        console.debug('url', url)
+        var rest = await axios.get(url)
+        if (rest.data) ret = rest.data.data
+        // pooled value
+        url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/query/nominationPools/poolMembersForAccount?accountId=${wallet.address}`
+        console.debug('url', url)
+        var rest = await axios.get(url)
+        if (rest.data) ret.pooled = rest.data.poolMembers?.points || 0
+        // locks
+        url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/query/balances/locks?accountId=${wallet.address}`
+        // console.debug('url', url)
+        var rest = await axios.get(url)
+        if (rest.data) ret.locks = rest.data.locks.map(lock => {
+          return { id: lock.id, amount: Number(lock.amount), reasons: lock.reasons }
+        }) || []
+        // pending pool rewards
+        url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/api/call/nominationPoolsApi/pendingRewards?accountId=${wallet.address}`
+        // console.debug('url', url)
+        var rest = await axios.get(url)
+        console.log('rest.data', rest.data)
+        if (rest.data) ret.pooledClaimable = rest.data.pendingRewards || 0
+        // balance
+        ret.balance = ret.free + ret.pooledClaimable + ret.pooled
+        ret.id = wallet.id
+        ret = [ret]
+      } else {
+        const { fromBlock, fromDate, limit = 50 } = args
+        const where = { id: wallet.id }
+        if (fromBlock) where.blockNumber = { [Op.gte]: fromBlock }
+        if (fromDate) where.timestamp = { [Op.gte]: fromDate }
+        ret = await db.WalletBalance.findAll({ where, order: [['timestamp', 'DESC']], limit })
+      }
+      return ret  
     },
     /**
      * @param {*} wallet 
@@ -875,12 +907,17 @@ const resolvers = {
       const asset = await db.Asset.findOne({ where: { id: assetId } })
       if (!asset) throw new Error(`Invalid asset id ${assetId}`)
       // check wallet exists?
-      var [wallet, created] = await db.Wallet.findOrCreate({ where: { name, assetId, address, userId: user.id } })
+      // create a UUID
+      const uuid = uuidv4()
+      var [wallet, created] = await db.Wallet.findOrCreate({ where: { id: uuid.toString(), name, assetId, address, userId: user.id } })
       // const wallet = await db.Wallet.create({ name, currencyId: curr.id, address, userId: user.id })
+      // trigger the getWalletHistory worker
+      const q_getWalletHistory = new Queue('getWalletHistory', { connection: cfg.redis })
+      await q_getWalletHistory.add('getWalletHistory', { chainId: assetId, walletId: wallet.id })
       return { success: created, message: `Wallet ${created ? 'created' : 'retrieved'}`, wallet }
     },
-    deleteWallet: async (parent, args, context) => {
-      console.debug('deleteWallet', parent, args)
+    deleteWallet: async (_, args, context) => {
+      console.debug('deleteWallet', args, context.user)
       const { user, db } = context
       // check user login
       if (!user) throw new AuthenticationError('You must be logged in');
@@ -891,6 +928,7 @@ const resolvers = {
       // check wallet exists?
       var wallet = await db.Wallet.findOne({ where: { id, userId: user.id }})
       if (!wallet) throw new Error(`Invalid wallet ${id}`)
+      await db.WalletBalance.destroy({ where: { id: wallet.id } })
       const ret = await wallet.destroy()
       // const ret = db.Wallet.destroy({ where: { id, userId: user.id } })
       console.debug('deleteWallet - destroy', ret)

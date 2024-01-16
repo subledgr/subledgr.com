@@ -136,13 +136,21 @@ export default defineComponent({
       form.value?.resetValidation()
     }
 
-    var { mutate, loading, error } = useMutation(MUT_WALLET_ADD, () => ({
+    var { mutate, loading, error, onDone, onError } = useMutation(MUT_WALLET_ADD, () => ({
       variables: {
         name: name.value,
         assetId: asset?.value.id || '',
         address: address.value
       }
     }));
+
+    onDone((data) => {
+      console.debug('onDone', data)
+    })
+
+    onError((data) => {
+      console.debug('onError', data)
+    })
 
     const addWallet = async () => {
       console.debug('addWallet', name.value, {...asset.value}, address.value)
@@ -152,7 +160,7 @@ export default defineComponent({
       if (res.data) {
         const { success, message, wallet } = res.data.createWallet
         if(success) {
-          context.emit('walletAdded')
+          context.emit('walletAdded', wallet)
           closeDialog()
         }
       }
