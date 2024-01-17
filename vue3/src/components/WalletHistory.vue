@@ -107,6 +107,12 @@ export default defineComponent({
         scales: {
           y: {
             position: 'right',
+            border: {
+              color: 'red'
+            },
+            ticks: {
+              color: 'red'
+            },
             title: {
               display: true,
               text: `Value (${profile.value.defaultCurrency})`
@@ -114,10 +120,16 @@ export default defineComponent({
           },
           y1: {
             position: 'left',
+            border: {
+              color: 'blue'
+            },
+            ticks: {
+              color: 'blue'
+            },
             title: {
               display: true,
               text: `Token (${result.value?.Wallet.wallet.Asset?.code})`
-            },
+            }
           },
           x: {
             type: 'timeseries',
