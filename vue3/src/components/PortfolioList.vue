@@ -6,6 +6,14 @@
       </v-text-field>
     </v-list-item> -->
 
+    <v-list-item v-if="!loggedIn">
+        <v-row>
+          <v-col>
+            <v-btn to="/login">Login</v-btn> to see your portfolios
+          </v-col>
+        </v-row>
+      </v-list-item>
+
     <v-list-item v-for="(item) in list" v-bind:key="item.id" @click="onClick(item)">
       <!-- <template v-slot:prepend>
         <v-avatar density="compact">
@@ -26,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, watch, onMounted, nextTick, PropType } from "vue"
+import { defineComponent, ref, computed, watch, onMounted, nextTick, PropType } from "vue"
 import { useStore } from 'vuex'
 import debounce from 'lodash/debounce'
 import { IPortfolio } from "./types"
@@ -42,6 +50,8 @@ export default defineComponent({
     const search = ref('')
     // const portfolios = ref<IPortfolio[]>([])
     // const input = ref(null)
+    const store = useStore()
+    const loggedIn = computed(() => store.getters.loggedIn)
 
     // const emits = defineEmits(['selectCurrency'])
 
@@ -83,7 +93,7 @@ export default defineComponent({
 
     return {
       search,
-      // emits,
+      loggedIn,
       onClick,
       // assets,
       onSearch,

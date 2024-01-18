@@ -122,7 +122,7 @@ export default defineComponent({
         } else {
           await store.dispatch('login', { id, email, token })
           await store.dispatch('profile/setProfile', { profile } )
-          router.push('/')
+          router.push('/portfolio')
         }
       }
     };

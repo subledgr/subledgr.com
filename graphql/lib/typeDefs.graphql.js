@@ -34,7 +34,9 @@ type Mutation {
   reset(token: String, email: String!, password: String): UserResetResponse
 
   # Portfolio management
-  createPortfolio(name: String!, currencyCode: String!): CreatePortfolioResponse
+  createPortfolio(name: String!): CreatePortfolioResponse
+  savePortfolio(id: Int!, name: String!): CreatePortfolioResponse
+  deletePortfolio(id: Int!): DeletePortfolioResponse
   setPortfolioWallets(id: Int!, walletIds: [String]!): CreatePortfolioResponse
 
   # Wallet management
@@ -225,7 +227,7 @@ type Portfolio
   id: Int # TODO: change to String UUID
   User: User
   name: String!
-  Currency: Currency # reporting currency
+  # Currency: Currency # reporting currency
   Wallets: [Wallet]
 #  value: Float
 }
@@ -400,6 +402,10 @@ type CreatePortfolioResponse {
   success: Boolean!
   message: String
   portfolio: Portfolio
+}
+type DeletePortfolioResponse {
+  success: Boolean!
+  message: String!
 }
 
 type CreateWalletResponse {

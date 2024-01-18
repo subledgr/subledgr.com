@@ -682,18 +682,12 @@ const resolvers = {
       })
       console.debug('Wallet.transactions() _payments', _payments.length)
       return [..._receipts, ..._payments]
-        // .map((m) => {
-        //   console.debug('timestamp', m.timestamp)
-        //   m.timestamp = m.timestamp
-        //   return m
-        // })
         .sort((a, b) => {
-        // if(Number(a.height) > Number(b.height)) return -1
-        // if(Number(a.height) < Number(b.height)) return 1
-        if(Number(a.blockNumber) > Number(b.blockNumber)) return -1
-        if(Number(a.blockNumber) < Number(b.blockNumber)) return 1
-        return 0
-      }).slice(0, limit)
+          if(Number(a.blockNumber) > Number(b.blockNumber)) return -1
+          if(Number(a.blockNumber) < Number(b.blockNumber)) return 1
+          return 0
+        })
+        .slice(0, limit)
     },
     extrinsics: async (wallet, args, context) => {
       console.debug('Wallet.extrinsics()', wallet.currencyCode,ccChain[wallet.currencyCode].toLowerCase())
@@ -861,14 +855,39 @@ const resolvers = {
       const { user, db } = context
       // check user login
       if (!user) throw new AuthenticationError('You must be logged in');
-      const { name, currencyCode } = args
+      const { name } = args
       console.debug('createPortfolio', args)
       // check currency
-      const currency = await db.Currency.findOne({ where: { code: currencyCode } })
-      if (!currency) throw new Error(`Invalid currency code ${currencyCode}`)
+      // const currency = await db.Currency.findOne({ where: { code: currencyCode } })
+      // if (!currency) throw new Error(`Invalid currency code ${currencyCode}`)
       // check wallet exists?
-      var [portfolio, created] = await db.Portfolio.findOrCreate({ where: { name, currencyCode, userId: user.id } })
+      var [portfolio, created] = await db.Portfolio.findOrCreate({ where: { name, userId: user.id } })
       return { success: created, message: `Portfolio ${created ? 'created' : 'retrieved'}`, portfolio }
+    },
+    savePortfolio: async (_, args, context) => {
+      const { user, db } = context
+      // check user login
+      if (!user) throw new AuthenticationError('You must be logged in');
+      const { id, name } = args
+      console.debug('savePortfolio', args)
+      // check wallet exists?
+      var portfolio = await db.Portfolio.findOne({ where: { id, userId: user.id } })
+      if (!portfolio) throw new Error(`Invalid portfolio id ${id}`)
+      portfolio.name = name
+      await portfolio.save()
+      return { success: true, message: `Portfolio updated`, portfolio }
+    },
+    deletePortfolio: async (_, args, context) => {
+      const { user, db } = context
+      // check user login
+      if (!user) throw new AuthenticationError('You must be logged in');
+      const { id, name } = args
+      console.debug('deletePortfolio', args)
+      // check wallet exists?
+      var portfolio = await db.Portfolio.findOne({ where: { id, userId: user.id } })
+      if (!portfolio) throw new Error(`Invalid portfolio id ${id}`)
+      await portfolio.destroy()
+      return { success: true, message: `Portfolio deleted` }
     },
     setPortfolioWallets: async (_, args, context) => {
       const { user, db } = context

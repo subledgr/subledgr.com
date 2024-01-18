@@ -7,6 +7,9 @@
       <v-toolbar-title>
         <v-icon size="small">mdi-folder-pound-outline</v-icon>
         {{ result?.Portfolio?.name || portfolioId }}
+        <v-btn icon size="small" @click="doShowPortfolioEditDialog()">
+          <v-icon size="small">mdi-pencil-outline</v-icon>
+        </v-btn>
       </v-toolbar-title>
       <v-toolbar-items>
         <!-- <v-btn flat class="text-none">{{ result?.Portfolio?.Currency?.code }} {{ portfolioValue?.toLocaleString('en-GB', { currency: result?.portfolio?.Currency.code, maximumFractionDigits: profile.defaultDecimals }) }}</v-btn> -->
@@ -52,6 +55,10 @@
     <AssetValueList :wallets="portfolio?.Wallets || []" :prices="prices" @select-asset="onSelectAsset" v-show="tab=='assets'"></AssetValueList>
     <PortfolioWallets :portfolioId="portfolioId" v-show="tab=='wallets'"></PortfolioWallets>
 
+    <PortfolioEditDialog
+      :visible="showPortfolioEditDialog"
+      :portfolio="portfolio"></PortfolioEditDialog>
+
     <PortfolioWalletsDialog
       icon=""
       :visible="showPortfolioWalletsDialog"
@@ -72,13 +79,14 @@ import { IAsset, IPortfolio, IWallet, ICurrency, IPrice } from './types';
 import { useGlobalUtils } from './utils';
 
 import ConfirmDialog from './ConfirmDialog.vue';
+import PortfolioEditDialog from './PortfolioEditDialog.vue';
 import PortfolioHistory from './PortfolioHistory.vue';
 import PortfolioWalletsDialog from './PortfolioWalletsDialog.vue';
 import PortfolioAssets from './PortfolioAssets.vue';
 import PortfolioWallets from './PortfolioWallets.vue';
 import AssetValueList from './AssetValueList.vue';
 
-import { QUERY_PORTFOLIO_VIEW } from '@/graphql';
+import { QUERY_PORTFOLIO_VIEW, MUT_PORTFOLIO_DELETE } from '@/graphql';
 
 export default defineComponent({
   components: {
@@ -89,6 +97,7 @@ export default defineComponent({
     PortfolioWallets,
     AssetValueList,
     PortfolioWalletsDialog,
+    PortfolioEditDialog,
     ConfirmDialog,
   },
   setup() {
@@ -117,6 +126,7 @@ export default defineComponent({
     const prices = ref<IPrice[]>([])
     const showPortfolioWalletsDialog = ref(false)
     // console.debug('params', route.params)
+    const showPortfolioEditDialog = ref(false)
 
     const { result, loading, error, onResult, refetch } = useQuery(QUERY_PORTFOLIO_VIEW, {
       portfolioId: Number(route.params.portfolioId),
@@ -136,6 +146,14 @@ export default defineComponent({
       // refetchPrices({ ids: walletIds.value, tCurr: portfolio.value?.Currency?.code || '' })
       prices.value = queryResult.data.Prices
     })
+
+    const { mutate, loading: loading2, error: error2 } = useMutation(MUT_PORTFOLIO_DELETE, () => ({
+      variables: {
+        id: portfolioId.value,
+      }
+    }));
+
+    const deletePortfolio = () => {}
 
     const toValue = (assetId: string, value: BigInt): number => {
       // console.debug('toValue', assetId, value)
@@ -244,6 +262,11 @@ export default defineComponent({
       });
     })
 
+    const doShowPortfolioEditDialog = () => {
+      console.debug('doShowPortfolioEditDialog')
+      showPortfolioEditDialog.value = !showPortfolioEditDialog.value
+    }
+
     /**
      * handle route.query.tab for direct links to portfolio
      */
@@ -268,7 +291,9 @@ export default defineComponent({
       wallets,
       prices,
       error,
+      doShowPortfolioEditDialog,
       showPortfolioWalletsDialog,
+      showPortfolioEditDialog,
       // onShowPortfolioWalletsDialog,
       onClosePortfolioWalletsDialog,
       toCoin,

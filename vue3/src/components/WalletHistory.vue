@@ -121,10 +121,10 @@ export default defineComponent({
           y1: {
             position: 'left',
             border: {
-              color: 'blue'
+              color: 'purple'
             },
             ticks: {
-              color: 'blue'
+              color: 'purple'
             },
             title: {
               display: true,
@@ -162,7 +162,7 @@ export default defineComponent({
           }) || []
         }, {
           yAxisID: 'y1',
-          borderColor: 'blue', // isDarkMode.value ? 'blue' : 'rgba(0,0,0,0.5)',
+          borderColor: 'purple', // isDarkMode.value ? 'blue' : 'rgba(0,0,0,0.5)',
           label: 'Token',
           data: result.value?.Wallet.wallet?.valueHistory?.map((m: any) => {
             const assetId = result.value.Wallet.wallet.Asset.id

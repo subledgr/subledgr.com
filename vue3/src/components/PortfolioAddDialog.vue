@@ -11,7 +11,7 @@
             <v-row>
               <v-text-field v-model="name" label="Name" :rules="rules.name"></v-text-field>
             </v-row>
-            <v-row>
+            <!-- <v-row>
               <v-text-field readonly
                 :error="false"
                 :errorMessages="!currency?.name ? 'Currency is required' : undefined"
@@ -27,7 +27,7 @@
                 :closeOnSelect="true"
                 @selectCurrency="onSelectCurrency"
                 @closeDialog="onClosePicker"></currency-picker-dialog>
-            </v-row>
+            </v-row> -->
             <!-- <v-row>
               <v-text-field v-model="address" label="address" :rules="rules.address"></v-text-field>
             </v-row> -->
@@ -49,27 +49,8 @@
 import { defineComponent, watch, ref } from 'vue'
 import CurrencyPickerDialog from './CurrencyPickerDialog.vue'
 import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-// import { SynchronousCachePersistor } from 'apollo3-cache-persist'
-// import { emit } from 'process'
-// import { useForm } from 'vuetify'
 import { IAsset, ICurrency } from './types'
-
-const MUT_PORTFOLIO_ADD = gql`
-  mutation CreatePortfilio($name: String!, $currencyCode: String!) {
-    createPortfolio(name: $name, currencyCode: $currencyCode) {
-      success
-      message
-      portfolio {
-        id
-        name
-        Currency {
-          code
-        }
-      }
-    }
-  }
-`
+import { MUT_PORTFOLIO_ADD } from '@/graphql'
 
 export default defineComponent({
   components: {
@@ -88,22 +69,22 @@ export default defineComponent({
     const name = ref('')
     const address = ref('')
     const rules = {
-      address: [
-        (v: string) => !!v || 'Address is required',
-        (v: string) => v.length >= 8 || 'Address must be more than 8 characters',
-      ],
+      // address: [
+      //   (v: string) => !!v || 'Address is required',
+      //   (v: string) => v.length >= 8 || 'Address must be more than 8 characters',
+      // ],
       name: [ (val:string) => !!val || 'Name is required' ],
-      currency: [ (val: any) => {
-        console.debug('rules.currency', val)
-        return !!val?.symbol || 'Currency is required'
-      } ]
+      // currency: [ (val: any) => {
+      //   console.debug('rules.currency', val)
+      //   return !!val?.symbol || 'Currency is required'
+      // } ]
     }
 
     const visible = ref(props.visible)
     const x_visible = ref(false)
     var showPicker = ref(false)
-    var currency = ref<ICurrency>({} as ICurrency)
-    var currencyEl = ref<HTMLFormElement>()
+    // var currency = ref<ICurrency>({} as ICurrency)
+    // var currencyEl = ref<HTMLFormElement>()
     var valid = ref(false)
 
     watch(() => visible.value, (newVal) => {
@@ -119,9 +100,9 @@ export default defineComponent({
     const closeDialog = () => {
       showPicker.value = false
       x_visible.value = false
-      currency.value = {} as ICurrency
+      // currency.value = {} as ICurrency
       name.value = ''
-      address.value = ''
+      // address.value = ''
     }
 
     const onClosePicker = () => {
@@ -130,9 +111,9 @@ export default defineComponent({
 
     const onSelectCurrency = (item: IAsset) => {
       showPicker.value = false
-      console.debug('PortfolioAddDialog.vue: onSelectCurrency', item)
-      currency.value = item
-      console.log('checking validity')
+      // console.debug('PortfolioAddDialog.vue: onSelectCurrency', item)
+      // currency.value = item
+      // console.log('checking validity')
       form.value?.checkValidity()
       form.value?.resetValidation()
     }
@@ -140,14 +121,18 @@ export default defineComponent({
     var { mutate, loading, error } = useMutation(MUT_PORTFOLIO_ADD, () => ({
       variables: {
         name: name.value,
-        currencyCode: currency?.value.code || '',
+        // currencyCode: currency?.value.code || '',
         // address: address.value
       }
     }));
 
     const addPortfolio = async () => {
-      console.debug('addPortfolio', name.value, {...currency.value}, address.value)
-      const input = { name: name.value, currencyCode: currency?.value.code, address: address.value };
+      // console.debug('addPortfolio', name.value, {...currency.value}, address.value)
+      const input = {
+        name: name.value,
+        // currencyCode: currency?.value.code,
+        // address: address.value
+      };
       const res: any = await mutate(input);
       console.debug(res)
       if (res.data) {
@@ -161,11 +146,11 @@ export default defineComponent({
 
     return {
       x_visible,
-      currency,
-      currencyEl,
-      showPicker,
+      // currency,
+      // currencyEl,
+      // showPicker,
       name,
-      address,
+      // address,
       valid,
       rules,
       onClosePicker,
