@@ -33,7 +33,7 @@
           class="text-grey-darken-1 d-flex justify-md-start justify-end"
         >
           <div class="px-4">
-            &copy; {{ new Date().getFullYear() }}, Vuetify, LLC
+            &copy; {{ new Date().getFullYear() }}, metaspan.com
           </div>
         </v-col>
 
@@ -42,15 +42,36 @@
           md="7"
           class="text-end"
         >
-          <v-btn
+          <!-- <v-btn
             v-for="link in links"
-            :key="link"
+            :key="link.name"
             variant="text"
             class="ms-4 text-grey-darken-1"
             rounded
           >
-            {{ link }}
-          </v-btn>
+            {{ link.name }}
+          </v-btn> -->
+          <a
+            href="http://github.com/subledgr/subledgr.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <v-btn
+              color="grey"
+              icon="mdi-github"
+            />
+          </a>
+
+          <a
+            href="http://twitter.com/subledgr"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <v-btn
+              color="grey"
+              icon="mdi-twitter"
+            />
+          </a>
         </v-col>
       </v-row>
     </v-container>
@@ -59,10 +80,10 @@
 
 <script lang="ts" setup>
 const links = [
-  'Home',
-  'About Us',
-  'Portfolio',
-  'Services',
-  'Contact'
+  { text: 'Home' },
+  { text: 'About Us' },
+  // 'Portfolio',
+  // 'Services',
+  // 'Contact'
 ]
 </script>

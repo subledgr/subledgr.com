@@ -43,7 +43,7 @@
             <div>
               <h1 class="text-h3 mx-auto mb-4">
                 A platform for fund managers to
-                <strong>manage your cross-chain portfolio</strong>
+                <strong>manage cross-chain portfolios</strong>
               </h1>
 
               <v-card-text class="text-medium-emphasis px-4 px-md-12 w-75 mx-auto mb-12">
