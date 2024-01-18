@@ -92,6 +92,22 @@ export class ConfigReader {
           logging: this.readEnv('SUBLEDGR_INDEXDB_LOGGING', 'true')==='true' || false, // .env is always a string
         },
       },
+
+      graphql: {
+        port: this.readEnv('SUBLEDGR_GRAPHQL_PORT', 4000),
+      },
+
+      jwtSecretKey: this.readEnv('SUBLEDGR_JWT_SECRET_KEY', 'thisIsASecret'),
+      dotsamaRestApiBaseUrl: this.readEnv('DOTSAMA_REST_API_BASE_URL', 'http://localhost:3000'),
+
+      subscan: {
+        apiKey: this.readEnv('SUBSCAN_API_KEY', 'secrets.subscan.apiKey')
+      },
+
+      coinbase: {
+        apiKey: this.readEnv('COINBASE_API_KEY', ''),
+        apiSecret: this.readEnv('COINBASE_API_SECRET', '')
+      },
     
     }
   }

@@ -117,7 +117,9 @@ User.belongsToMany(Asset, { as: 'assets', through: 'user_asset', foreignKey: 'us
 // }
 
 // FIXME / TODO should we do this in production?
-sequelize.sync()
+if (process.env.NODE_ENV === 'development') {
+  sequelize.sync()
+}
 
 db.User = User
 db.Profile = Profile

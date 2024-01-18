@@ -26,8 +26,8 @@ import { db } from './models/index.js'
 import { readFileSync } from 'fs'
 
 // const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'SECRET_KEY'
-const JWT_SECRET_KEY = cr.readEnv('SUBLEDGR_GRAPHQL_JWT_SECRET_KEY', 'SECRET_KEY')
-const PORT = cr.readEnv('SUBLEDGR_GRAPHQL_PORT', 4000)
+const JWT_SECRET_KEY = cfg.jwtSecretKey
+const PORT = cfg.graphql.port
 
 // // const CUBEJS_API_URL = 'http://localhost:4001'
 // const CUBEJS_API_URL = cr.readEnv('SUBLEDGR_CUBEJS_API_URL', 'http://localhost:4001')

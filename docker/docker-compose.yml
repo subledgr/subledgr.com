@@ -20,6 +20,7 @@ services:
   subledgr-redis:
     container_name: subledgr-redis
     image: redis
+    platform: ${TARGETPLATFORM:-linux/amd64} # see .env
     restart: unless-stopped
     ports:
       - "${SUBLEDGR_PORT_PREFIX}${SUBLEDGR_REDIS_PORT:-6379}:6379"
@@ -27,10 +28,12 @@ services:
   subledgr-datastore:
     container_name: subledgr-datastore
     image: mariadb:10.4
+    platform: ${TARGETPLATFORM:-linux/amd64} # see .env
     restart: unless-stopped
     # build: nothing to build
     environment:
-      MARIADB_ROOT_PASSWORD: ${SUBLEDGR_MARIADB_ROOT_PASSWORD} # see .env
+      MARIADB_ROOT_PASSWORD: ${SUBLEDGR_MARIADB_ROOT_PASSWORD:-thisIsASecret} # see .env
+      MYSQL_ROOT_PASSWORD: ${SUBLEDGR_MARIADB_ROOT_PASSWORD} # see .env
       PGDATA: /data/postgres # see volumes below
     ports:
       - "${SUBLEDGR_PORT_PREFIX}${SUBLEDGR_DB_PORT:-3306}:3306"
@@ -39,6 +42,7 @@ services:
       - ${SUBLEDGR_MARIADB_DATA:-./data}/schema.pgsql.sql:/docker-entrypoint-initdb.d/schema.sql:ro
       # - /mnt/Docker/subledgr/data/postgres:/data/postgres
       # - /mnt/Docker/subledgr/data/schema.pgsql.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+
   # subledgr-datastore:
   #   container_name: subledgr-datastore
   #   image: postgres:15.2-alpine
@@ -71,6 +75,7 @@ services:
   subledgr-api:
     container_name: subledgr-api
     image: docker.metaspan.io/subledgr/subledgr-api
+    platform: ${TARGETPLATFORM:-linux/amd64} # see .env
     restart: unless-stopped
     build:
       context: ../
@@ -79,6 +84,38 @@ services:
         - TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64} # see .env
     ports:
       - "${SUBLEDGR_PORT_PREFIX}${SUBLEDGR_GRAPHQL_PORT:-4000}:4000"
+    environment:
+      SUBLEDGR_DB_HOST: ${SUBLEDGR_DB_HOST}
+      SUBLEDGR_DB_DATABASE: ${SUBLEDGR_DB_DATABASE:-subledgr}
+      SUBLEDGR_DB_USER: ${SUBLEDGR_DB_USER:-subledgr}
+      SUBLEDGR_DB_PASSWORD: ${SUBLEDGR_DB_PASSWORD:-subledgr}
+      SUBLEDGR_DB_PORT: ${SUBLEDGR_DB_PORT:-3306}
+      SUBLEDGR_DB_DIALECT: ${SUBLEDGR_DB_DIALECT:-mariadb}
+      SUBLEDGR_DB_LOGGING: ${SUBLEDGR_DB_LOGGING:-false}
+
+      # subledgr index db
+      SUBLEDGR_INDEXDB_HOST: ${SUBLEDGR_INDEXDB_HOST:-192.168.1.106}
+      SUBLEDGR_INDEXDB_DATABASE: ${SUBLEDGR_INDEXDB_DATABASE:-subledgr_subsquid}
+      SUBLEDGR_INDEXDB_USER: ${SUBLEDGR_INDEXDB_USER:-subledgr_subsquid}
+      SUBLEDGR_INDEXDB_PASSWORD: ${SUBLEDGR_INDEXDB_PASSWORD:-subledgr_subsquid}
+      SUBLEDGR_INDEXDB_PORT: ${SUBLEDGR_INDEXDB_PORT:-5432}
+      SUBLEDGR_INDEXDB_DIALECT: ${SUBLEDGR_INDEXDB_DIALECT:-postgres}
+
+      COINBASE_API_KEY: ${COINBASE_API_KEY}
+      COINBASE_API_SECRET: ${COINBASE_API_SECRET}
+      SUBSCAN_API_KEY: ${SUBSCAN_API_KEY}
+      SUBLEDGR_GRAPHQL_JWT_SECRET_KEY: ${SUBLEDGR_GRAPHQL_JWT_SECRET_KEY}
+      SUBLEDGR_GRAPHQL_PORT: ${SUBLEDGR_GRAPHQL_PORT:-4000}
+      DOTSAMA_REST_API_BASE_URL: ${DOTSAMA_REST_API_BASE_URL:-https://api.metaspan.io/api}
+
+      SUBLEDGR_APP_BASEURL: ${SUBLEDGR_APP_BASEURL:-https://app.subledgr.com}
+
+      NODEMAILER_HOST: ${NODEMAILER_HOST}
+      NODEMAILER_PORT: ${NODEMAILER_PORT}
+      NODEMAILER_SECURE: ${NODEMAILER_SECURE:-false}
+      NODEMAILER_USER: ${NODEMAILER_USER}
+      NODEMAILER_PASS: ${NODEMAILER_PASS}
+
     depends_on:
       - subledgr-datastore
       # - subledgr-indexDb
@@ -131,3 +168,19 @@ services:
   #     dockerfile: Dockerfile
   #   ports:
   #     - 8081:8080
+
+  subledgr-www:
+    container_name: subledgr-www
+    image: docker.metaspan.io/subledgr/subledgr-www
+    restart: unless-stopped
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.www
+      args:
+        - TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64} # see .env
+    ports:
+      - "${SUBLEDGR_PORT_PREFIX}${SUBLEDGR_WWW_PORT:-8081}:8080"
+    # depends_on:
+    #   - subledgr-api
+    environment:
+      - SERVER_NAME=subledgr.com

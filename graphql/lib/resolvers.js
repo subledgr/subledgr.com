@@ -22,11 +22,12 @@ import { ConfigReader }  from '../../config/config-reader.js'
 import { Queue } from 'bullmq';
 const cr = new ConfigReader('../docker/.env')
 const cfg = cr.getConfig()
+console.debug('cfg', cfg)
 
 // const cb = new Coinbase({ apiKey: secrets.apiKey, apiSecret: secrets.apiSecret })
-const cb = new Coinbase({ apiKey: cr.readEnv('COINBASE_API_KEY', ''), apiSecret: cr.readEnv('COINBASE_API_SECRET', '') })
+const cb = new Coinbase(cfg.coinbase)
 // const dotsamaRestApiBaseUrl = process.env.DOTSAMA_REST_API_BASE_URL || 'http://localhost:3000'
-const dotsamaRestApiBaseUrl = cr.readEnv('DOTSAMA_REST_API_BASE_URL', 'http://localhost:3000')
+const dotsamaRestApiBaseUrl = cfg.dotsamaRestApiBaseUrl
 
 const mailer = nodemailer.createTransport({
   host: process.env.NODEMAILER_HOST,
@@ -692,7 +693,7 @@ const resolvers = {
     extrinsics: async (wallet, args, context) => {
       console.debug('Wallet.extrinsics()', wallet.currencyCode,ccChain[wallet.currencyCode].toLowerCase())
       // const subscan = new SubscanAPI({ apiKey: secrets.subscan.apiKey, chainId: ccChain[wallet.currencyCode].toLowerCase() })
-      const subscan = new SubscanAPI({ apiKey: cr.readEnv('SUBSCAN_API_KEY', 'secrets.subscan.apiKey'), chainId: ccChain[wallet.currencyCode].toLowerCase() })
+      const subscan = new SubscanAPI({ apiKey: cfg.subscan.apiKey, chainId: ccChain[wallet.currencyCode].toLowerCase() })
       var row, page, signed, address, module, no_params, call, from, to, block_num, block_range, success = undefined
       address = wallet.address
       const extrinsicsResponse = await subscan.scan.extrinsics(row, page, signed, address, module, no_params, call, from, to, block_num, block_range, success)

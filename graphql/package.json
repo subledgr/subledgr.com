@@ -23,7 +23,7 @@
     "@polkadot/types-known": "^10.9.1",
     "@substrate/smoldot-light": "^0.7.9",
     "axios": "^1.4.0",
-    "bcrypt": "^5.1.0",
+    "bcrypt": "^5.1.1",
     "binance-api-node": "^0.12.6",
     "coinbase": "^2.0.8",
     "dotenv": "^16.3.1",
