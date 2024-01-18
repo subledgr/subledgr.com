@@ -1,4 +1,4 @@
 _archive
-# **/node_modules/**
+**/node_modules/**
 docker/data/mariadb/**
 data/postgres/**
