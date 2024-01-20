@@ -61,7 +61,7 @@ User.hasMany(Wallet, { as: 'wallets', foreignKey: 'userId' })
 
 Asset.hasMany(Wallet, { as: 'wallets', foreignKey: 'assetId' })
 // Asset.hasMany(Portfolio, { as: 'portfolios', foreignKey: 'assetId' })
-Asset.hasMany(Price, { as: 'prices', foreignKey: 'f_curr' })
+// Asset.hasMany(Price, { as: 'prices', foreignKey: 'f_curr' })
 
 Wallet.belongsTo(Asset, { as: 'asset' })
 Wallet.belongsTo(User, { as: 'user', foreignKey: 'userId' })
