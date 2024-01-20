@@ -2,7 +2,13 @@
 import { Model, DataTypes } from 'sequelize';
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken';
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'SECRET_KEY'
+
+import { ConfigReader } from '../../config/config-reader.js';
+const cr = new ConfigReader('../../docker/.env');
+const cfg = cr.getConfig();
+// console.debug('config', cfg)
+// const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'SECRET_KEY'
+const JWT_SECRET_KEY = cfg.jwtSecretKey
 
 export class User extends Model {
   static async generateToken(user) {
