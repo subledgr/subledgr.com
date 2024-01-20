@@ -6,7 +6,7 @@
       :items="items"
       v-model:sort-by="sortBy"
       :loading="loading"
-      :itemsPerPage="profile.itemsPerPage"
+      :itemsPerPage="itemsPerPage"
       @update:itemsPerPage="onUpdateItemsPerPage"
       @click:row="onShowTransaction"
       no-data-text="No data">
