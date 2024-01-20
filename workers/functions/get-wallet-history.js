@@ -14,6 +14,7 @@ import { transactionModel } from '../../graphql/models/transaction.js'
 import { walletModel } from '../../graphql/models/wallet.js'
 import { walletBalanceModel } from '../../graphql/models/wallet-balance.js';
 
+// FIXME: get this from config
 const DOTSAMA_REST_API_BASE_URL = 'https://api.metaspan.io/api'
 const JOB_NAME = 'getWalletHistory'
 
@@ -55,12 +56,18 @@ export async function getWalletHistory(job) {
 
     // connect to ws rpc
     const provider = new WsProvider(`wss://rpc.metaspan.io/${chainId}`)
+    provider.on('error', (error) => {
+      console.error('ws provider error', error)
+    })
     let api
     // if (chainId === 'dock') {
     //   api = await DockAPI.init({ provider })
     // } else {
       api = await ApiPromise.create({ provider })
     // }
+    api.on('error', (error) => {
+      console.error('api error', error)
+    })
 
     // get the last block number of walletBalance for this walletId
     if (fromBlock === 0) {
@@ -176,6 +183,9 @@ export async function getWalletHistory(job) {
         result = []
       }
     }
+
+    console.debug('provider disconnecting...')
+    await provider.disconnect()
 
   } catch (err) {
     // job.log('debug 4')
