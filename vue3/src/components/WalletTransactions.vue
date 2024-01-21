@@ -75,7 +75,6 @@ export default defineComponent({
       profile,
       refetch,
       loading,
-      // result,
       wallet,
       list
     }    
