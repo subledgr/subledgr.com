@@ -654,31 +654,23 @@ const resolvers = {
       return w.portfolios
     },
     transactions: async (wallet, args, context) => {
-      // map chainId to polka-store
-      // const polkaMap = {
-      //   'polkadot': 'Polkadot',
-      //   'kusama': 'Kusama',
-      //   'dock': 'Dock PoS Mainnet',
-      // }
       console.debug('Wallet.transactions()', wallet.assetId, wallet.address)
       const { user, db } = context
       const { limit=50 } = args
-      // var asset = await db.Asset.findByPk(wallet.assetId)
-      
-      const _receipts = await db.Transaction.findAll({ where: {
-        // chainId: polkaMap[wallet.assetId],
-        chainId: wallet.assetId.toLowerCase(), // Polkadot => polkadot
-        toId: wallet.address
-      }})
+
+      // db.Transaction comes from the indexDb
+      const _receipts = await db.Transaction.findAll({
+        where: {
+          chainId: wallet.assetId.toLowerCase(), // Polkadot => polkadot
+          toId: wallet.address
+        }
+      })
       console.debug('Wallet.transactions() _receipts', _receipts.length)
       const _payments = await db.Transaction.findAll({
-        order: [ ['timestamp', 'DESC'] ],
+        // order: [ ['timestamp', 'DESC'] ],
         where: {
-          // chainId: polkaMap[wallet.assetId],
           chainId: wallet.assetId.toLowerCase(),
-          // senderId: wallet.address,
           fromId: wallet.address,
-          // type: {[Op.like]: 'balance%' },
         }
       })
       console.debug('Wallet.transactions() _payments', _payments.length)
@@ -687,6 +679,10 @@ const resolvers = {
           if(Number(a.blockNumber) > Number(b.blockNumber)) return -1
           if(Number(a.blockNumber) < Number(b.blockNumber)) return 1
           return 0
+        })
+        .map(tx => {
+          tx.address = wallet.address
+          return tx
         })
         .slice(0, limit)
     },
@@ -755,6 +751,13 @@ const resolvers = {
         success = true,
         user = await db.User.create({email, password});
       }
+      const profile = await db.Profile.create({
+        id: user.id,
+        dateTimeFormat: 'DD/MM/YYYY HH:mm:ss',
+        defaultCurrency: 'GBP',
+        locale: 'en-GB',
+        defaultDecimals: 3,
+      })
       const token = db.User.generateToken(user);
       user.token = token
       return { success, message: `User ${success ? 'registration ok' : 'exists'}`, id: user.id, email: user.email, token };
