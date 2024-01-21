@@ -79,7 +79,12 @@
       Transactions
       <v-btn icon :loading="loading2" @click="refetch2"><v-icon>mdi-refresh</v-icon></v-btn>
     </p>
-    <TransactionList :list="transactions" :loading="loading2" :assetId="assetId"></TransactionList>
+    <!-- <TransactionList :list="transactions" :loading="loading2" :assetId="assetId"></TransactionList> -->
+    <component :is="'TransactionTable2'" class="d-none d-sm-block"
+        v-bind="{ list: transactions, loading: loading }"></component>
+    <component :is="'TransactionList'" class="d-block d-sm-none"
+      v-bind="{ list: transactions, loading: loading }"></component>
+
   </v-container>
 </template>
 
@@ -88,8 +93,8 @@ import { defineComponent, ref, computed, TrackOpTypes } from 'vue'
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import { useStore } from 'vuex';
 import AssetLogo from './AssetLogo.vue'
-import MarketData from './MarketData.vue'
 import TransactionList from './TransactionList.vue'
+import TransactionTable2 from './TransactionTable2.vue';
 import AssetPriceHistory from './AssetPriceHistory.vue';
 import { IAsset, IWallet, IWalletBalance } from './types';
 import { useRouter } from 'vue-router';
@@ -101,9 +106,8 @@ import { QUERY_TRANSACTIONS } from '@/graphql';
 export default defineComponent({
   components: {
     AssetLogo,
-    // Currencies,
-    MarketData,
     TransactionList,
+    TransactionTable2,
     AssetPriceHistory
   },
   props: {
