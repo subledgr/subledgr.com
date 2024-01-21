@@ -18,7 +18,7 @@ const ds = new DataStore({ pruning: cfg.pruning })
 
 // const apiUrl = 'http://subledgr-api:4000/api/'
 
-// TODO move this to a central config / model?
+// FIXME move this to a central config / model?
 const currencies = {
   polkadot: { code: 'DOT', },
   kusama: { code: 'KSM' },

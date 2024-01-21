@@ -1,13 +1,12 @@
-// get data from api, not from chain
-//import { ApiPromise } from '@polkadot/api'
+
 import axios from 'axios'
-import moment from 'moment'
 import path from "path"
 const __dirname = path.resolve();
 
-import { DataStore } from '../../data/data-store.js'
-import cfg from '../../config/config.js'
+// import { DataStore } from '../../data/data-store.js'
+// import cfg from '../../config/config.js'
 
+// FIXME: get this from config
 const dotsamaRestApiBaseUrl = 'https://api.metaspan.io/api'
 
 /**
