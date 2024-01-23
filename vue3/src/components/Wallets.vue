@@ -32,7 +32,7 @@
       </v-col>
     </v-row>
 
-    <WalletList :list="filteredList" :prices="prices" @clickWallet="gotoWallet"></WalletList>
+    <WalletList :list="filteredList" :order="order" :prices="prices" @clickWallet="gotoWallet"></WalletList>
 
   </v-container>
 </template>
@@ -44,7 +44,6 @@ import { useStore } from 'vuex';
 import { useDisplay } from 'vuetify'
 
 import { useQuery } from '@vue/apollo-composable'
-import gql from 'graphql-tag'
 
 import WalletList from './WalletList.vue';
 import WalletAddDialog from './WalletAddDialog.vue';
@@ -86,7 +85,7 @@ export default defineComponent({
     const prices = ref<IPrice[]>()
 
     const variables = {
-      ids: ['KSM', 'DOT', 'DOCK'],
+      priceIds: ['KSM', 'DOT', 'DOCK'],
       tCurr: profile.value.defaultCurrency // 'GBP'
     }
 
@@ -98,8 +97,8 @@ export default defineComponent({
 
     onResult(queryResult => {
       // console.log('got data', queryResult.data)
-      list.value = queryResult.data?.Wallets || []
-      prices.value = queryResult.data.Prices
+      list.value = queryResult?.data?.Wallets || []
+      prices.value = queryResult?.data?.Prices || []
       calcTotalValue()
     })
 
