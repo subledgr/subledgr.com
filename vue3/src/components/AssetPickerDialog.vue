@@ -1,13 +1,15 @@
 <template>
-  <v-dialog v-model="dialog" persistent maxWidth="600">
+  <v-dialog v-model="showMe" persistent maxWidth="600">
     <v-card>
       <v-card-title>Select Asset</v-card-title>
-      <!-- <v-btn @click="dialog=false">Close</v-btn> -->
-      <v-divider></v-divider>
-      <v-card-text style="height: 300px;">
+      <!-- <v-btn @click="showMe=false">Close</v-btn> -->
+
+      <v-card-text style="height: 350px; overflow-y: auto;">
+        <!-- <v-divider></v-divider> -->
         <asset-list @selectAsset="onSelectAsset"></asset-list>
+        <!-- <v-divider></v-divider> -->
       </v-card-text>
-      <v-divider></v-divider>
+
       <v-card-actions>
         <v-spacer></v-spacer>
         <v-btn
@@ -17,13 +19,6 @@
         >
           Close
         </v-btn>
-        <!-- <v-btn
-          color="blue-darken-1"
-          variant="text"
-          @click="dialog = false"
-        >
-          Save
-        </v-btn> -->
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -32,6 +27,7 @@
 <script lang="ts">
 import { defineComponent, ref, watch } from 'vue'
 import AssetList from './AssetList.vue';
+
 export default defineComponent({
   components: {
     AssetList
@@ -50,35 +46,37 @@ export default defineComponent({
       default: true
     }
   },
-  setup (props) {
-    // console.log('props', props)
-    // const visible = props.visible
-    const dialog = ref(false)
-    watch(props, () => {
-      // console.debug('watch.props', props.visible)
-      dialog.value = props.visible
+  emits: ['selectAsset', 'closeDialog'],
+  setup (props, context) {
+    const showMe = ref(false)
+
+    watch(() => props.visible, (newVal: boolean) => {
+      console.debug('watch.props.visible', props.visible)
+      showMe.value = newVal
     })
-    return {
-      dialog
-    }
-  },
-  data: () => {
-    return {
-      // dialog: false,
-      dialogm1: 1
-    }
-  },
-  methods: {
-    onSelectAsset (item: any) {
+
+    watch(() => showMe.value, (newVal: boolean) => {
+      console.debug('watch.showMe', showMe.value)
+      if (!newVal) context.emit('closeDialog', newVal)
+    })
+
+    const onSelectAsset = (item: any) => {
       console.debug('AssetPickerDialog.vue: onSelectAsset', item)
-      this.$emit('selectAsset', item)
-      console.debug('closeOnSelect', this.closeOnSelect)
-      if(this.closeOnSelect) this.dialog = false
-    },
-    closeDialog () {
+      context.emit('selectAsset', item)
+      console.debug('closeOnSelect', props.closeOnSelect)
+      if(props.closeOnSelect) showMe.value = false
+    }
+
+    const closeDialog = () => {
       console.debug('AssetPickerDialog.vue: closeDialog()')
-      this.$emit('closeDialog')
-      this.dialog = false
+      context.emit('closeDialog')
+      showMe.value = false
+    }
+
+    return {
+      showMe,
+      onSelectAsset,
+      closeDialog
     }
   }
 })
