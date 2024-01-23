@@ -2,7 +2,7 @@
   <v-btn>
     <v-icon :icon="icon"></v-icon>
 
-    <v-dialog v-model="x_visible" activator="parent" maxWidth="800px">
+    <v-dialog v-model="showMe" activator="parent" maxWidth="800px">
       <v-card>
         <v-card-title>Add Wallet</v-card-title>
         <v-card-text>
@@ -24,8 +24,8 @@
                 </template>
                 {{ asset?.name || asset?.code }}
               </v-text-field>
-              <asset-picker-dialog :visible="showAssetPicker"
-                :closeOnSelect="true"
+              <asset-picker-dialog
+                :visible="showAssetPicker"
                 @selectAsset="onSelectAsset"
                 @closeDialog="onCloseAssetPicker"></asset-picker-dialog>
             </v-row>
@@ -98,16 +98,20 @@ export default defineComponent({
       } ]
     }
 
-    const visible = ref(props.visible)
-    const x_visible = ref(false)
+    const showMe = ref(false)
     var showAssetPicker = ref(false)
     var asset = ref<IAsset>({} as IAsset)
     var assetEl = ref<HTMLFormElement>()
     var valid = ref(false)
 
-    watch(() => visible.value, (newVal) => {
-      console.debug('watch.visible', newVal)
-      x_visible.value = newVal
+    watch(() => props.visible, (newVal: boolean) => {
+      console.debug('watch.props.visible', newVal)
+      showMe.value = newVal
+    })
+
+    watch(() => showMe.value, (newVal: boolean) => {
+      console.debug('watch.showMe', newVal)
+      if(!newVal) closeDialog()
     })
 
     watch(() => showAssetPicker.value, (newVal) => {
@@ -116,14 +120,19 @@ export default defineComponent({
     })
 
     const closeDialog = () => {
+      console.debug('WalletAddDialog.vue: closeDialog()')
       showAssetPicker.value = false
-      x_visible.value = false
+      // showMe.value = false
       asset.value = {} as IAsset
       name.value = ''
       address.value = ''
+      // the activator is a button in this component, emit won't close the dialog
+      // context.emit('closeDialog', false)
+      showMe.value = false
     }
 
     const onCloseAssetPicker = () => {
+      console.debug('WalletAddDialog.vue: onCloseAssetPicker')
       showAssetPicker.value = false
     }
 
@@ -167,7 +176,7 @@ export default defineComponent({
     }
 
     return {
-      x_visible,
+      showMe,
       asset,
       assetEl,
       showAssetPicker,
