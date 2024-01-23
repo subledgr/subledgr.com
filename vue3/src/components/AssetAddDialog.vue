@@ -1,5 +1,11 @@
 <template>
   <v-btn>
+
+    <!-- 
+    
+        NOT CURRENTLY USED?
+    
+    -->
     <v-icon :icon="icon"></v-icon>
 
     <v-dialog v-model="x_visible" activator="parent" maxWidth="800px">
@@ -9,7 +15,7 @@
           <v-form ref="form" v-model="valid" validateOn="blur">
             <!-- Valid: {{ valid }} -->
             <v-row>
-              <v-text-field v-model="name" label="Name" :rules="rules.name"></v-text-field>
+              <v-text-field v-model="name" label="Name" :rules="rules.name" autocomplete="off"></v-text-field>
             </v-row>
             <v-row>
               <!-- <v-text-field readonly :rules="rules.currency"></v-text-field> -->
@@ -38,7 +44,6 @@
           <v-spacer></v-spacer>
           <v-btn variant="tonal" color="red" @click="closeDialog()">Close</v-btn>
           <v-btn variant="outlined" :disabled="!valid" color="primary" @click="addWallet()">Add</v-btn>
-          <!-- Valid: {{ valid }} -->
         </v-card-actions>
       </v-card>
   
