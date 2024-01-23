@@ -1,12 +1,12 @@
 <template>
   <v-container>
 
-    <v-parallax
+    <!-- <v-parallax
       height="200"
-      src="https://cdn.vuetifyjs.com/images/parallax/material2.jpg"
+      src="https://cdn.vuetifyjs.com/images/parallax/material2.jpg.."
       >
       insert portfolio value chart here
-    </v-parallax>
+    </v-parallax> -->
 
   </v-container>  
 </template>
