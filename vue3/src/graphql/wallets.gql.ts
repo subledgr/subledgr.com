@@ -1,8 +1,23 @@
 import { gql } from 'graphql-tag'
 
+export const QUERY_WALLETS_SELECT = gql`
+  query WalletsSelect {
+    Wallets {
+      id
+      name
+      address
+      Asset {
+        id
+        name
+        code
+      }
+    }
+  }
+`
+
 export const QUERY_WALLETS = gql`
-  query WalletsQuery($ids: [String], $tCurr: String, $page: Int, $offset: Int, $search: String) {
-    Wallets(page: $page, offset: $offset, search: $search) {
+  query WalletsQuery($ids: [String], $assetId: String, $priceIds: [String], $tCurr: String, $page: Int, $offset: Int, $search: String) {
+    Wallets(ids: $ids, assetId: $assetId, page: $page, offset: $offset, search: $search) {
       id
       name
       address
@@ -29,11 +44,11 @@ export const QUERY_WALLETS = gql`
         claimable
         locked
         balance
-        createdAt
-        updatedAt
+        # createdAt
+        # updatedAt
       }
     }
-    Prices(ids: $ids, t_curr: $tCurr) {
+    Prices(ids: $priceIds, t_curr: $tCurr) {
       datetime
       f_curr
       t_curr
@@ -133,10 +148,11 @@ query WalletView($walletId: String!) {
 `
 
 export const QUERY_WALLET_TRANSACTIONS = gql`
-  query WalletView($walletId: String!, $limit: Int) {
+  query WalletView($walletId: String!, $offset: Int, $limit: Int) {
     Wallet(id: $walletId) {
       wallet {
         id
+        name
         address
         Asset {
           id
@@ -145,7 +161,7 @@ export const QUERY_WALLET_TRANSACTIONS = gql`
           symbol
           decimals
         }
-        transactions(limit: $limit) {
+        transactions(offset: $offset, limit: $limit) {
           chainId
           Asset {
             id
