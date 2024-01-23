@@ -317,13 +317,16 @@ const resolvers = {
 
     Wallets: async (_, args, context) => {
       console.debug('Wallets', args)
-      const { ids, page = 1, offset = 0, search = '' } = args
+      const { ids, assetId, page = 1, offset = 0, search = '' } = args
       const { user, db } = context
       var list = []
       if (!user) { return { list: [], error: true, message: 'You must be logged in', list } }
       const where = { userId: user?.id }
       if (ids) {
         where.id = { [Op.in]: ids }
+      }
+      if (assetId) {
+        where.assetId = assetId
       }
       console.debug('where', where)
       list = await db.Wallet.findAll({ where })
