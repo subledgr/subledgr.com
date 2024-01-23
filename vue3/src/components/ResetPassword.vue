@@ -124,7 +124,7 @@ export default defineComponent({
         password: password.value
       }
     }));
-    const apolloClient = useApolloClient('defaultClient')
+    // const apolloClient = useApolloClient('defaultClient')
 
     const resetUser = async () => {
       console.debug('registerUser()', email, password)
@@ -133,7 +133,7 @@ export default defineComponent({
       // handle success
       console.debug(res.data.reset)
       if (res.data.reset) {
-        const { id, email, success, message } = res.data.reset
+        const { id, email, success, message, resetToken } = res.data.reset
         if (!success) {
           resetMessage.value = message
           setTimeout(() => { resetMessage.value = '' }, 3000)
