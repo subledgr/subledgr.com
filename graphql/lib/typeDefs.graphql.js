@@ -23,7 +23,7 @@ type Query {
   Profile: UserProfile
   SymbolPriceTicker(symbol: String): SymbolPriceTicker
   Transactions(chainId: String, walletId: String, address: String, ids: [String], offset: Int, limit: Int): [Transaction]
-  Wallets(ids: [String], page: Int, offset: Int, search: String): [Wallet] # WalletsResponse
+  Wallets(ids: [String], assetId: String, page: Int, offset: Int, search: String): [Wallet] # WalletsResponse
   Wallet(id: String!): WalletResponse
 }
 
@@ -259,6 +259,7 @@ type Transaction # matched to subsquid Transfer model
   # specVersion: String
   # transactionVersion: String
   #authorId: String
+  address: String # this is the account address for a query
   fromId: String
   toId: String
   amount: BigInt
@@ -337,7 +338,7 @@ type Wallet
   # balance: AccountData
   balance: WalletBalance
   portfolios: [Portfolio]
-  transactions(limit: Int): [Transaction]
+  transactions(limit: Int, offset: Int): [Transaction]
   extrinsics: ExtrinsicsResponse
   events: EventsResponse
   chartData(period: String): [WalletChartItem]
