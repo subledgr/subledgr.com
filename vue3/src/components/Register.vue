@@ -74,14 +74,12 @@ export default defineComponent({
   name: 'RegisterC',
   setup () {
     const router = useRouter()
-    // provideApolloClient(DefaultApolloClient)
     var { mutate, loading, error } = useMutation(MUT_USER_REGISTER, () => ({
       variables: {
         email: email.value,
         password: password.value
       }
     }));
-    const apolloClient = useApolloClient('defaultClient')
 
     const email = ref('derek@colley.cc');
     const emailRules = [
