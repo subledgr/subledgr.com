@@ -18,9 +18,23 @@
       <template v-slot:append> 
         <!-- price {{ item.code }} -->
         <v-icon color="green" v-if="item.active">mdi-check-circle-outline</v-icon>
-        <v-icon color="red" v-if="!item.active">mdi-close-circle-outline</v-icon>
+        <v-icon color="red" v-if="!item.active">mdi-lock-outline</v-icon>
       </template>
     </v-list-item>
+    <v-snackbar
+      v-model="snackbar"
+    >
+      {{ snackText }}
+      <template v-slot:actions>
+        <v-btn
+          color="pink"
+          variant="text"
+          @click="snackbar = false"
+        >
+          Close
+        </v-btn>
+      </template>
+    </v-snackbar>
   </v-list>
 </template>
 
@@ -41,12 +55,18 @@ export default defineComponent({
     const search = ref('')
     const assets = ref<IAsset[]>([])
     // const input = ref(null)
+    const snackbar = ref(false)
 
     const onClick = (item: any) => {
       // console.debug('AssetList.vue: onClick', {...item})
       if(item.active) {
         // console.debug('AssetList.vue: onClick: emitting', {...item})
         emit('selectAsset', {...item})
+      } else {
+        snackbar.value = true
+        setTimeout(() => {
+          snackbar.value = false
+        }, 3000)
       }
     }
 
@@ -79,6 +99,8 @@ export default defineComponent({
 
     return {
       search,
+      snackbar,
+      snackText: 'Asset is not active',
       // emits,
       onClick,
       assets,
