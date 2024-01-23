@@ -17,7 +17,8 @@
       </v-toolbar-items>
     </v-toolbar>
 
-    <v-list>
+    <v-list :loading="loading">
+      <v-progress-linear indeterminate v-show="loading"></v-progress-linear>
       <v-list-item v-if="!loggedIn">
         <v-row>
           <v-col>
@@ -79,12 +80,16 @@
         </v-row>
       </v-list-item>
     </v-list>
-    <AssetPickerDialog icon="mdi-wallet-plus-outline" :visible="showAssetPicker" @selectAsset="onSelectAsset"></AssetPickerDialog>
+    <AssetPickerDialog icon="mdi-wallet-plus-outline"
+      :visible="showAssetPicker"
+      @selectAsset="onSelectAsset"
+      @closeDialog="onCloseAssetPicker"></AssetPickerDialog>
+  
   </v-container>
 </template>
 
 <script lang="ts">
-import { defineComponent, ref, computed, TrackOpTypes } from 'vue'
+import { defineComponent, ref, computed, watch} from 'vue';
 import { useDisplay } from 'vuetify';
 import { useQuery, useMutation } from '@vue/apollo-composable';
 import { useStore } from 'vuex';
@@ -96,6 +101,7 @@ import { IAsset, ICurrency } from './types';
 import { QUERY_WALLETS } from '@/graphql/wallets.gql';
 import { QUERY_PRICES } from '@/graphql/prices.gql';
 import { IProfile, IWallet, IWalletData } from './types';
+import { useGlobalUtils } from './utils';
 import router from '@/router';
 
 // TODO - assetId vs assetId
@@ -133,13 +139,16 @@ export default defineComponent({
 
     const loading = ref(false)
     const showAssetPicker = ref(false)
-    // var assetId = ''
     const list = ref<IAssetView[]>([])
     const assets = computed<IAsset[]>(() => store.state.asset.list)
     const currencies = computed<ICurrency[]>(() => store.state.currency.list)
     const currency = currencies.value.find(c => c.code === profile.value.defaultCurrency)
     const totalValue = ref(0.0)
     const { mutate, error } = useMutation(MUT_ADD_ASSET)
+
+    watch(() => showAssetPicker.value, (newVal: boolean) => {
+      console.debug('watch.showAssetPicker', newVal)
+    })
 
     const variables = {
       ids: ['KSM', 'DOT', 'DOCK'],
@@ -219,6 +228,11 @@ export default defineComponent({
       return bal
     }
   
+    const onCloseAssetPicker = (val: boolean) => {
+      console.debug('onCloseAssetPicker', val)
+      showAssetPicker.value = val
+    }
+    // returns from AssetPickerDialog
     const onSelectAsset = async (item: IAsset) => {
       console.debug('onSelectAsset', item)
       showAssetPicker.value = false
@@ -245,15 +259,16 @@ export default defineComponent({
       refetchWallets()
     }
 
-    const toCoin =  (assetId: string, val: BigInt) => {
-      // const currs = {...chains.value}
-      // console.debug('currs', currs)
-      const spec = assets.value.find((f: IAsset) => f.id === assetId) || { id: assetId, decimals: 2 }
-      // console.debug('toCoin', currencyCode, spec)
-      const denom = Math.pow(10, spec.decimals)
-      // console.debug('denom', denom)
-      return Number(val) / denom
-    }
+    const { toCoin } = useGlobalUtils()
+    // const toCoin =  (assetId: string, val: BigInt) => {
+    //   // const currs = {...chains.value}
+    //   // console.debug('currs', currs)
+    //   const spec = assets.value.find((f: IAsset) => f.id === assetId) || { id: assetId, decimals: 2 }
+    //   // console.debug('toCoin', currencyCode, spec)
+    //   const denom = Math.pow(10, spec.decimals)
+    //   // console.debug('denom', denom)
+    //   return Number(val) / denom
+    // }
 
     const calcTotalValue = () => {
       // console.debug('calcTotalValue', resultWallets.value?.Wallets)
@@ -267,7 +282,7 @@ export default defineComponent({
         ret += toValue(wallet.Asset.id, wallet.balance?.free || 0)
         ret += toValue(wallet.Asset.id, wallet.balance?.reserved || 0)
         ret += toValue(wallet.Asset.id, wallet.balance?.pooled || 0)
-        ret += toValue(wallet.Asset.id, wallet.balance?.pooledClaimable || 0)
+        ret += toValue(wallet.Asset.id, wallet.balance?.claimable || 0)
         // console.debug('val', val, typeof val)
         // ret += val
       }
@@ -313,6 +328,7 @@ export default defineComponent({
       currency,
       mutate,
       showAssetPicker,
+      onCloseAssetPicker,
       onSelectAsset,
       toCoin,
       toValue,
