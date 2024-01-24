@@ -2,8 +2,18 @@
   
   <v-card elevation="0">
     <v-card-title>
-      {{ title }}
-      <v-btn flat icon @click="refetch"><v-icon size="v-small">mdi-refresh</v-icon></v-btn>
+      <v-row>
+        <v-col>{{ title }}</v-col>
+        <v-col>
+          <v-btn flat icon @click="refetch"><v-icon size="v-small">mdi-refresh</v-icon></v-btn>
+        </v-col>
+        <v-col>
+          <small>
+            {{ toCoin(result?.Wallet?.wallet?.Asset?.id, getWalletBalance?.balance).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+            {{ result?.Wallet?.wallet?.Asset?.code }}
+          </small>
+        </v-col>
+      </v-row>
     </v-card-title>
     <v-card-text>
       <v-progress-linear indeterminate v-show="loading"></v-progress-linear>
@@ -18,6 +28,12 @@
         <th class="text-left">Total</th>
         <td class="text-right">
           {{ toCoin(result?.Wallet?.wallet?.Asset?.id, getWalletBalance?.balance) }}
+        </td>
+      </tr>
+      <tr>
+        <th class="text-left">Index:</th>
+        <td class="text-right">
+          <small><i>( {{ toProfileDate(result?.Wallet?.wallet?.balanceHistory[0]?.timestamp || 0) }})</i></small>
         </td>
       </tr>
       <tr>
@@ -68,8 +84,8 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from 'vue'
 import { useQuery } from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-import { IAsset, IBalanceLock } from './types';
+import moment from 'moment';
+import { IAsset, IBalanceLock, IProfile } from './types';
 import { useGlobalUtils } from './utils';
 import { useStore } from 'vuex';
 import ClickToCopy from './ClickToCopy.vue';
@@ -94,9 +110,9 @@ export default defineComponent({
   },
   setup(props) {
     const store = useStore()
-    const profile = computed(() => store.state.profile)
+    const profile = computed<IProfile>(() => store.state.profile)
     const walletId = ref(props.walletId)
-    const { shortStash } = useGlobalUtils()
+    const { shortStash, toProfileDate } = useGlobalUtils()
 
     const { result, loading, error, onResult, refetch } = useQuery(QUERY_WALLET_BALANCE, {
       walletId: walletId.value
@@ -133,6 +149,12 @@ export default defineComponent({
       return Number(val) / denom
     }
 
+    const getIndexDate = () => {
+      console.debug('getIndexDate', result.value?.Wallet?.wallet?.balanceHistory[0]?.timestamp)
+      if (!result.value?.Wallet?.wallet?.balanceHistory[0]?.timestamp) return '-'
+      return moment(result.value?.Wallet?.wallet?.balanceHistory[0]?.timestamp).format(profile.value.dateTimeFormat)
+    }
+
     return {
       shortStash,
       toCoin,
@@ -142,7 +164,8 @@ export default defineComponent({
       result,
       loading,
       refetch,
-      getWalletBalance
+      getWalletBalance,
+      toProfileDate,
     }
 
   },

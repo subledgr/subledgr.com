@@ -36,6 +36,7 @@
     <v-row class="ma-1">
       <v-col>
         <WalletDetails :walletId="walletId" title="Balance"></WalletDetails>
+        <WalletValue :walletId="walletId" title="Value"></WalletValue>
       </v-col>
       <v-col>
         <WalletPortfolios :walletId="walletId" title="Portfolios"></WalletPortfolios>
@@ -73,6 +74,7 @@ import WalletDetails from './WalletDetails.vue';
 import WalletPortfolios from './WalletPortfolios.vue';
 import WalletTransactions from './WalletTransactions.vue';
 import WalletHistory from './WalletHistory.vue';
+import WalletValue from './WalletValue.vue';
 
 import { IAsset, IBalanceLock } from './types';
 import { useGlobalUtils } from './utils';
@@ -87,6 +89,7 @@ export default defineComponent({
     WalletPortfolios,
     WalletTransactions,
     WalletHistory,
+    WalletValue,
     AssetLogo,
     ClickToCopy,
     ConfirmDialog,
