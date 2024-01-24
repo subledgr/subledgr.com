@@ -172,7 +172,7 @@ export default defineComponent({
     })
 
     onWallets((data) => {
-      console.debug('onResult', data)
+      // console.debug('onResult', data)
       // if(data.data) list.value = data.data.me?.assets || []
       summarise()
       calcTotalValue()
@@ -191,7 +191,7 @@ export default defineComponent({
         const idx = acc.findIndex((x: IAssetView) => x.assetId === wallet.Asset.id)
         if (idx === -1) {
           // console.debug('new...')
-          console.debug('wallet', wallet.balance)
+          // console.debug('wallet', wallet.balance)
           const twal = { 
             assetId: wallet.Asset.id,
             assetName: wallet.Asset.name,
