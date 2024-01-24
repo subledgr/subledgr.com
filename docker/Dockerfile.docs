@@ -1,0 +1,34 @@
+FROM --platform=$TARGETPLATFORM node:18-slim as build-stage
+
+# 
+# serving docs.subledgr.com with nginx
+# 
+
+# https://docs.docker.com/build/building/multi-platform/
+ARG BUILDPLATFORM
+ARG TARGETPLATFORM
+RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM"
+
+# nginx port
+ENV HTTP_PORT=8080
+# # nginx server name TODO do we need this?
+# ENV SERVER_NAME=${SUBLEDGR_DOCS_SERVER_NAME:-localhost}
+
+WORKDIR /
+COPY ../docs /app
+WORKDIR /app
+
+# RUN yarn install && yarn run build
+
+FROM --platform=$TARGETPLATFORM nginx as deploy-stage
+
+COPY --from=build-stage /app/build/. /usr/share/nginx/html/
+COPY docker/etc/nginx/nginx.conf /etc/nginx/nginx.conf
+COPY docker/etc/nginx/nginx-docs.conf.template /etc/nginx/templates/default.conf.template
+
+# HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+#   CMD curl -f http://localhost:$PORT/version || exit 1
+
+EXPOSE ${HTTP_PORT}
+
+CMD ["nginx", "-g", "daemon off;"]
