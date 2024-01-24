@@ -37,8 +37,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed, ref } from 'vue'
-import { useRouter } from 'vue-router';
+import { defineComponent, computed, ref, onBeforeMount } from 'vue'
+import { useRouter, useRoute } from 'vue-router';
 import { useStore } from 'vuex';
 import { useDisplay } from 'vuetify'
 import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
@@ -84,6 +84,7 @@ export default defineComponent({
     const display = useDisplay()
     const store = useStore()
     const router = useRouter()
+    const route = useRoute()
     const profile = computed(() => store.state.profile)
     const assets = computed<IAsset[]>(() => store.state.asset.list)
     const currencies = computed<ICurrency[]>(() => store.state.currency.list)
@@ -216,6 +217,16 @@ export default defineComponent({
     })
 
     calcTotalValue()
+
+    onBeforeMount(() => {
+      console.debug('onBeforeMount', route.params, route.query)
+      if (route.query.refresh) {
+        refresh()
+      }
+      // if (result.value?.Wallets?.list) {
+      //   list.value = result.value?.Wallets?.list
+      // }
+    })
 
     return {
       toolbarClass,

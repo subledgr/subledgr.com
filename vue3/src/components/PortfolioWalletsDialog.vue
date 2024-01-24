@@ -67,9 +67,9 @@ const MUT_PORTFOLIO_SET_WALLETS = gql`
       portfolio {
         id
         name
-        Currency {
-          code
-        }
+        # Currency {
+        #   code
+        # }
         Wallets {
           id
           name

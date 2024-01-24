@@ -99,8 +99,8 @@ export default defineComponent({
     var valid = ref(false)
 
     watch(() => props.portfolio, (newVal) => {
-      _portfolio.value.id = newVal.id
-      _portfolio.value.name = newVal.name
+      _portfolio.value.id = newVal?.id
+      _portfolio.value.name = newVal?.name
     })
 
     watch(() => props.visible, (newVal) => {

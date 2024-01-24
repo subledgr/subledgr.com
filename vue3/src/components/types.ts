@@ -155,7 +155,7 @@ export interface ITransaction {
 // }
 
 export interface IWalletData {
-  locked: number
+  locked: bigint
   feeFrozen: bigint
   free: bigint
   miscFrozen: bigint
