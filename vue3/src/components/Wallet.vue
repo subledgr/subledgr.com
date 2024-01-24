@@ -35,8 +35,8 @@
 
     <v-row class="ma-1">
       <v-col>
-        <WalletDetails :walletId="walletId" title="Balance"></WalletDetails>
         <WalletValue :walletId="walletId" title="Value"></WalletValue>
+        <WalletDetails :walletId="walletId" title="Balance"></WalletDetails>
       </v-col>
       <v-col>
         <WalletPortfolios :walletId="walletId" title="Portfolios"></WalletPortfolios>

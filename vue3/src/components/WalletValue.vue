@@ -63,7 +63,7 @@ export default defineComponent({
       fetchPolicy: 'cache-and-network',
     })
     onWalletResult((result) => {
-      console.log('onWalletResult', result)
+      // console.log('onWalletResult', result)
       wallet.value = result.data?.Wallet?.wallet
     })
     
@@ -74,7 +74,7 @@ export default defineComponent({
       }
     })
     watch(() => priceVariables.value, (newVal) => {
-      console.log('priceVariables', newVal)
+      // console.log('priceVariables', newVal)
       priceRefetch(priceVariables.value)
     })
     const { loading: priceLoading, result: priceResult, onResult: onPriceResult, refetch: priceRefetch } = useQuery(
@@ -84,31 +84,29 @@ export default defineComponent({
     })
 
     onPriceResult((result) => {
-      console.log('onPriceResult', result)
+      // console.log('onPriceResult', result)
       price.value = result.data?.Price
     })
 
     const loading = computed(() => walletLoading.value || priceLoading.value)
 
     const refetch = async () => {
-      console.log('refetch wallet', walletVariables.value)
+      // console.log('refetch wallet', walletVariables.value)
       await walletRefetch(walletVariables.value)
-      console.log('refetch price', priceVariables.value)
+      // console.log('refetch price', priceVariables.value)
       await priceRefetch(priceVariables.value)
     }
 
     const calcValue = computed(() => {
-      console.debug('calcValue', wallet.value, price.value)
+      // console.debug('calcValue', wallet.value, price.value)
       if (!wallet.value || !price.value) return 0
       const coin = toCoin(wallet.value.Asset.id, BigInt(wallet.value.balance.balance))
       return coin * Number(price.value.value)
-      // return Number(balance.value.amount) * Number(price.value.price)
     })
 
     return {
       loading,
       calcValue,
-      // balance,
       price,
       toCoin,
       profile,
