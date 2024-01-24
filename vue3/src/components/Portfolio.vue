@@ -65,6 +65,12 @@
       :portfolio="portfolio"
       @closeDialog="onClosePortfolioWalletsDialog"></PortfolioWalletsDialog>
     
+    <ConfirmDialog v-model="showConfirmDialog"
+      :confirm="confirmDeletePortfolio"
+      :title="`Delete portfolio ${portfolioId}`"
+      :message="`Do you want to delete this portfolio`"
+      :close="onCloseDeletePortfolio"></ConfirmDialog>
+
   </v-container>
 </template>
 
@@ -82,7 +88,7 @@ import ConfirmDialog from './ConfirmDialog.vue';
 import PortfolioEditDialog from './PortfolioEditDialog.vue';
 import PortfolioHistory from './PortfolioHistory.vue';
 import PortfolioWalletsDialog from './PortfolioWalletsDialog.vue';
-import PortfolioAssets from './PortfolioAssets.vue';
+// import PortfolioAssets from './PortfolioAssets.vue';
 import PortfolioWallets from './PortfolioWallets.vue';
 import AssetValueList from './AssetValueList.vue';
 
@@ -93,7 +99,7 @@ export default defineComponent({
     // WalletList,
     // ClickToCopy,
     PortfolioHistory,
-    PortfolioAssets,
+    // PortfolioAssets,
     PortfolioWallets,
     AssetValueList,
     PortfolioWalletsDialog,
@@ -153,8 +159,6 @@ export default defineComponent({
       }
     }));
 
-    const deletePortfolio = () => {}
-
     const toValue = (assetId: string, value: BigInt): number => {
       // console.debug('toValue', assetId, value)
       if (!value) return 0
@@ -210,7 +214,7 @@ export default defineComponent({
     }
 
     const { mutate: mutDeletePortfolio, error: deleteError, loading: deleting } = useMutation(gql`
-      mutation DeletePortfolio($id: String!) {
+      mutation DeletePortfolio($id: Int!) {
         deletePortfolio(id: $id) {
           success
           message
@@ -218,23 +222,27 @@ export default defineComponent({
       }
     `)
 
+    const showConfirmDialog = ref(false)
+    /**
+     * The user has confirmed the deletion of the portfolio
+     */
     const confirmDeletePortfolio = async () => {
-      showConfirmDialog.value = false
-      const result = await mutDeletePortfolio({ id: portfolioId.value })
+      const result = await mutDeletePortfolio({ id: Number(portfolioId.value) })
       console.debug('deletePortfolio', result)
+      showConfirmDialog.value = false
       if (result?.data.deletePortfolio.success) {
-        const apollo = useApolloClient()
-        const cacheId = `Portfolio:{"id": "${portfolioId.value}"}`
-        console.debug('cacheId', cacheId)
-        const evicted = apollo.client.cache.evict({ id: `Portfolio:{"id":"${portfolioId.value}"}` })
-        console.debug('evicted', evicted)
-        router.push('/portfolio')
+        // deleting the cache causes a problem with the Portfolio
+        // const apollo = useApolloClient()
+        // const cacheId = `Portfolio:{"id": "${portfolioId.value}"}`
+        // console.debug('cacheId', cacheId)
+        // const evicted = apollo.client.cache.evict({ id: `Portfolio:{"id":"${portfolioId.value}"}` })
+        // console.debug('evicted', evicted)
+        router.push('/portfolio?refresh=true')
       }
     }
     const onCloseDeletePortfolio = () => {
       showConfirmDialog.value = false
     }
-    const showConfirmDialog = ref(false)
 
     // const onShowPortfolioWalletsDialog = () => {
     //   showPortfolioWalletsDialog.value = false

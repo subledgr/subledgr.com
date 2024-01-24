@@ -112,6 +112,34 @@ query WalletBalance($walletId: String!) {
 }
 `
 
+export const QUERY_WALLET_BALANCE1 = gql`
+query WalletBalance($walletId: String!) {
+  Wallet(id: $walletId) {
+    wallet {
+      id
+      name
+      address
+      Asset {
+        code
+        id
+        name
+      }
+      balance {
+        id
+        blockNumber
+        timestamp
+        free
+        reserved
+        pooled
+        claimable
+        locked
+        balance
+      }
+    }
+  }
+}
+`
+
 export const QUERY_WALLET_DETAILS = gql`
 query WalletView($walletId: String!) {
   Wallet(id: $walletId) {

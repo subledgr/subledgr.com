@@ -2,6 +2,8 @@
 
 ## components
 
+- documentation - [docusaurus](./docs/)
+
 - frontend - vue3
   => api graphql client
 

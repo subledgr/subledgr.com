@@ -185,3 +185,20 @@ services:
     #   - subledgr-api
     environment:
       - SERVER_NAME=subledgr.com
+
+  subledgr-docs:
+    container_name: subledgr-docs
+    image: docker.metaspan.io/subledgr/subledgr-docs
+    restart: unless-stopped
+    build:
+      context: ../
+      dockerfile: docker/Dockerfile.docs
+      args:
+        - TARGETPLATFORM=${TARGETPLATFORM:-linux/amd64} # see .env
+    ports:
+      - "${SUBLEDGR_PORT_PREFIX}${SUBLEDGR_DOCS_HTTP_PORT:-8082}:8080"
+    # depends_on:
+    #   - subledgr-api
+    # environment:
+      # - SUBLEDGR_DOCS_HTTP_PORT=${SUBLEDGR_DOCS_HTTP_PORT:-8082}
+      # - SUBLEDGR_DOCS_SERVER_NAME=docs.subledgr.com

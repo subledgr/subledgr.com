@@ -39,21 +39,23 @@
               {{ item.assetId.toLocaleUpperCase() }}
             </v-col>
             <v-col class="text-right">
-              {{ toCoin(item.assetId, sumBalance(item.balance)).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+              {{ toCoin(item.assetId, item.balance.balance).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
               <span class="currency-code">{{ item.assetCode }}</span>
             </v-col>
             <v-col class="text-right">
-              {{ currency?.symbol }} {{ toValue(item.assetId, sumBalance(item.balance)).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+              {{ currency?.symbol }} {{ toValue(item.assetId, item.balance.balance).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
             </v-col>
           </v-row>
         </v-list-item-title>
         <v-row style="font-style: italic; font-size: smaller;">
-          <v-col>Free<br>
+          <v-col>
+            Free<br>
             Reserved<br>
             <!-- feeFrozen<br> -->
             <!-- miscFrozen<br> -->
             Pooled<br>
-            Pooled Claimable
+            Claimable<br>
+            Locked
           </v-col>
           <v-col class="text-right">
             {{ toCoin(item.assetId, item.balance?.free).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
@@ -67,6 +69,8 @@
             {{ toCoin(item.assetId, item.balance?.pooled).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
             <span class="currency-code">{{ item.assetCode }}</span><br>
             {{ toCoin(item.assetId, item.balance?.claimable).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+            <span class="currency-code">{{ item.assetCode }}</span><br>
+            {{ toCoin(item.assetId, item.balance?.locked).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
             <span class="currency-code">{{ item.assetCode }}</span>
           </v-col>
           <v-col class="text-right">
@@ -75,7 +79,8 @@
             <!-- {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.feeFrozen || 0n).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br> -->
             <!-- {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.miscFrozen || 0n).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br> -->
             {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.pooled).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br>
-            {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.claimable).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+            {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.claimable).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}<br>
+            {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.locked).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
           </v-col>
         </v-row>
       </v-list-item>
@@ -167,7 +172,7 @@ export default defineComponent({
     })
 
     onWallets((data) => {
-      // console.debug('onResult', data)
+      console.debug('onResult', data)
       // if(data.data) list.value = data.data.me?.assets || []
       summarise()
       calcTotalValue()
@@ -186,6 +191,7 @@ export default defineComponent({
         const idx = acc.findIndex((x: IAssetView) => x.assetId === wallet.Asset.id)
         if (idx === -1) {
           // console.debug('new...')
+          console.debug('wallet', wallet.balance)
           const twal = { 
             assetId: wallet.Asset.id,
             assetName: wallet.Asset.name,
@@ -196,7 +202,9 @@ export default defineComponent({
               // miscFrozen : BigInt(wallet.balance?.miscFrozen || 0) || 0n,
               feeFrozen  : BigInt(wallet.balance?.feeFrozen || 0) || 0n,
               pooled     : BigInt(wallet.balance?.pooled || 0) || 0n,
-              claimable  : BigInt(wallet.balance?.claimable || 0) || 0n
+              claimable  : BigInt(wallet.balance?.claimable || 0) || 0n,
+              locked     : BigInt(wallet.balance?.locked || 0) || 0n,
+              balance    : BigInt(wallet.balance?.balance || 0) || 0n
             }
           }
           acc.push(twal)
@@ -208,6 +216,8 @@ export default defineComponent({
           acc[idx].balance.feeFrozen  += BigInt(wallet.balance?.feeFrozen || 0) || 0n
           acc[idx].balance.pooled     += BigInt(wallet.balance?.pooled || 0) || 0n
           acc[idx].balance.claimable  += BigInt(wallet.balance?.claimable || 0) || 0n
+          acc[idx].balance.locked     += BigInt(wallet.balance?.locked || 0) || 0n
+          acc[idx].balance.balance    += BigInt(wallet.balance?.balance || 0) || 0n
         }
         // } else {
         //   console.debug('acc is not an array', acc)
@@ -278,11 +288,12 @@ export default defineComponent({
       for(let i = 0; i < resultWallets.value?.Wallets?.length; i++) {
         const wallet = resultWallets.value.Wallets[i]
         // console.debug('calcTotalValue', wallet.Asset.id)
-        // const val = toValue(wallet.Asset.id, wallet.balance?.free || 0)
-        ret += toValue(wallet.Asset.id, wallet.balance?.free || 0)
-        ret += toValue(wallet.Asset.id, wallet.balance?.reserved || 0)
-        ret += toValue(wallet.Asset.id, wallet.balance?.pooled || 0)
-        ret += toValue(wallet.Asset.id, wallet.balance?.claimable || 0)
+        // // const val = toValue(wallet.Asset.id, wallet.balance?.free || 0)
+        // ret += toValue(wallet.Asset.id, wallet.balance?.free || 0)
+        // ret += toValue(wallet.Asset.id, wallet.balance?.reserved || 0)
+        // ret += toValue(wallet.Asset.id, wallet.balance?.pooled || 0)
+        // ret += toValue(wallet.Asset.id, wallet.balance?.claimable || 0)
+        ret += toValue(wallet.Asset.id, wallet.balance?.balance || 0)
         // console.debug('val', val, typeof val)
         // ret += val
       }
