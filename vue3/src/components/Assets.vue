@@ -288,11 +288,12 @@ export default defineComponent({
       for(let i = 0; i < resultWallets.value?.Wallets?.length; i++) {
         const wallet = resultWallets.value.Wallets[i]
         // console.debug('calcTotalValue', wallet.Asset.id)
-        // const val = toValue(wallet.Asset.id, wallet.balance?.free || 0)
-        ret += toValue(wallet.Asset.id, wallet.balance?.free || 0)
-        ret += toValue(wallet.Asset.id, wallet.balance?.reserved || 0)
-        ret += toValue(wallet.Asset.id, wallet.balance?.pooled || 0)
-        ret += toValue(wallet.Asset.id, wallet.balance?.claimable || 0)
+        // // const val = toValue(wallet.Asset.id, wallet.balance?.free || 0)
+        // ret += toValue(wallet.Asset.id, wallet.balance?.free || 0)
+        // ret += toValue(wallet.Asset.id, wallet.balance?.reserved || 0)
+        // ret += toValue(wallet.Asset.id, wallet.balance?.pooled || 0)
+        // ret += toValue(wallet.Asset.id, wallet.balance?.claimable || 0)
+        ret += toValue(wallet.Asset.id, wallet.balance?.balance || 0)
         // console.debug('val', val, typeof val)
         // ret += val
       }
