@@ -69,6 +69,10 @@ export async function getWalletHistory(job) {
       console.error('api error', error)
     })
 
+    var currentBlock = (await api.rpc.chain.getBlock()).toJSON()
+    console.debug('currentBlock', currentBlock.block.header)
+    const currentBlockNumber = currentBlock.block.header.number
+
     // get the last block number of walletBalance for this walletId
     if (fromBlock === 0) {
       const lastBlockNumber = await WalletBalance.max('blockNumber', { where: { id: walletId } })
@@ -80,7 +84,7 @@ export async function getWalletHistory(job) {
     // process.exit(0)
 
     // TODO: limit this to the last 1000 blocks where an address/blockNumber has no balance?
-    const blockNumbers = await Transaction.findAll({
+    var blockNumbers = await Transaction.findAll({
       where: { 
         chainId,
         blockNumber: { [Sequelize.Op.gt]: BigInt(fromBlock-1) },
@@ -94,10 +98,11 @@ export async function getWalletHistory(job) {
     })
     console.log('found blocks', blockNumbers.length)
     job.log(`[worker] ${JOB_NAME} found blocks ${blockNumbers.length}`)
+    blockNumbers = [...blockNumbers.map(b => b.dataValues.block_number), currentBlockNumber]
 
     var ret = { free: 0, reserved: 0, frozen: 0, pooled: 0, locked: 0 }
     for (let i = 0; i < blockNumbers.length; i++) {
-      const blockNumber = blockNumbers[i].dataValues.block_number
+      const blockNumber = blockNumbers[i] //.dataValues.block_number
 
       // // FIXME REMOVE THIS
       // if (blockNumber < 19145986) continue
