@@ -58,12 +58,12 @@
             <!-- {{ item.name }} <br> {{ item.Currency?.code }} -->
           </v-col>
           <v-col cols="5" class="text-right">
-            {{ toCoin(item.Asset?.id, item.balance.balance).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }} 
+            {{ toCoin(item.Asset?.id, item.balance?.balance).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }} 
             <span class="currency-code">{{ item.Asset?.code }}</span><br>
           </v-col>
           <v-col cols="5" class="text-right">
             {{ currency.symbol }}
-            {{ toValue(item.Asset?.id, item.balance.balance).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }} <br>
+            {{ toValue(item.Asset?.id, item.balance?.balance).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }} <br>
           </v-col>
         </v-row>
 

@@ -100,7 +100,7 @@ export default defineComponent({
     const calcValue = computed(() => {
       // console.debug('calcValue', wallet.value, price.value)
       if (!wallet.value || !price.value) return 0
-      const coin = toCoin(wallet.value.Asset.id, BigInt(wallet.value.balance.balance))
+      const coin = toCoin(wallet.value.Asset.id, BigInt(wallet.value.balance?.balance))
       return coin * Number(price.value.value)
     })
 

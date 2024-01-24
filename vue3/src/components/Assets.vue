@@ -39,11 +39,11 @@
               {{ item.assetId.toLocaleUpperCase() }}
             </v-col>
             <v-col class="text-right">
-              {{ toCoin(item.assetId, item.balance.balance).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+              {{ toCoin(item.assetId, item.balance?.balance).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
               <span class="currency-code">{{ item.assetCode }}</span>
             </v-col>
             <v-col class="text-right">
-              {{ currency?.symbol }} {{ toValue(item.assetId, item.balance.balance).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
+              {{ currency?.symbol }} {{ toValue(item.assetId, item.balance?.balance).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }}
             </v-col>
           </v-row>
         </v-list-item-title>
