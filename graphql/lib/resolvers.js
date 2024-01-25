@@ -338,21 +338,10 @@ const resolvers = {
       console.debug('resolvers.Query.Wallet', id)
       const { user, db } = context
       if (!user) { return { error: true, message: 'You must be logged in', wallet: null } }
-      // list = await db.Portfolio.findAll({ where: {} })
       const wallet = await db.Wallet.findOne({ where: { id, userId: user.id } }) // , { include: ['user', 'asset']})
       return { wallet, error: false, message: '' }
     },
   },
-
-  // Portfolio: {
-  //   Wallets: async (portfolio, args, context) => {
-  //     console.debug('Portfolio.Wallets()', portfolio, args)
-  //     const { db } = context
-  //     const portfolioId = portfolio.id
-  //     const models = await db.Wallet.findAll() //{ where: { portfolioId } })
-  //     return models
-  //   }
-  // },
 
   Portfolio: {
     User: async (portfolio, args, context) => {
@@ -868,7 +857,9 @@ const resolvers = {
       // const currency = await db.Currency.findOne({ where: { code: currencyCode } })
       // if (!currency) throw new Error(`Invalid currency code ${currencyCode}`)
       // check wallet exists?
-      var [portfolio, created] = await db.Portfolio.findOrCreate({ where: { name, userId: user.id } })
+      const where = { name, userId: user.id }
+      const uuid = uuidv4()
+      var [portfolio, created] = await db.Portfolio.findOrCreate({ where, defaults: { id: uuid, where } })
       return { success: created, message: `Portfolio ${created ? 'created' : 'retrieved'}`, portfolio }
     },
     savePortfolio: async (_, args, context) => {

@@ -57,7 +57,9 @@
 
     <PortfolioEditDialog
       :visible="showPortfolioEditDialog"
-      :portfolio="portfolio"></PortfolioEditDialog>
+      :portfolio="portfolio"
+      @closeDialog="onClosePortfolioEditDialog"
+      @portfolioSaved="onPortfolioSaved"></PortfolioEditDialog>
 
     <PortfolioWalletsDialog
       icon=""
@@ -135,7 +137,7 @@ export default defineComponent({
     const showPortfolioEditDialog = ref(false)
 
     const { result, loading, error, onResult, refetch } = useQuery(QUERY_PORTFOLIO_VIEW, {
-      portfolioId: Number(route.params.portfolioId),
+      portfolioId: route.params.portfolioId,
       ids: ['KSM', 'DOT', 'DOCK'], // FIXME: get from elsewhere
       tCurr: profile.value.defaultCurrency // 'GBP'
     }, {
@@ -252,6 +254,17 @@ export default defineComponent({
       showPortfolioWalletsDialog.value = false
     }
 
+    const onClosePortfolioEditDialog = () => {
+      // console.debug('onClosePortfolioEditDialog')
+      showPortfolioEditDialog.value = false
+    }
+
+    const onPortfolioSaved = () => {
+      // console.debug('onPortfolioSaved')
+      showPortfolioEditDialog.value = false
+      //refetch()
+    }
+
     const onSelectAsset = (assetId: string) => {
       // console.debug('onSelectAsset', assetId)
       router.push(`/asset/${assetId}`)
@@ -304,6 +317,8 @@ export default defineComponent({
       showPortfolioEditDialog,
       // onShowPortfolioWalletsDialog,
       onClosePortfolioWalletsDialog,
+      onClosePortfolioEditDialog,
+      onPortfolioSaved,
       toCoin,
       // transactionList
       confirmDeletePortfolio,

@@ -1,7 +1,7 @@
 import gql from 'graphql-tag'
 
 export const QUERY_PORTFOLIO_VIEW = gql`
-query PortfolioView($portfolioId: Int, $ids: [String!], $tCurr: String!) {
+query PortfolioView($portfolioId: String!, $ids: [String!], $tCurr: String!) {
   Prices(ids: $ids, t_curr: $tCurr) {
     datetime
     f_curr
@@ -40,7 +40,7 @@ query PortfolioView($portfolioId: Int, $ids: [String!], $tCurr: String!) {
 `
 
 export const QUERY_PORTFOLIO_WALLETS = gql`
-query PortfolioWallets($portfolioId: Int, $ids: [String!], $tCurr: String!) {
+query PortfolioWallets($portfolioId: String!, $ids: [String!], $tCurr: String!) {
   Prices(ids: $ids, t_curr: $tCurr) {
     datetime
     f_curr
@@ -79,7 +79,7 @@ query PortfolioWallets($portfolioId: Int, $ids: [String!], $tCurr: String!) {
 `
 
 export const QUERY_PORTFOLIO_HISTORY = gql`
-query PortfolioHistory($portfolioId: Int, $ids: [String!], $tCurr: String!) {
+query PortfolioHistory($portfolioId: String, $ids: [String!], $tCurr: String!) {
   Prices(ids: $ids, t_curr: $tCurr) {
     datetime
     f_curr
@@ -133,7 +133,7 @@ mutation CreatePortfilio($name: String!) {
 `
 
 export const MUT_PORTFOLIO_EDIT = gql`
-mutation SavePortfolio($id: Int!, $name: String!) {
+mutation SavePortfolio($id: String!, $name: String!) {
   savePortfolio(id: $id, name: $name) {
     success
     message
@@ -146,7 +146,7 @@ mutation SavePortfolio($id: Int!, $name: String!) {
 `
 
 export const MUT_PORTFOLIO_DELETE = gql`
-mutation DeletePortfolio($id: Int!) {
+mutation DeletePortfolio($id: String!) {
   deletePortfolio(id: $id) {
     success
     message

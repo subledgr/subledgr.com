@@ -35,7 +35,7 @@ export default defineComponent({
     const router = useRouter()
     const profile = computed(() => store.state.profile )
     const { result, loading, error, onResult, refetch } = useQuery(QUERY_PORTFOLIO_WALLETS, {
-      portfolioId: Number(props.portfolioId),
+      portfolioId: props.portfolioId,
       ids: ['KSM', 'DOT', 'DOCK'], // FIXME: get from store
       tCurr: profile.value.defaultCurrency // 'GBP'
     }, {

@@ -60,7 +60,7 @@ query PortfolioWallets {
 }`
 
 const MUT_PORTFOLIO_SET_WALLETS = gql`
-  mutation SetPortfolioWallets($id: Int!, $walletIds: [String]!) {
+  mutation SetPortfolioWallets($id: String!, $walletIds: [String]!) {
     setPortfolioWallets(id: $id, walletIds: $walletIds) {
       success
       message

@@ -100,7 +100,6 @@ export interface IProfile {
 }
 
 
-
 export interface ITransaction {
   chainId: string // TODO: rename to assetId
   Asset: IAsset

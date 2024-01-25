@@ -16,7 +16,7 @@ type Query {
   CryptoCurrencies: [CryptoCurrencyCoinbase]
   MarketData(fromCurrency: String, toCurrency: String, fromDate: String, interval: String, periods: Int): [Price]
   Portfolios(page: Int, offset: Int, search: String): [Portfolio]
-  Portfolio(id: Int): Portfolio
+  Portfolio(id: String!): Portfolio
   Price(f_curr: String, t_curr: String): Price
   Prices(ids: [String], t_curr: String): [Price]
   PriceHistory(f_curr: String, t_curr: String): [PriceHistoryItem]
@@ -35,9 +35,9 @@ type Mutation {
 
   # Portfolio management
   createPortfolio(name: String!): CreatePortfolioResponse
-  savePortfolio(id: Int!, name: String!): CreatePortfolioResponse
-  deletePortfolio(id: Int!): DeletePortfolioResponse
-  setPortfolioWallets(id: Int!, walletIds: [String]!): CreatePortfolioResponse
+  savePortfolio(id: String!, name: String!): CreatePortfolioResponse
+  deletePortfolio(id: String!): DeletePortfolioResponse
+  setPortfolioWallets(id: String!, walletIds: [String]!): CreatePortfolioResponse
 
   # Wallet management
   createWallet(name: String!, assetId: String!, address: String!): CreateWalletResponse
@@ -224,7 +224,7 @@ type SymbolPriceTicker {
 type Portfolio
 @key(fields: "id")
 {
-  id: Int # TODO: change to String UUID
+  id: String! # UUID
   User: User
   name: String!
   # Currency: Currency # reporting currency
