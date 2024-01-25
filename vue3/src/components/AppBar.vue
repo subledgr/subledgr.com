@@ -52,10 +52,10 @@
         <span class="d-none d-sm-inline">&nbsp;Asset</span>
       </v-btn>
 
-      <v-btn @click="navTo('/wallet')">
+      <v-btn @click="navTo('/account')">
         <v-icon size="small" class="d-none d-sm-inline">mdi-wallet-outline</v-icon>
         <v-icon size="x-large" class="d-inline d-sm-none">mdi-wallet-outline</v-icon>
-        <span class="d-none d-sm-inline">&nbsp;Wallet</span>
+        <span class="d-none d-sm-inline">&nbsp;Account</span>
       </v-btn>
 
       <!-- <MainMenu></MainMenu> -->
@@ -110,7 +110,7 @@ export default defineComponent({
       { text: "Dashboard", icon: 'mdi-view-dashboard-outline', to: '/dashboard', exact: false },
       { text: "Portfolio", icon: 'mdi-folder-pound-outline', to: "/portfolio", exact: false },
       { text: "Asset", icon: 'mdi-cash', to: "/asset", exact: false },
-      { text: "Wallet", icon: 'mdi-wallet-outline', to: "/wallet", exact: false },
+      { text: "Account", icon: 'mdi-wallet-outline', to: "/account", exact: false },
     ]
 
     return {

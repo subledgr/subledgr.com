@@ -17,11 +17,11 @@
     </v-toolbar>
 
     <AssetPriceHistory :asset-id="asset?.code || ''" :periods="100"></AssetPriceHistory>
-    <v-card-title>Wallets</v-card-title>
+    <v-card-title>Accounts</v-card-title>
     <v-list :loading="loading">
       <v-list-item v-show="loading">
         <v-list-item-title>
-          Loading wallets...
+          Loading accounts...
         </v-list-item-title>
         <v-list-item-subtitle>
           <v-progress-linear indeterminate v-show="loading"></v-progress-linear>
@@ -30,19 +30,19 @@
       <v-list-item v-show="!loggedIn">
         <v-row>
           <v-col>
-            <v-btn to="/login">Login</v-btn> to see your wallets {{ loggedIn }}
+            <v-btn to="/login">Login</v-btn> to see your accounts {{ loggedIn }}
           </v-col>
         </v-row>
       </v-list-item>
       <v-list-item v-show="loggedIn && list?.length === 0">
         <v-row>
           <v-col>
-            You have no wallets for this asset
+            You have no accounts for this asset
           </v-col>
         </v-row>
       </v-list-item>
 
-      <v-list-item v-for="item in list || []" v-bind:key="item.id" @click="gotoWallet(item.id)">
+      <v-list-item v-for="item in list || []" v-bind:key="item.id" @click="gotoAccount(item.id)">
         <v-divider></v-divider>
         <template v-slot:prepend>
           <AssetLogo :size="24" :assetId="item.Asset.id"></AssetLogo>
@@ -90,10 +90,10 @@ import AssetLogo from './AssetLogo.vue'
 // import TransactionList from './TransactionList.vue'
 // import TransactionTable2 from './TransactionTable2.vue';
 import AssetPriceHistory from './AssetPriceHistory.vue';
-import { IAsset, IWallet, IWalletBalance } from './types';
+import { IAsset, IAccount, IAccountBalance } from './types';
 import { useRouter } from 'vue-router';
 import { useGlobalUtils } from './utils';
-import { QUERY_WALLETS } from '@/graphql/wallets.gql';
+import { QUERY_ACCOUNTS } from '@/graphql/accounts.gql';
 // import { QUERY_TRANSACTIONS } from '@/graphql';
 
 export default defineComponent({
@@ -117,7 +117,7 @@ export default defineComponent({
     const loggedIn = computed<boolean>(() => store.getters.loggedIn)
     const router = useRouter()
     const showAssetPicker = ref(false)
-    const list = ref<IWallet[]>([])
+    const list = ref<IAccount[]>([])
     const transactions = ref<any[]>([])
     const assets = computed<IAsset[]>(() => store.state.asset.list)
     const asset = computed<IAsset | undefined>(() => assets.value.find((asset: IAsset) => asset.id === props.assetId))
@@ -128,20 +128,20 @@ export default defineComponent({
       assetId: props.assetId,
       tCurr: profile.value.defaultCurrency
     }
-    const { loading, result, refetch, onResult } = useQuery(QUERY_WALLETS, variables, {
+    const { loading, result, refetch, onResult } = useQuery(QUERY_ACCOUNTS, variables, {
       fetchPolicy: 'cache-first'
     })
     onResult((queryResult) => {
       // console.debug('onResult', queryResult)
       // if(data.data) list.value = data.data.me?.assets || []
       // summarise()
-      list.value = queryResult.data?.Wallets?.filter((wallet: IWallet) => wallet.Asset.id === asset.value?.id)
+      list.value = queryResult.data?.Accounts?.filter((account: IAccount) => account.Asset.id === asset.value?.id)
       calcTotalValue()
     })
 
     // const variables2 = computed(() => { return {
     //   chainId: asset.value?.id || '',
-    //   ids: list.value?.map((wallet: IWallet) => wallet.id),
+    //   ids: list.value?.map((account: IAccount) => account.id),
     //   offset: 0,
     //   limit: 50
     // }})
@@ -156,15 +156,15 @@ export default defineComponent({
     // })
 
     const summarise = () => {
-      list.value = result.value?.Wallets.filter((wallet: IWallet) => wallet.Asset.id === asset.value?.id)
+      list.value = result.value?.Accounts.filter((account: IAccount) => account.Asset.id === asset.value?.id)
     }
 
     const calcTotalValue = () => {
-      // console.debug('getWalletsValue', result.value?.Wallets)
-      // console.debug('getWalletsValue', list.value) // this is new
+      // console.debug('getAccountsValue', result.value?.Accounts)
+      // console.debug('getAccountsValue', list.value) // this is new
       totalValue.value = 0
-      var ret = list.value?.reduce((acc: number, wallet: IWallet) => {
-        return acc + toValue(wallet.Asset.id, BigInt(wallet.balance?.balance || 0))
+      var ret = list.value?.reduce((acc: number, account: IAccount) => {
+        return acc + toValue(account.Asset.id, BigInt(account.balance?.balance || 0))
       }, 0)
       totalValue.value = ret
     }
@@ -199,9 +199,9 @@ export default defineComponent({
       }, 200)
     }
 
-    const gotoWallet = (id: string) => {
-      // console.debug('gotoWallet()', id)
-      router.push(`/wallet/${id}`)
+    const gotoAccount = (id: string) => {
+      // console.debug('gotoAccount()', id)
+      router.push(`/account/${id}`)
     }
 
     // refresh() 
@@ -221,7 +221,7 @@ export default defineComponent({
       // priceHistoryResult,
       transactions,
       // mutate,
-      gotoWallet,
+      gotoAccount,
       showAssetPicker,
       // onSelectCurrency,
       toCoin,

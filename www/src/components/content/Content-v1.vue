@@ -31,8 +31,8 @@
             <!-- Embrace the future of frontend development with Vuetify 3. Our latest version offers an enhanced suite of tools designed to elevate user interfaces.
             With improved performance, more intuitive code structures, and a comprehensive range of customizable components, Vuetify 3 is here to transform your
             Vue.js projects into seamless, visually stunning experiences. -->
-            <p>Assign & group wallets into portfolios, and view your portfolio performance.</p>
-            <p>Example: All Control Wallets</p>
+            <p>Assign & group accounts into portfolios, and view your portfolio performance.</p>
+            <p>Example: All Control Accounts</p>
           </div>
         </v-col>
       </v-row>

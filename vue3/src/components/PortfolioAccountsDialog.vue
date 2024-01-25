@@ -7,7 +7,7 @@
       </template>
       <template v-slot:default="{ isActive }">
         <v-card>
-          <v-card-title>Select Wallets for {{ portfolio?.name }}</v-card-title>
+          <v-card-title>Select Accounts for {{ portfolio?.name }}</v-card-title>
           <v-card-text>
             <v-data-table
               v-model="selected"
@@ -25,7 +25,7 @@
           <v-card-actions>
             <v-spacer></v-spacer>
             <v-btn variant="tonal" color="red" @click="closeDialog()">Close</v-btn>
-            <v-btn @click="setPortfolioWallets()">Save</v-btn>
+            <v-btn @click="setPortfolioAccounts()">Save</v-btn>
           </v-card-actions>
         </v-card>
       </template>
@@ -36,18 +36,19 @@
 import { defineComponent, watch, ref, computed, PropType } from 'vue'
 import { useQuery, useMutation } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
-import { IPortfolio, IWallet } from './types'
+import { IPortfolio, IAccount } from './types'
 
-const QUERY_PORTFOLIO_WALLETS = gql`
-query PortfolioWallets {
+// TODO: move this to ../graphql/
+const QUERY_PORTFOLIO_ACCOUNTS = gql`
+query PortfolioAccounts {
   #Portfolio(id: $portfolioId) {
   #  id
   #  name
-  #  Wallets {
+  #  Accounts {
   #    id
   #  }
   #}
-  Wallets {
+  Accounts {
     id
     name
     address
@@ -59,9 +60,10 @@ query PortfolioWallets {
   }
 }`
 
-const MUT_PORTFOLIO_SET_WALLETS = gql`
-  mutation SetPortfolioWallets($id: String!, $walletIds: [String]!) {
-    setPortfolioWallets(id: $id, walletIds: $walletIds) {
+// TODO: move this to ../graphql/
+const MUT_PORTFOLIO_SET_ACCOUNTS = gql`
+  mutation SetPortfolioAccounts($id: String!, $accountIds: [String]!) {
+    setPortfolioAccounts(id: $id, accountIds: $accountIds) {
       success
       message
       portfolio {
@@ -70,7 +72,7 @@ const MUT_PORTFOLIO_SET_WALLETS = gql`
         # Currency {
         #   code
         # }
-        Wallets {
+        Accounts {
           id
           name
           Asset {
@@ -99,9 +101,9 @@ export default defineComponent({
 
     // const visible = computed(() => props.visible)
     const x_visible = ref(false) // ref(props.visible)
-    const wallets = ref<IWallet[]>()
-    const currentWalletIds = props.portfolio?.Wallets.map((wallet: IWallet) => wallet.id) || []
-    // console.debug('currentWalletIds', currentWalletIds)
+    const accounts = ref<IAccount[]>()
+    const currentAccountIds = props.portfolio?.Accounts.map((account: IAccount) => account.id) || []
+    // console.debug('currentAccountIds', currentAccountIds)
     const headers = [
       { key: 'active', title: 'Active' },
       // { key: 'id', title: 'ID' },
@@ -110,21 +112,21 @@ export default defineComponent({
       // { key: 'asset', title: 'Asset' }
     ]
     const search = ref('')
-    const items = computed(() => wallets.value?.map((w: IWallet) => {
+    const items = computed(() => accounts.value?.map((w: IAccount) => {
       // if (search.value === '' || !w.name.toLowerCase().includes(search.value.toLowerCase())) {
         return {
           id: w.id,
           name: w.name,
           address: w.address,
-          active: currentWalletIds.includes(w.id) ? true : false,
+          active: currentAccountIds.includes(w.id) ? true : false,
           code: w.Asset.code,
           asset: w.Asset.name
         }
       // }
     }))
-    const selected = ref(props.portfolio?.Wallets?.map((w: IWallet) => w.id ))
+    const selected = ref(props.portfolio?.Accounts?.map((w: IAccount) => w.id ))
 
-    const { result, loading, error, onResult, refetch } = useQuery(QUERY_PORTFOLIO_WALLETS, {
+    const { result, loading, error, onResult, refetch } = useQuery(QUERY_PORTFOLIO_ACCOUNTS, {
       // portfolioId: Number(route.params.portfolioId)
     }, {
       fetchPolicy: 'cache-and-network',
@@ -134,8 +136,8 @@ export default defineComponent({
     onResult((queryResult) => {
       // console.debug('onResult', queryResult)
       // if (queryResult.partial) return
-      wallets.value = queryResult.data?.Wallets || []
-      selected.value = props.portfolio?.Wallets?.map((w: IWallet) => w.id )
+      accounts.value = queryResult.data?.Accounts || []
+      selected.value = props.portfolio?.Accounts?.map((w: IAccount) => w.id )
     })
 
     watch(() => props.visible, (newVal) => {
@@ -152,22 +154,22 @@ export default defineComponent({
       }
     })
 
-    var { mutate, loading: loading2, error: error2 } = useMutation(MUT_PORTFOLIO_SET_WALLETS, () => ({
+    var { mutate, loading: loading2, error: error2 } = useMutation(MUT_PORTFOLIO_SET_ACCOUNTS, () => ({
       variables: {
         id: props.portfolio?.id,
-        walletIds: selected.value,
+        accountIds: selected.value,
       }
     }));
-    const setPortfolioWallets = async () => {
-      console.debug('setPortfolioWallets')
+    const setPortfolioAccounts = async () => {
+      console.debug('setPortfolioAccounts')
       console.debug(selected.value?.map((m: string) => m))
 
       const res: any = await mutate({
         id: props.portfolio?.id,
-        walletIds: selected.value
+        accountIds: selected.value
       })
       console.debug(res)
-      if (res.data?.setPortfolioWallets?.success) {
+      if (res.data?.setPortfolioAccounts?.success) {
         emit('closeDialog')
       }
     }
@@ -187,9 +189,9 @@ export default defineComponent({
       items,
       search,
       selected,
-      wallets,
-      // addWallet,
-      setPortfolioWallets,
+      accounts,
+      // addAccount,
+      setPortfolioAccounts,
       closeDialog,
     }
 

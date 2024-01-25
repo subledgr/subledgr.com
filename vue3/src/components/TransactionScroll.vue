@@ -5,8 +5,8 @@
         <v-list-item-title>{{ tx.section }} / {{ tx.method }}</v-list-item-title>
         <!-- {{ tx }} -->
         <v-row>
-          <v-col>Amount: {{ toCoin(wallet2?.Asset.id, tx.amount) }}</v-col>
-          <v-col>Fee: {{ toCoin(wallet2?.Asset.id, tx.fee) }}</v-col>
+          <v-col>Amount: {{ toCoin(account2?.Asset.id, tx.amount) }}</v-col>
+          <v-col>Fee: {{ toCoin(account2?.Asset.id, tx.fee) }}</v-col>
         </v-row>
       </v-list-item>
 
@@ -16,7 +16,7 @@
 
 <script lang="ts">
 import { defineComponent, PropType, computed, ref } from 'vue'
-import { IWallet, IWalletData, ICurrency, ITransaction } from './types'
+import { IAccount, IAccountData, ICurrency, ITransaction } from './types'
 import { useGlobalUtils } from './utils'
 
 export default defineComponent({
@@ -25,14 +25,14 @@ export default defineComponent({
       type: Object as PropType<ITransaction[]>,
       required: true
     },
-    wallet: {
-      type: Object as PropType<IWallet>,
+    account: {
+      type: Object as PropType<IAccount>,
       required: true
     },
   },
   setup(props) {
     const { toCoin } = useGlobalUtils()
-    const wallet2 = computed<IWallet>(() => props.wallet) // || { address: '', Currency: {} } as IWallet)
+    const account2 = computed<IAccount>(() => props.account) // || { address: '', Currency: {} } as IAccount)
     const list = computed<ITransaction[]>(() => props.list)
     const items = ref<ITransaction[]>([])
     var marker = 0
@@ -52,7 +52,7 @@ export default defineComponent({
     return {
       toCoin,
       load,
-      wallet2,
+      account2,
       items
     }
   },

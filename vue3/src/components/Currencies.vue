@@ -30,7 +30,6 @@ import CurrencyList from './CurrencyList.vue';
 import CurrencyPickerDialog from './CurrencyPickerDialog.vue';
 
 export default defineComponent({
-  name: 'WalletsC',
   setup () {
   },
   components: {

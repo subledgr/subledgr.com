@@ -34,8 +34,8 @@ const indexDb = new Sequelize(config.indexDb.database, config.indexDb.username, 
 import { userModel } from './user.js'
 import { assetModel } from './asset.js'
 import { currencyModel } from './currency.js'
-import { walletModel } from './wallet.js'
-import { walletBalanceModel } from './wallet-balance.js'
+import { accountModel } from './account.js'
+import { accountBalanceModel } from './account-balance.js'
 import { portfolioModel } from './portfolio.js'
 import { priceModel } from './price.js'
 import { profileModel } from './profile.js'
@@ -48,8 +48,8 @@ const User = userModel.User.init(userModel.definition, { ...userModel.options, s
 const Asset = sequelize.define('asset', assetModel.definition, { ...assetModel.options, sequelize })
 const Currency = sequelize.define('currency', currencyModel.definition, { ...currencyModel.options, sequelize })
 const Profile = sequelize.define('profile', profileModel.definition, { ...profileModel.options, sequelize })
-const Wallet = sequelize.define('wallet', walletModel.definition, { ...walletModel.options, sequelize })
-const WalletBalance = sequelize.define('wallet_balance', walletBalanceModel.definition, { ...walletBalanceModel.options, sequelize })
+const Account = sequelize.define('account', accountModel.definition, { ...accountModel.options, sequelize })
+const AccountBalance = sequelize.define('account_balance', accountBalanceModel.definition, { ...accountBalanceModel.options, sequelize })
 const Portfolio = sequelize.define('portfolio', portfolioModel.definition, { ...portfolioModel.options, sequelize })
 const Price = sequelize.define('price', priceModel.definition, { ...priceModel.options, sequelize })
 // from indexDb
@@ -57,22 +57,22 @@ const Transaction = indexDb.define('transaction', transactionModel.definition, {
 
 User.hasOne(Profile, { as: 'profile', foreignKey: 'id' })
 User.hasMany(Portfolio, { as: 'portfolios', foreignKey: 'userId' })
-User.hasMany(Wallet, { as: 'wallets', foreignKey: 'userId' })
+User.hasMany(Account, { as: 'accounts', foreignKey: 'userId' })
 
-Asset.hasMany(Wallet, { as: 'wallets', foreignKey: 'assetId' })
+Asset.hasMany(Account, { as: 'accounts', foreignKey: 'assetId' })
 // Asset.hasMany(Portfolio, { as: 'portfolios', foreignKey: 'assetId' })
 // Asset.hasMany(Price, { as: 'prices', foreignKey: 'f_curr' })
 
-Wallet.belongsTo(Asset, { as: 'asset' })
-Wallet.belongsTo(User, { as: 'user', foreignKey: 'userId' })
-Wallet.belongsToMany(Portfolio, { as: 'portfolios', through: 'portfolio_wallet', foreignKey: 'walletId', otherKey: 'portfolioId'  })
-Wallet.hasMany(Transaction, { as: 'receipts', foreignKey: 'toId' })
-Wallet.hasMany(Transaction, { as: 'payments', foreignKey: 'fromId' })
-Wallet.hasMany(WalletBalance, { as: 'balanceHistory', foreignKey: 'id' })
+Account.belongsTo(Asset, { as: 'asset' })
+Account.belongsTo(User, { as: 'user', foreignKey: 'userId' })
+Account.belongsToMany(Portfolio, { as: 'portfolios', through: 'portfolio_account', foreignKey: 'accountId', otherKey: 'portfolioId'  })
+Account.hasMany(Transaction, { as: 'receipts', foreignKey: 'toId' })
+Account.hasMany(Transaction, { as: 'payments', foreignKey: 'fromId' })
+Account.hasMany(AccountBalance, { as: 'balanceHistory', foreignKey: 'id' })
 
 // Portfolio.belongsTo(Asset, { as: 'asset' })
 Portfolio.belongsTo(User, { as: 'user', foreignKey: 'userId' })
-Portfolio.belongsToMany(Wallet, { as: 'wallets', through: 'portfolio_wallet', foreignKey: 'portfolioId', otherKey: 'walletId' })
+Portfolio.belongsToMany(Account, { as: 'accounts', through: 'portfolio_account', foreignKey: 'portfolioId', otherKey: 'accountId' })
 
 User.belongsToMany(Asset, { as: 'assets', through: 'user_asset', foreignKey: 'userId', otherKey: 'code' })
 
@@ -86,11 +86,11 @@ User.belongsToMany(Asset, { as: 'assets', through: 'user_asset', foreignKey: 'us
 //   const defaultCurrency = profile.defaultCurrency;
 
 //   var computedValue = 0;
-//   const wallets = await this.getWallets();
-//   // console.debug('getComputedValue: wallets', wallets)
-//   for (const wallet of wallets) {
-//   // wallets.reduce(async (computedValue, wallet) => {
-//     const asset = await wallet.getAsset();
+//   const accounts = await this.getAccounts();
+//   // console.debug('getComputedValue: accounts', accounts)
+//   for (const account of accounts) {
+//   // accounts.reduce(async (computedValue, account) => {
+//     const asset = await account.getAsset();
 //     console.debug('getComputedValue: asset', asset.code)
 //     const decimals = asset.decimals;
 //     // Fetch the latest price for this asset
@@ -108,9 +108,9 @@ User.belongsToMany(Asset, { as: 'assets', through: 'user_asset', foreignKey: 'us
 
 //     // Compute the final value
 //     const factor = Math.pow(10, decimals);
-//     const walletValue = wallet.balance / factor * latestPrice;
-//     console.debug('getComputedValue: walletValue', walletValue)
-//     computedValue += walletValue;
+//     const accountValue = account.balance / factor * latestPrice;
+//     console.debug('getComputedValue: accountValue', accountValue)
+//     computedValue += accountValue;
 //   }
 //   console.debug('getComputedValue: computedValue', computedValue)
 //   return computedValue;
@@ -126,8 +126,8 @@ db.Profile = Profile
 db.Asset = Asset
 db.Currency = Currency
 db.Portfolio = Portfolio
-db.Wallet = Wallet
-db.WalletBalance = WalletBalance
+db.Account = Account
+db.AccountBalance = AccountBalance
 db.Price = Price
 db.Transaction = Transaction
 db.sequelize = sequelize

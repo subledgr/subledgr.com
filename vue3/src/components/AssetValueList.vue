@@ -90,32 +90,32 @@ import { useStore } from 'vuex';
 import AssetPickerDialog from './AssetPickerDialog.vue'
 import AssetLogo from './AssetLogo.vue'
 import gql from 'graphql-tag';
-import { IAsset, ICurrency, IPrice, IWalletBalance, IProfile, IWallet } from './types';
-// reusing the same query as the wallet list
-// import { QUERY_WALLETS } from '@/graphql/wallets.gql';
+import { IAsset, ICurrency, IPrice, IAccountBalance, IProfile, IAccount } from './types';
+// reusing the same query as the account list
+// import { QUERY_ACCOUNTS } from '@/graphql/accounts.gql';
 // import { QUERY_PRICES } from '@/graphql/prices.gql';
 // import router from '@/router';
 
-// TODO - assetId vs assetId
-const MUT_ADD_ASSET = gql`
-mutation MutAddAsset ($assetId: String) {
-  addAsset(assetId: $assetId) {
-    success
-    message
-    Asset {
-      id
-      code
-    }
-  }
-}
-`
+// // TODO - assetId vs assetId
+// const MUT_ADD_ASSET = gql`
+// mutation MutAddAsset ($assetId: String) {
+//   addAsset(assetId: $assetId) {
+//     success
+//     message
+//     Asset {
+//       id
+//       code
+//     }
+//   }
+// }
+// `
 
 interface IAssetView {
   // id: string
   assetId: string
   assetName: string
   assetCode: string
-  balance: IWalletBalance
+  balance: IAccountBalance
 }
 
 export default defineComponent({
@@ -128,8 +128,8 @@ export default defineComponent({
       type: Object as () => IPrice[],
       required: true
     },
-    wallets: {
-      type: Object as () => IWallet[],
+    accounts: {
+      type: Object as () => IAccount[],
       required: true
     },
   },
@@ -158,38 +158,38 @@ export default defineComponent({
       return mdAndUp.value ? 'rounded-pill' : ''
     })
 
-    // summarise all wallets into asset balances
+    // summarise all accounts into asset balances
     const summarise = () => {
-      // console.debug('summarise...', props.wallets.length, 'wallets')
-      var assetBals = props.wallets.reduce((acc: any, wallet: IWallet) => {
-        // console.debug('reduce...', wallet.id)
+      // console.debug('summarise...', props.accounts.length, 'accounts')
+      var assetBals = props.accounts.reduce((acc: any, account: IAccount) => {
+        // console.debug('reduce...', account.id)
         // if (Array.isArray(acc)) {
-        const idx = acc.findIndex((x: IAssetView) => x.assetId === wallet.Asset.id)
+        const idx = acc.findIndex((x: IAssetView) => x.assetId === account.Asset.id)
         if (idx === -1) {
           // console.debug('new...')
           const twal = { 
-            assetId: wallet.Asset.id,
-            assetName: wallet.Asset.name,
-            assetCode: wallet.Asset.code,
+            assetId: account.Asset.id,
+            assetName: account.Asset.name,
+            assetCode: account.Asset.code,
             balance: {
-              free       : BigInt(wallet.balance?.free || 0) || 0n,
-              reserved   : BigInt(wallet.balance?.reserved || 0) || 0n,
-              locked     : BigInt(wallet.balance?.locked || 0) || 0n,
-              pooled     : BigInt(wallet.balance?.pooled || 0) || 0n,
-              claimable  : BigInt(wallet.balance?.claimable || 0) || 0n,
-              balance    : BigInt(wallet.balance?.balance || 0) || 0n,
+              free       : BigInt(account.balance?.free || 0) || 0n,
+              reserved   : BigInt(account.balance?.reserved || 0) || 0n,
+              locked     : BigInt(account.balance?.locked || 0) || 0n,
+              pooled     : BigInt(account.balance?.pooled || 0) || 0n,
+              claimable  : BigInt(account.balance?.claimable || 0) || 0n,
+              balance    : BigInt(account.balance?.balance || 0) || 0n,
             }
           }
           acc.push(twal)
         } else {
           // console.debug('existing...')
-          acc[idx].balance.free       += BigInt(wallet.balance?.free || 0) || 0n
-          acc[idx].balance.reserved   += BigInt(wallet.balance?.reserved || 0) || 0n
-          // acc[idx].balance.miscFrozen += BigInt(wallet.balance?.miscFrozen || 0) || 0n
-          acc[idx].balance.locked     += BigInt(wallet.balance?.locked || 0) || 0n
-          acc[idx].balance.pooled     += BigInt(wallet.balance?.pooled || 0) || 0n
-          acc[idx].balance.claimable  += BigInt(wallet.balance?.claimable || 0) || 0n
-          acc[idx].balance.balance    += BigInt(wallet.balance?.balance || 0) || 0n
+          acc[idx].balance.free       += BigInt(account.balance?.free || 0) || 0n
+          acc[idx].balance.reserved   += BigInt(account.balance?.reserved || 0) || 0n
+          // acc[idx].balance.miscFrozen += BigInt(account.balance?.miscFrozen || 0) || 0n
+          acc[idx].balance.locked     += BigInt(account.balance?.locked || 0) || 0n
+          acc[idx].balance.pooled     += BigInt(account.balance?.pooled || 0) || 0n
+          acc[idx].balance.claimable  += BigInt(account.balance?.claimable || 0) || 0n
+          acc[idx].balance.balance    += BigInt(account.balance?.balance || 0) || 0n
         }
         // } else {
         //   console.debug('acc is not an array', acc)
@@ -216,18 +216,18 @@ export default defineComponent({
     }
 
     const calcTotalValue = () => {
-      // console.debug('calcTotalValue', props.wallets)
+      // console.debug('calcTotalValue', props.accounts)
       totalValue.value = 0
       var ret = 0
       // todo :: reduce()
-      for(let i = 0; i < props.wallets?.length; i++) {
-        const wallet = props.wallets[i]
-        // console.debug('calcTotalValue', wallet.Asset.id)
-        // const val = toValue(wallet.Asset.id, wallet.balance?.free || 0n)
-        ret += toValue(wallet.Asset.id, wallet.balance?.balance || 0n)
-        // ret += toValue(wallet.Asset.id, wallet.balance?.reserved || 0n)
-        // ret += toValue(wallet.Asset.id, wallet.balance?.pooled || 0n)
-        // ret += toValue(wallet.Asset.id, wallet.balance?.claimable || 0n)
+      for(let i = 0; i < props.accounts?.length; i++) {
+        const account = props.accounts[i]
+        // console.debug('calcTotalValue', account.Asset.id)
+        // const val = toValue(account.Asset.id, account.balance?.free || 0n)
+        ret += toValue(account.Asset.id, account.balance?.balance || 0n)
+        // ret += toValue(account.Asset.id, account.balance?.reserved || 0n)
+        // ret += toValue(account.Asset.id, account.balance?.pooled || 0n)
+        // ret += toValue(account.Asset.id, account.balance?.claimable || 0n)
         // console.debug('val', val, typeof val)
         // ret += val
       }
@@ -247,8 +247,8 @@ export default defineComponent({
       return Number(value) / Number(denom) * price.value
     }
 
-    watch(() => props.wallets, (newVal, oldVal) => {
-      // console.debug('wallets changed', newVal, oldVal)
+    watch(() => props.accounts, (newVal, oldVal) => {
+      // console.debug('accounts changed', newVal, oldVal)
       summarise()
       calcTotalValue()
     })

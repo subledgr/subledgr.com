@@ -15,8 +15,8 @@ export default defineComponent({
   // data () {
   //   return {
   //     list: [
-  //       { id: 1, name: 'Wallet 1', currency: 'DOT' },
-  //       { id: 2, name: 'Wallet 2', currency: 'KSM' }
+  //       { id: 1, name: 'Account 1', currency: 'DOT' },
+  //       { id: 2, name: 'Account 2', currency: 'KSM' }
   //     ]
   //   }
   // }

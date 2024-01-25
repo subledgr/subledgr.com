@@ -9,7 +9,7 @@
     <v-list-item v-show="!loggedIn">
       <v-row>
         <v-col>
-          <v-btn to="/login">Login</v-btn> to see your wallets
+          <v-btn to="/login">Login</v-btn> to see your accounts
         </v-col>
       </v-row>
     </v-list-item>
@@ -41,7 +41,7 @@
         </v-col>
         <v-col cols="5" class="text-right">
           {{ currency?.symbol }} {{ toValue(item.Asset?.id, sumBalance(item.balance)).toLocaleString('en-GB', { maximumFractionDigits: profile.defaultDecimals }) }} <br>
-          <!-- {{ walletValue(item) }} -->
+          <!-- {{ accountValue(item) }} -->
           <!-- £ {{ toValue(item.Asset?.id, item.balance?.pooled, 3).toLocaleString('en-GB') }} <br> -->
         </v-col>
       </v-row>
@@ -53,7 +53,7 @@
 <script lang="ts">
 import { defineComponent, PropType, computed, ref } from 'vue'
 import { useStore } from 'vuex'
-import { IWallet, IWalletBalance, ICurrency, ITransaction, IAsset, IPrice } from './types'
+import { IAccount, IAccountBalance, ICurrency, ITransaction, IAsset, IPrice } from './types'
 // import TransactionDialog from './TransactionDialog.vue'
 import { useGlobalUtils } from './utils'
 import moment from 'moment'
@@ -63,7 +63,7 @@ import AssetLogo from './AssetLogo.vue';
 export default defineComponent({
   props: {
     list: {
-      type: Object as PropType<IWallet[]>
+      type: Object as PropType<IAccount[]>
     },
     order: {
       type: Number,
@@ -96,7 +96,7 @@ export default defineComponent({
     // const order = ref(-1)
 
     const { toCoin } = useGlobalUtils()
-    // const wallet2 = computed<IWallet>(() => props.wallet || { address: '', Currency: {} } as IWallet)
+    // const account2 = computed<IAccount>(() => props.account || { address: '', Currency: {} } as IAccount)
     // const list2 = computed<ITransaction[]>(() => props.list || [])
 
     const typeName = (_type: string) => {
@@ -124,12 +124,12 @@ export default defineComponent({
       showDialog.value = false
     }
 
-    const clickItem = (item: IWallet) => {
+    const clickItem = (item: IAccount) => {
       // console.debug('clickItem()', item)
-      emit('clickWallet', item)
+      emit('clickAccount', item)
     }
 
-    const sumBalance = (balance: IWalletBalance): bigint => {
+    const sumBalance = (balance: IAccountBalance): bigint => {
       const bal = BigInt(balance?.free || 0)
         + BigInt(balance?.reserved || 0)
         // + balance.miscFrozen || 0
@@ -160,22 +160,22 @@ export default defineComponent({
       return Number(value) / Number(denom) * price.value
     }
 
-    const walletValue = (wallet: IWallet): number => {
-      // console.debug('walletValue', wallet)
-      const totalTokens = sumBalance(wallet.balance)
-      const value = toValue(wallet.Asset?.id, totalTokens)
+    const accountValue = (account: IAccount): number => {
+      // console.debug('accountValue', account)
+      const totalTokens = sumBalance(account.balance)
+      const value = toValue(account.Asset?.id, totalTokens)
       return value
     }
 
-    const sortedResult = computed((): IWallet[] => {
-      // // console.debug('sortedResult', result.value?.Wallets?.list)
-      // if (!result.value?.Wallets) return []
-      // const list = [...result.value?.Wallets] || []
+    const sortedResult = computed((): IAccount[] => {
+      // // console.debug('sortedResult', result.value?.Accounts?.list)
+      // if (!result.value?.Accounts) return []
+      // const list = [...result.value?.Accounts] || []
       // // console.debug('list', list)
-      var sortedList = props.list?.map((m: IWallet) => m).sort((a: IWallet, b: IWallet) => {
+      var sortedList = props.list?.map((m: IAccount) => m).sort((a: IAccount, b: IAccount) => {
         // console.debug(a, b)
-        const valA = walletValue(a)
-        const valB = walletValue(b)
+        const valA = accountValue(a)
+        const valB = accountValue(b)
         // console.debug('sortedList', valA, valB)
         if (valA > valB) return 1 * props.order
         if (valB > valA) return -1 * props.order        
@@ -195,7 +195,7 @@ export default defineComponent({
       shortStash,
       toCoin,
       typeName,
-      // wallet2,
+      // account2,
       // list2,
       transaction,
       onShowTransaction,

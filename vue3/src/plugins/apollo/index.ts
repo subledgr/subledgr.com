@@ -42,7 +42,7 @@ function createApolloClient (ssr = false) {
       Currency: {
         keyFields: ['code']
       },
-      Wallet: {
+      Account: {
         keyFields: ['id'],
       //   fields: {
       //     id: {}
@@ -92,7 +92,7 @@ function createApolloClient (ssr = false) {
           }
         }
       },
-      WalletBalance: {
+      AccountBalance: {
         keyFields: ['id', 'blockNumber']
       },
       Portfolio: {

@@ -1,6 +1,6 @@
 <template>
   <v-table>
-    <!-- {{ wallet }} -->
+    <!-- {{ account }} -->
     <thead>
       <th>Date</th>
       <th>Block</th>
@@ -26,8 +26,8 @@
         <td>
           {{ shortStash(tx.fromId) }}<br>{{ shortStash(tx.toId) }}
         </td>
-        <td class="text-right">{{ toCoin(wallet?.Asset?.id, tx.toId === wallet?.address ? tx.amount : -tx.amount) }}</td>
-        <td class="text-right">{{ toCoin(wallet?.Asset?.id, tx.fee) }}</td>
+        <td class="text-right">{{ toCoin(account?.Asset?.id, tx.toId === account?.address ? tx.amount : -tx.amount) }}</td>
+        <td class="text-right">{{ toCoin(account?.Asset?.id, tx.fee) }}</td>
         <td>{{ tx.success }}</td>
       </tr>
     </tbody>
@@ -37,7 +37,7 @@
 <script lang="ts">
 import { defineComponent, computed, PropType, watch } from 'vue'
 import { useStore } from 'vuex'
-import { IWallet, IWalletData, IAsset, ITransaction } from './types'
+import { IAccount, IAccountData, IAsset, ITransaction } from './types'
 import { shortStash } from './utils'
 import moment from 'moment'
 
@@ -46,14 +46,14 @@ export default defineComponent({
     list: {
       type: Object as PropType<ITransaction[]>
     },
-    wallet: {
-      type: Object as PropType<IWallet>,
+    account: {
+      type: Object as PropType<IAccount>,
     },
   },
   setup() {
     const store = useStore()
-    // const wallet = computed(() => props.wallet)
-    // watch(() => wallet, newVal => { console.debug('new wallet', newVal) })
+    // const account = computed(() => props.account)
+    // watch(() => account, newVal => { console.debug('new account', newVal) })
     const assets = computed<IAsset[]>(() => JSON.parse(JSON.stringify(store.state.asset.list)))
     const toCoin =  (currencyCode: string | undefined, val: BigInt) => {
       // const currs = {...chains.value}

@@ -15,8 +15,8 @@
         <v-list-item to="/bank">
           <v-icon small>mdi-bank</v-icon>&nbsp;Bank
         </v-list-item>
-        <v-list-item to="/wallet">
-          <v-icon small>mdi-wallet</v-icon>&nbsp;Wallets
+        <v-list-item to="/account">
+          <v-icon small>mdi-wallet</v-icon>&nbsp;Accounts
         </v-list-item>
         <v-list-item to="/asset">
           <v-icon small>mdi-cash-multiple</v-icon>&nbsp;Assets

@@ -22,9 +22,9 @@ type Query {
   PriceHistory(f_curr: String, t_curr: String): [PriceHistoryItem]
   Profile: UserProfile
   SymbolPriceTicker(symbol: String): SymbolPriceTicker
-  Transactions(chainId: String, walletId: String, address: String, ids: [String], offset: Int, limit: Int): [Transaction]
-  Wallets(ids: [String], assetId: String, page: Int, offset: Int, search: String): [Wallet] # WalletsResponse
-  Wallet(id: String!): WalletResponse
+  Transactions(chainId: String, accountId: String, address: String, ids: [String], offset: Int, limit: Int): [Transaction]
+  Accounts(ids: [String], assetId: String, page: Int, offset: Int, search: String): [Account] # AccountsResponse
+  Account(id: String!): AccountResponse
 }
 
 type Mutation {
@@ -37,11 +37,11 @@ type Mutation {
   createPortfolio(name: String!): CreatePortfolioResponse
   savePortfolio(id: String!, name: String!): CreatePortfolioResponse
   deletePortfolio(id: String!): DeletePortfolioResponse
-  setPortfolioWallets(id: String!, walletIds: [String]!): CreatePortfolioResponse
+  setPortfolioAccounts(id: String!, accountIds: [String]!): CreatePortfolioResponse
 
-  # Wallet management
-  createWallet(name: String!, assetId: String!, address: String!): CreateWalletResponse
-  deleteWallet(id: String!): DeleteWalletResponse
+  # Account management
+  createAccount(name: String!, assetId: String!, address: String!): CreateAccountResponse
+  deleteAccount(id: String!): DeleteAccountResponse
 
   # Asset management
   addAsset(assetId: String): AddAssetResponse
@@ -59,14 +59,13 @@ type AccountData
   pooledClaimable: BigInt
   locks: [BalanceLock]
 }
-
-type Account {
-  nonce: Int
-  consumers: Int
-  providers: Int
-  sufficients: Int
-  data: AccountData
-}
+# type Account {
+#   nonce: Int
+#   consumers: Int
+#   providers: Int
+#   sufficients: Int
+#   data: AccountData
+# }
 
 type AssetBalance {
   assetId: String
@@ -228,7 +227,7 @@ type Portfolio
   User: User
   name: String!
   # Currency: Currency # reporting currency
-  Wallets: [Wallet]
+  Accounts: [Account]
 #  value: Float
 }
 
@@ -308,7 +307,7 @@ type User
   email: String
 #  password: String
   token: String
-  Wallets: [Wallet]
+  Accounts: [Account]
   portfolios: [Portfolio]
   assets: [AssetBalance]
 #  not here! just get this direct from Profile
@@ -326,7 +325,7 @@ type UserProfile
   itemsPerPage: Int
 }
 
-type Wallet
+type Account
 @key(fields: "id")
 {
   id: String!
@@ -336,17 +335,17 @@ type Wallet
   address: String!
   name: String!
   # balance: AccountData
-  balance: WalletBalance
+  balance: AccountBalance
   portfolios: [Portfolio]
   transactions(limit: Int, offset: Int): [Transaction]
   extrinsics: ExtrinsicsResponse
   events: EventsResponse
-  chartData(period: String): [WalletChartItem]
-  balanceHistory(fromBlock: BigInt, fromDate: String, limit: Int): [WalletBalance]
-  valueHistory(t_curr: String, periods: Int, granulatity: String): [WalletValueItem]
+  chartData(period: String): [AccountChartItem]
+  balanceHistory(fromBlock: BigInt, fromDate: String, limit: Int): [AccountBalance]
+  valueHistory(t_curr: String, periods: Int, granulatity: String): [AccountValueItem]
 }
 
-type WalletBalance
+type AccountBalance
 # @key(fields: ["id", "blockNumber"])
 {
   id: String
@@ -362,19 +361,19 @@ type WalletBalance
   updatedAt: String
 }
 
-type WalletValueItem {
+type AccountValueItem {
   datetime: String
   closing_balance: BigInt
   closing_price: Float
 }
 
-type WalletChartItem {
+type AccountChartItem {
   period: String
   value: Float
 }
 
-type WalletsResponse {
-  Wallets: [Wallet]
+type AccountsResponse {
+  Accounts: [Account]
   error: Boolean
   message: String
 }
@@ -393,8 +392,8 @@ type ExtrinsicsResponse {
   extrinsics: [Extrinsic]
 }
 
-type WalletResponse {
-  wallet: Wallet
+type AccountResponse {
+  account: Account
   error: Boolean
   message: String
 }
@@ -409,13 +408,13 @@ type DeletePortfolioResponse {
   message: String!
 }
 
-type CreateWalletResponse {
+type CreateAccountResponse {
   success: Boolean!
   message: String
-  wallet: Wallet
+  account: Account
 }
 
-type DeleteWalletResponse {
+type DeleteAccountResponse {
   success: Boolean!
   message: String!
 }

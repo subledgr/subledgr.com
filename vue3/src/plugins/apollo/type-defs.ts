@@ -7,7 +7,7 @@ type Query {
   Assets: [Asset]
   #Currencies: [Currency]
   Counter: Int
-  Wallets(page: Int, offset: Int, search: String): WalletsResponse
+  Accounts(page: Int, offset: Int, search: String): AccountsResponse
 }
 
 type AccountData {
@@ -44,7 +44,7 @@ type LogoutResponse {
   success: Boolean
 }
 
-type Wallet {
+type Account {
   id: String!
   User: User
   Asset: Asset
@@ -54,8 +54,8 @@ type Wallet {
   transactions: [Transaction]
 }
 
-type WalletsResponse {
-  Wallets: [Wallet]
+type AccountsResponse {
+  Accounts: [Account]
   error: Boolean
   message: String
 }

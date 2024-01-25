@@ -1,8 +1,8 @@
 import { gql } from 'graphql-tag'
 
-export const QUERY_WALLETS_SELECT = gql`
-  query WalletsSelect {
-    Wallets {
+export const QUERY_ACCOUNTS_SELECT = gql`
+  query AccountsSelect {
+    Accounts {
       id
       name
       address
@@ -15,9 +15,9 @@ export const QUERY_WALLETS_SELECT = gql`
   }
 `
 
-export const QUERY_WALLETS = gql`
-  query WalletsQuery($ids: [String], $assetId: String, $priceIds: [String], $tCurr: String, $page: Int, $offset: Int, $search: String) {
-    Wallets(ids: $ids, assetId: $assetId, page: $page, offset: $offset, search: $search) {
+export const QUERY_ACCOUNTS = gql`
+  query AccountsQuery($ids: [String], $assetId: String, $priceIds: [String], $tCurr: String, $page: Int, $offset: Int, $search: String) {
+    Accounts(ids: $ids, assetId: $assetId, page: $page, offset: $offset, search: $search) {
       id
       name
       address
@@ -57,10 +57,10 @@ export const QUERY_WALLETS = gql`
   }
 `
 
-export const QUERY_WALLET = gql`
-  query Wallet($walletId: String!) {
-    Wallet(id: $walletId) {
-      wallet {
+export const QUERY_ACCOUNT = gql`
+  query Account($accountId: String!) {
+    Account(id: $accountId) {
+      account {
         id
         name
         address
@@ -74,10 +74,10 @@ export const QUERY_WALLET = gql`
   }
 `
 
-export const QUERY_WALLET_BALANCE = gql`
-query WalletBalance($walletId: String!) {
-  Wallet(id: $walletId) {
-    wallet {
+export const QUERY_ACCOUNT_BALANCE = gql`
+query AccountBalance($accountId: String!) {
+  Account(id: $accountId) {
+    account {
       id
       name
       address
@@ -112,10 +112,10 @@ query WalletBalance($walletId: String!) {
 }
 `
 
-export const QUERY_WALLET_BALANCE1 = gql`
-query WalletBalance($walletId: String!) {
-  Wallet(id: $walletId) {
-    wallet {
+export const QUERY_ACCOUNT_BALANCE1 = gql`
+query AccountBalance($accountId: String!) {
+  Account(id: $accountId) {
+    account {
       id
       name
       address
@@ -140,10 +140,10 @@ query WalletBalance($walletId: String!) {
 }
 `
 
-export const QUERY_WALLET_DETAILS = gql`
-query WalletView($walletId: String!) {
-  Wallet(id: $walletId) {
-    wallet {
+export const QUERY_ACCOUNT_DETAILS = gql`
+query AccountView($accountId: String!) {
+  Account(id: $accountId) {
+    account {
       id
       name
       address
@@ -175,10 +175,10 @@ query WalletView($walletId: String!) {
 }
 `
 
-export const QUERY_WALLET_TRANSACTIONS = gql`
-  query WalletView($walletId: String!, $offset: Int, $limit: Int) {
-    Wallet(id: $walletId) {
-      wallet {
+export const QUERY_ACCOUNT_TRANSACTIONS = gql`
+  query AccountView($accountId: String!, $offset: Int, $limit: Int) {
+    Account(id: $accountId) {
+      account {
         id
         name
         address
@@ -226,10 +226,10 @@ export const QUERY_WALLET_TRANSACTIONS = gql`
   }
 `
 
-export const QUERY_WALLET_VALUE_HISTORY = gql`
-query WalletValueHistory($walletId: String!, $tCurr: String, $periods: Int, $granulatity: String) {
-  Wallet(id: $walletId) {
-    wallet {
+export const QUERY_ACCOUNT_VALUE_HISTORY = gql`
+query AccountValueHistory($accountId: String!, $tCurr: String, $periods: Int, $granulatity: String) {
+  Account(id: $accountId) {
+    account {
       id
       name
       Asset {
@@ -246,9 +246,9 @@ query WalletValueHistory($walletId: String!, $tCurr: String, $periods: Int, $gra
   }
 }`
 
-export const QUERY_WALLET_CHART = gql`
-  query WalletChart($id: String!, $interval: String) {
-    Wallet {
+export const QUERY_ACCOUNT_CHART = gql`
+  query AccountChart($id: String!, $interval: String) {
+    Account {
       chartData {
         period
         value

@@ -8,20 +8,20 @@
           <v-col cols="12">
             <v-select
               readonly
-              v-model="xWallet.id"
+              v-model="xAccount.id"
               :items="list"
-              :item-title="getWalletSelectName"
+              :item-title="getAccountSelectName"
               item-value="id"></v-select>
           </v-col>
         </v-row> -->
         <v-row>
-          <v-text-field label="Wallet" v-model="xWallet.name" readonly></v-text-field>
+          <v-text-field label="Account" v-model="xAccount.name" readonly></v-text-field>
         </v-row>
         <v-row>
-          <v-text-field label="Chain" v-model="xWallet.Asset.name" readonly></v-text-field>
+          <v-text-field label="Chain" v-model="xAccount.Asset.name" readonly></v-text-field>
         </v-row>
         <v-row>
-          <v-text-field label="Address" v-model="xWallet.address" readonly></v-text-field>
+          <v-text-field label="Address" v-model="xAccount.address" readonly></v-text-field>
         </v-row>
         <v-form v-model="form">
           <v-row>
@@ -62,8 +62,8 @@ import { defineComponent, computed, ref, watch, PropType } from 'vue'
 import { useStore } from 'vuex';
 import { useQuery } from '@vue/apollo-composable';
 import moment from 'moment';
-import { QUERY_TRANSACTIONS, QUERY_WALLETS_SELECT } from '@/graphql'
-import { ITransaction, IWallet, IProfile } from './types';
+import { QUERY_TRANSACTIONS, QUERY_ACCOUNTS_SELECT } from '@/graphql'
+import { ITransaction, IAccount, IProfile } from './types';
 import { useGlobalUtils } from './utils';
 import { apolloProvider } from '@/plugins/apollo/index';
 
@@ -73,8 +73,8 @@ export default defineComponent({
     showDialog: {
       type: Boolean
     },
-    wallet: {
-      type: Object as PropType<IWallet>,
+    account: {
+      type: Object as PropType<IAccount>,
       required: true
     }
   },
@@ -85,8 +85,8 @@ export default defineComponent({
     const profile = computed<IProfile>(() => store.state.profile)
     const { shortStash, toCoin } = useGlobalUtils()
     const showMe = ref(false)
-    // console.debug('wallet', props.wallet)
-    const xWallet = computed(() => props.wallet)
+    // console.debug('account', props.account)
+    const xAccount = computed(() => props.account)
     const offset = ref(0)
     const limit = ref(1000)
     const loading = ref(false)
@@ -112,12 +112,12 @@ export default defineComponent({
       context.emit('dialogClose', false)
     }
 
-    const list = ref<IWallet[]>([])
-    const { result: walletsResult, refetch: walletsRefetch, onResult: walletsOnResult } = useQuery(QUERY_WALLETS_SELECT)
-    walletsRefetch()
-    walletsOnResult((result) => {
-      // console.debug('walletsOnResult', result.data.Wallets)
-      list.value = result.data.Wallets
+    const list = ref<IAccount[]>([])
+    const { result: accountsResult, refetch: accountsRefetch, onResult: accountsOnResult } = useQuery(QUERY_ACCOUNTS_SELECT)
+    accountsRefetch()
+    accountsOnResult((result) => {
+      // console.debug('accountsOnResult', result.data.Accounts)
+      list.value = result.data?.Accounts
     })
 
     async function startDownload() {
@@ -127,7 +127,7 @@ export default defineComponent({
       const { data, error } = await apolloClient.query({
         query: QUERY_TRANSACTIONS, 
         variables: {
-        ids: [xWallet.value.id],
+        ids: [xAccount.value.id],
         limit: Number(limit.value),
         offset: Number(offset.value),
       }})
@@ -138,25 +138,25 @@ export default defineComponent({
       } else {
         console.debug('data', data)
         const csvData = convertJSONToCSV(data.Transactions);
-        downloadCSV(csvData, `transactions-${xWallet.value.Asset.code}-${xWallet.value.address}.csv`)
+        downloadCSV(csvData, `transactions-${xAccount.value.Asset.code}-${xAccount.value.address}.csv`)
       }
     }
 
     const convertJSONToCSV = (transactions: ITransaction[]) => {
       // Implement the conversion logic here
       // Convert the JSON data into a CSV string
-      let csvContent = `account,extrinsic,timestamp,from,to,amount,${xWallet.value.Asset.code},fee,success\n`;
+      let csvContent = `account,extrinsic,timestamp,from,to,amount,${xAccount.value.Asset.code},fee,success\n`;
       // Loop through your JSON data and format it as CSV
       transactions.forEach((t) => {
         // const values = Object.values(transaction);
         // const csvRow = values.map((value) => `"${value}"`).join(',');
         const extrinsicId = t.extrinsicId.split('-').filter((x) => Number.isInteger(x)).join('-')
-        const csvRow = `"${xWallet.value.address}",`
+        const csvRow = `"${xAccount.value.address}",`
           + `"${t.extrinsicId}",`
           + `${moment.unix(t.timestamp/1000).format(profile.value.dateTimeFormat)},`
           + `"${t.fromId}","${t.toId}",`
           + `${t.amount},`
-          + `${toCoin(xWallet.value.Asset.id, t.amount)},`
+          + `${toCoin(xAccount.value.Asset.id, t.amount)},`
           + `${t.fee},${t.success}`
         csvContent += `${csvRow}\n`;
       });
@@ -177,24 +177,24 @@ export default defineComponent({
       }
     }
 
-    const getWalletSelectName = (wallet: IWallet) => {
-      // console.debug('getWalletSelectName', wallet)
-      return `${wallet.name} (${wallet.Asset.id}), ${shortStash(wallet.address)}`
+    const getAccountSelectName = (account: IAccount) => {
+      // console.debug('getAccountSelectName', account)
+      return `${account.name} (${account.Asset.id}), ${shortStash(account.address)}`
     }
 
     return {
       showMe,
-      xWallet,
+      xAccount,
       offset,
       limit,
-      walletsResult,
+      accountsResult,
       list,
       loading,
       form,
       rules,
       startDownload,
       closeDialog,
-      getWalletSelectName
+      getAccountSelectName
     }
   }
 })

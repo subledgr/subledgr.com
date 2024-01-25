@@ -2,16 +2,16 @@
   <v-container class="py-1 px-1">
 
     <v-toolbar density="compact" style="background: none;">
-      <v-btn icon to="/wallet">
+      <v-btn icon to="/account">
         <v-icon>mdi-chevron-left</v-icon>
-      </v-btn> Wallets
-      <v-btn elevation="0" :to="`/asset/${result?.Wallet?.wallet?.Asset?.id}`">
-        <AssetLogo :asset-id="result?.Wallet?.wallet?.Asset?.id || ''" :size="24"></AssetLogo>
-        <span class="d-none d-sm-inline">&nbsp;{{ result?.Wallet?.wallet?.Asset?.id }}</span>
+      </v-btn> Accounts
+      <v-btn elevation="0" :to="`/asset/${result?.Account?.account?.Asset?.id}`">
+        <AssetLogo :asset-id="result?.Account?.account?.Asset?.id || ''" :size="24"></AssetLogo>
+        <span class="d-none d-sm-inline">&nbsp;{{ result?.Account?.account?.Asset?.id }}</span>
       </v-btn>
       
       <v-toolbar-title>
-        {{ result?.Wallet?.wallet.name || walletId }}
+        {{ result?.Account?.account.name || accountId }}
       </v-toolbar-title>
       <v-toolbar-items>
         <v-btn elevation="0">
@@ -19,7 +19,7 @@
           <v-menu activator="parent">
             <v-list>
               <v-list-item>
-                <a :href="`https://${result?.Wallet?.wallet?.Asset?.id || ''}.subscan.io/account/${result?.Wallet?.wallet?.address}`" target="_blank">
+                <a :href="`https://${result?.Account?.account?.Asset?.id || ''}.subscan.io/account/${result?.Account?.account?.address}`" target="_blank">
                   <v-icon>mdi-magnify</v-icon>&nbsp;View
                 </a>
               </v-list-item>
@@ -35,23 +35,23 @@
 
     <v-row class="ma-1">
       <v-col>
-        <WalletValue :walletId="walletId" title="Value"></WalletValue>
-        <WalletDetails :walletId="walletId" title="Balance"></WalletDetails>
+        <AccountValue :accountId="accountId" title="Value"></AccountValue>
+        <AccountDetails :accountId="accountId" title="Balance"></AccountDetails>
       </v-col>
       <v-col>
-        <WalletPortfolios :walletId="walletId" title="Portfolios"></WalletPortfolios>
+        <AccountPortfolios :accountId="accountId" title="Portfolios"></AccountPortfolios>
       </v-col>
     </v-row>
 
-    <WalletHistory :walletId="walletId"></WalletHistory>
+    <AccountHistory :accountId="accountId"></AccountHistory>
 
-    <WalletTransactions :walletId="walletId" title="Transactions"></WalletTransactions>
+    <AccountTransactions :accountId="accountId" title="Transactions"></AccountTransactions>
 
   <ConfirmDialog v-model="showConfirmDialog"
-    :confirm="confirmDeleteWallet"
-    :title="`Delete wallet ${walletId}`"
-    :message="`Do you want to delete this wallet`"
-    :close="onCloseDeleteWallet"></ConfirmDialog>
+    :confirm="confirmDeleteAccount"
+    :title="`Delete account ${accountId}`"
+    :message="`Do you want to delete this account`"
+    :close="onCloseDeleteAccount"></ConfirmDialog>
   </v-container>
 </template>
 
@@ -70,46 +70,46 @@ import TransactionTable2 from './TransactionTable2.vue';
 import AssetLogo from './AssetLogo.vue';
 import ClickToCopy from './ClickToCopy.vue';
 import ConfirmDialog from './ConfirmDialog.vue';
-import WalletDetails from './WalletDetails.vue';
-import WalletPortfolios from './WalletPortfolios.vue';
-import WalletTransactions from './WalletTransactions.vue';
-import WalletHistory from './WalletHistory.vue';
-import WalletValue from './WalletValue.vue';
+import AccountDetails from './AccountDetails.vue';
+import AccountPortfolios from './AccountPortfolios.vue';
+import AccountTransactions from './AccountTransactions.vue';
+import AccountHistory from './AccountHistory.vue';
+import AccountValue from './AccountValue.vue';
 
 import { IAsset, IBalanceLock } from './types';
 import { useGlobalUtils } from './utils';
 
-import { QUERY_WALLET } from '@/graphql';
+import { QUERY_ACCOUNT } from '@/graphql';
 
 export default defineComponent({
   components: {
     TransactionList,
     TransactionTable2,
-    WalletDetails,
-    WalletPortfolios,
-    WalletTransactions,
-    WalletHistory,
-    WalletValue,
+    AccountDetails,
+    AccountPortfolios,
+    AccountTransactions,
+    AccountHistory,
+    AccountValue,
     AssetLogo,
     ClickToCopy,
     ConfirmDialog,
   },
   setup() {
     const route = useRoute()
-    const walletId = ref(route.params.walletId as string)
+    const accountId = ref(route.params.accountId as string)
     const router = useRouter()
     const store = useStore()
     const profile = computed(() => store.state.profile)
     const { shortStash } = useGlobalUtils()
     const loggedIn = ref(store.getters.loggedIn)
-    if( !loggedIn.value ) router.push({ name: 'Login', params: {message: 'You must be logged in to see wallets' } })
+    if( !loggedIn.value ) router.push({ name: 'Login', params: {message: 'You must be logged in to see accounts' } })
 
-    // watch(() => route.params.walletId, async (newId) => { console.debug('walletId', newId) })
-    watch(() => loggedIn.value, (newVal) => { if(!newVal) router.push('/wallet')})
+    // watch(() => route.params.accountId, async (newId) => { console.debug('accountId', newId) })
+    watch(() => loggedIn.value, (newVal) => { if(!newVal) router.push('/account')})
 
     const assets = computed<IAsset[]>(() => JSON.parse(JSON.stringify(store.state.asset.list)))
-      const { result, loading, error, onResult, refetch } = useQuery(QUERY_WALLET, {
-      walletId: walletId.value
+      const { result, loading, error, onResult, refetch } = useQuery(QUERY_ACCOUNT, {
+      accountId: accountId.value
     }, {
       fetchPolicy: 'cache-and-network',
       // fetchPolicy: 'no-cache',
@@ -120,9 +120,9 @@ export default defineComponent({
     //   console.debug('onResult', data)
     // })
 
-    const { mutate: mutDeleteWallet, error: deleteError, loading: deleting, onDone, onError } = useMutation(gql`
-      mutation DeleteWallet($id: String!) {
-        deleteWallet(id: $id) {
+    const { mutate: mutDeleteAccount, error: deleteError, loading: deleting, onDone, onError } = useMutation(gql`
+      mutation DeleteAccount($id: String!) {
+        deleteAccount(id: $id) {
           success
           message
         }
@@ -137,22 +137,22 @@ export default defineComponent({
       console.debug('onError', data)
     })
 
-    const confirmDeleteWallet = async () => {
+    const confirmDeleteAccount = async () => {
       showConfirmDialog.value = false
-      const result = await mutDeleteWallet({ id: route.params.walletId })
-      console.debug('deleteWallet', result)
-      if (result?.data.deleteWallet.success) {
+      const result = await mutDeleteAccount({ id: route.params.accountId })
+      console.debug('deleteAccount', result)
+      if (result?.data.deleteAccount.success) {
         // const apolloClient = useApolloClient()
         const apolloClient = apolloProvider.defaultClient
         // console.debug('apollo', apolloClient)
-        const cacheId = `Wallet:{"id": "${route.params.walletId}"}`
+        const cacheId = `Account:{"id": "${route.params.accountId}"}`
         // console.debug('cacheId', cacheId)
-        const evicted = apolloClient.cache.evict({ id: `Wallet:{"id":"${route.params.walletId}"}` })
+        const evicted = apolloClient.cache.evict({ id: `Account:{"id":"${route.params.accountId}"}` })
         // console.debug('evicted', evicted)
-        router.push('/wallet')
+        router.push('/account')
       }
     }
-    const onCloseDeleteWallet = () => {
+    const onCloseDeleteAccount = () => {
       showConfirmDialog.value = false
     }
     const showConfirmDialog = ref(false)
@@ -161,10 +161,10 @@ export default defineComponent({
       profile,
       shortStash,
       result,
-      walletId,
-      confirmDeleteWallet,
+      accountId,
+      confirmDeleteAccount,
       showConfirmDialog,
-      onCloseDeleteWallet
+      onCloseDeleteAccount
     }
   },
 })

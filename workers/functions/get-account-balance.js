@@ -25,7 +25,7 @@ export async function getAccountBalance(job) {
     blockNumber: null, // latest block
   }
   const { assetId, address, blockNumber } = job.data
-  const wallet = { id: null, assetId, address }
+  const account = { id: null, assetId, address }
 
   var result = {}
   try {
@@ -37,23 +37,23 @@ export async function getAccountBalance(job) {
 
     var ret = { balance: { feeFrozen: 0, free: 0, id: 0, miscFrozen: 0, pooled: 0, reserved: 0 }, locks: [] }
     try {
-      var url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/query/system/account/${wallet.address}`
+      var url = `${dotsamaRestApiBaseUrl}/${account.assetId}/query/system/account/${account.address}`
       console.debug('url', url)
       var rest = await axios.get(url)
       if (rest.data) ret = rest.data.data
       // pooled value
-      url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/query/nominationPools/poolMembersForAccount?accountId=${wallet.address}`
+      url = `${dotsamaRestApiBaseUrl}/${account.assetId}/query/nominationPools/poolMembersForAccount?accountId=${account.address}`
       console.debug('url', url)
       var rest = await axios.get(url)
       if (rest.data) ret.pooled = rest.data.poolMembers?.points || 0
       // locks
-      url = `${dotsamaRestApiBaseUrl}/${wallet.assetId}/query/balances/locks?accountId=${wallet.address}`
+      url = `${dotsamaRestApiBaseUrl}/${account.assetId}/query/balances/locks?accountId=${account.address}`
       console.debug('url', url)
       var rest = await axios.get(url)
       if (rest.data) ret.locks = rest.data.locks.map(lock => {
         return { id: lock.id, amount: Number(lock.amount), reasons: lock.reasons }
       }) || []
-      ret.id = wallet.id
+      ret.id = account.id
 
     } catch(err) {
       console.warn('last url', url)

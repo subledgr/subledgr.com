@@ -1,17 +1,56 @@
+// is this used anywhere?
+export interface IAccountData {
+  locked: bigint
+  feeFrozen: bigint
+  free: bigint
+  miscFrozen: bigint
+  reserved: bigint
+  pooled: bigint
+  claimable: bigint
+  balance: bigint
+}
+
+export interface IAccountBalance {
+  feeFrozen: bigint
+  free: bigint
+  locked: bigint
+  reserved: bigint
+  pooled: bigint
+  claimable: bigint
+  balance: bigint
+  blockNumber: number
+  timestamp: number
+}
+
+// TODO: decide how Currency and currencyCode work...!
+// interface ICurrency {
+//   code: string
+// }
+
+export interface IAccount {
+  assetId: string
+  Asset: IAsset
+  address: string
+  // balance: IAccountData
+  balance: IAccountBalance
+  id: string
+  name: string
+  transactions: ITransaction[]
+}
 
 export interface IAsset {
-  id: string // 'kusama'
-  code: string // 'KSM | GBP'
-  type: string // 'crypto | currency'
+  id: string       // 'kusama'
+  code: string     // 'KSM | GBP'
+  type: string     // 'crypto | currency'
   decimals: number // 12
-  name: string // 'Kusama'
-  active: boolean // true
-  parent: string // ''
+  name: string     // 'Kusama'
+  active: boolean  // true
+  parent: string   // ''
   parachain: boolean // false
-  symbol: string // '₭SM | £'
+  symbol: string   // '₭SM | £'
   symbolPosition?: string // 'left'
-  status: string // 'active'
-  logo: string // 'images/logos/chains/kusama.svg'
+  status: string   // 'active'
+  logo: string     // 'images/logos/chains/kusama.svg'
 }
 
 export interface IBalanceLock {
@@ -79,7 +118,7 @@ export interface IPortfolio {
   Currency: ICurrency
   status: string
   start_date: string
-  Wallets: IWallet[]
+  Accounts: IAccount[]
 }
 
 export interface IPrice {
@@ -153,41 +192,3 @@ export interface ITransaction {
 //   createdAt: string
 // }
 
-export interface IWalletData {
-  locked: bigint
-  feeFrozen: bigint
-  free: bigint
-  miscFrozen: bigint
-  reserved: bigint
-  pooled: bigint
-  claimable: bigint
-  balance: bigint
-}
-
-export interface IWalletBalance {
-  feeFrozen: bigint
-  free: bigint
-  locked: bigint
-  reserved: bigint
-  pooled: bigint
-  claimable: bigint
-  balance: bigint
-  blockNumber: number
-  timestamp: number
-}
-
-// interface ICurrency {
-//   code: string
-// }
-
-export interface IWallet {
-  // TODO: decide how Currency and currencyCode work...!
-  assetId: string
-  Asset: IAsset
-  address: string
-  // balance: IWalletData
-  balance: IWalletBalance
-  id: string
-  name: string
-  transactions: ITransaction[]
-}

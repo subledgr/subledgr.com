@@ -5,7 +5,7 @@
       <v-btn flat icon @click="refetch"><v-icon size="v-small">mdi-refresh</v-icon></v-btn>
     </v-card-title>
     <!-- <v-card-subtitle v-show="list.length == 0">
-      This wallet is not used in any portfolio ({{ list.length }})
+      This account is not used in any portfolio ({{ list.length }})
     </v-card-subtitle> -->
     <v-list max-height="200" :loading="loading">
       <v-list-item v-for="item in list" v-bind:key="item.id" :to="`/portfolio/${item.id}`">
@@ -18,7 +18,7 @@
         </template>
       </v-list-item>
       <v-list-item v-show="(list?.length || 0) < 1 && !loading">
-        <i>This wallet is not used in any portfolios</i>
+        <i>This account is not used in any portfolios</i>
       </v-list-item>
     </v-list>
     <Loading :loading="loading" :contained="true"></Loading>
@@ -36,10 +36,10 @@ interface IPortfolio {
   name: string
 }
 
-const QUERY_WALLET_PORTFOLIOS = gql`
-  query WalletView($walletId: String!) {
-    Wallet(id: $walletId) {
-      wallet {
+const QUERY_ACCOUNT_PORTFOLIOS = gql`
+  query AccountView($accountId: String!) {
+    Account(id: $accountId) {
+      account {
         id
         # name
         # address
@@ -79,21 +79,21 @@ export default defineComponent({
     loading: {
       type: Boolean
     },
-    walletId: {
+    accountId: {
       type: String,
       required: true
     },
     title: {
       type: String,
       required: false,
-      default: 'Wallet Portfolios'
+      default: 'Account Portfolios'
     },
   },
   setup(props) {
     const isLoading = computed(() => props.loading)
     const list = ref<IPortfolio[]>([])
-    const { result, loading, error, onResult, refetch } = useQuery(QUERY_WALLET_PORTFOLIOS, {
-      walletId: props.walletId
+    const { result, loading, error, onResult, refetch } = useQuery(QUERY_ACCOUNT_PORTFOLIOS, {
+      accountId: props.accountId
     }, {
       fetchPolicy: 'cache-and-network',
       // fetchPolicy: 'no-cache',
@@ -102,7 +102,7 @@ export default defineComponent({
 
     onResult((result) => {
       // console.debug('onResult', result)
-      list.value = result.data?.Wallet?.wallet.portfolios || []
+      list.value = result.data?.Account?.account.portfolios || []
     })
 
     return {

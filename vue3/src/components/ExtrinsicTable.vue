@@ -1,6 +1,6 @@
 <template>
   <v-container fluid class="pa-0 ma-0">
-    <!-- {{ wallet }} -->
+    <!-- {{ account }} -->
     {{ items }}
     <!-- {{ list }} -->
     <!-- <v-data-table
@@ -20,7 +20,7 @@
       >
 
       <!-- <template v-slot:[`item.amount`]="{ item }">
-        <span :class="item.raw.recipientid === wallet?.address ? 'text-green' : 'text-red'">
+        <span :class="item.raw.recipientid === account?.address ? 'text-green' : 'text-red'">
           {{ item.raw.amount }}
         </span>
       </template> -->
@@ -34,14 +34,14 @@
       </template> -->
 
     </v-data-table>
-    <!-- <transaction-dialog :transaction="transaction" :wallet="wallet" :showDialog="showDialog" @dialogClose="onDialogClosed"></transaction-dialog> -->
+    <!-- <transaction-dialog :transaction="transaction" :account="account" :showDialog="showDialog" @dialogClose="onDialogClosed"></transaction-dialog> -->
   </v-container>
 </template>
 
 <script lang="ts">
 import { defineComponent, computed, PropType, watch, ref } from 'vue'
 import { useStore } from 'vuex'
-import { IWallet, ICurrency, IExtrinsic } from './types'
+import { IAccount, ICurrency, IExtrinsic } from './types'
 // import { shortStash } from './utils'
 import moment from 'moment'
 import { useGlobalUtils } from './utils'
@@ -57,8 +57,8 @@ export default defineComponent({
     list: {
       type: Object as PropType<IExtrinsic[]>
     },
-    wallet: {
-      type: Object as PropType<IWallet>,
+    account: {
+      type: Object as PropType<IAccount>,
       required: true
     },
     loading: {
@@ -69,9 +69,9 @@ export default defineComponent({
     const store = useStore()
     const profile = store.state.profile
     const transactionState = store.state.transaction
-    const wallet = computed<IWallet>(() => props.wallet) // || { address: '', Currency: {} } as IWallet)
+    const account = computed<IAccount>(() => props.account) // || { address: '', Currency: {} } as IAccount)
     // const list = computed<IExtrinsic[]>(() => props.list || [])
-    watch(() => wallet, newVal => { console.debug('new wallet', newVal) })
+    watch(() => account, newVal => { console.debug('new account', newVal) })
     const chains = computed<ICurrency[]>(() => JSON.parse(JSON.stringify(store.state.currency.chains)))
     const itemsPerPage = ref(10)
     const { toCoin, shortStash } = useGlobalUtils()
@@ -109,8 +109,8 @@ export default defineComponent({
         // type: typeName(m.call_module + '.' + m.call_module_function),
         // senderId: '', // m.senderId,
         // recipientid: '', // m.recipientid,
-        // amount: 0, // toCoin(wallet.value.Currency?.code || wallet.value.currencyCode, m.amount).toLocaleString('en-GB', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }),
-        // totalFee: toCoin(wallet.value.Currency.code || wallet.value.currencyCode, m.fee).toLocaleString('en-GB', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals })
+        // amount: 0, // toCoin(account.value.Currency?.code || account.value.currencyCode, m.amount).toLocaleString('en-GB', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }),
+        // totalFee: toCoin(account.value.Currency.code || account.value.currencyCode, m.fee).toLocaleString('en-GB', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals })
       }
     })) || []
 

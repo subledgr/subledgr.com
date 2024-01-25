@@ -1,5 +1,5 @@
 <!--
-  Display list of wallets summarised by asset
+  Display list of accounts summarised by asset
 -->
 <template>
   <v-card>
@@ -13,7 +13,7 @@
 <script lang="ts">
 import { defineComponent, computed, PropType } from 'vue'
 import { useStore } from 'vuex';
-import { IPrice, IWallet } from './types';
+import { IPrice, IAccount } from './types';
 
 export default defineComponent({
   name: 'PortfolioAssets',
@@ -23,8 +23,8 @@ export default defineComponent({
       required: false,
       default: 'Portfolio Assets'
     },
-    wallets: {
-      type: Object as PropType<IWallet[]>
+    accounts: {
+      type: Object as PropType<IAccount[]>
     },
     prices: {
       type: Object as PropType<IPrice[]>

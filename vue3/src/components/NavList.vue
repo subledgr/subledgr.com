@@ -4,7 +4,7 @@
     <!-- <v-list-item @click="navTo('/market')"><v-icon small>mdi-chart-box</v-icon>&nbsp;Market</v-list-item> -->
     <v-list-item @click="navTo('/portfolio')"><v-icon small>mdi-folder-pound-outline</v-icon>&nbsp;Portfolios</v-list-item>
     <v-list-item @click="navTo('/asset')"><v-icon small>mdi-cash</v-icon>&nbsp;Assets</v-list-item>
-    <v-list-item @click="navTo('/wallet')"><v-icon small>mdi-wallet-outline</v-icon>&nbsp;Wallets</v-list-item>
+    <v-list-item @click="navTo('/account')"><v-icon small>mdi-wallet-outline</v-icon>&nbsp;Accounts</v-list-item>
     <v-divider></v-divider>
     <v-list-item @click="navTo('/settings')"><v-icon small>mdi-cogs</v-icon>&nbsp;Settings</v-list-item>
   </v-list>

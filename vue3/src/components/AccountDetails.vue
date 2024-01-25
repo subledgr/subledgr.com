@@ -9,8 +9,8 @@
         </v-col>
         <v-col>
           <small>
-            {{ toCoin(result?.Wallet?.wallet?.Asset?.id, getWalletBalance?.balance).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
-            {{ result?.Wallet?.wallet?.Asset?.code }}
+            {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance?.balance).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+            {{ result?.Account?.account?.Asset?.code }}
           </small>
         </v-col>
       </v-row>
@@ -21,19 +21,19 @@
       <tr>
         <th class="text-left">Address</th>
         <td class="text-right">
-          <ClickToCopy :display="shortStash(result?.Wallet.wallet.address)" :text="result?.Wallet.wallet.address"></ClickToCopy>
+          <ClickToCopy :display="shortStash(result?.Account.account.address)" :text="result?.Account.account.address"></ClickToCopy>
         </td>
       </tr>
       <tr>
         <th class="text-left">Total</th>
         <td class="text-right">
-          {{ toCoin(result?.Wallet?.wallet?.Asset?.id, getWalletBalance?.balance) }}
+          {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance?.balance) }}
         </td>
       </tr>
       <tr>
         <th class="text-left">Index:</th>
         <td class="text-right">
-          <small><i>( {{ toProfileDate(result?.Wallet?.wallet?.balanceHistory[0]?.timestamp || 0) }})</i></small>
+          <small><i>( {{ toProfileDate(result?.Account?.account?.balanceHistory[0]?.timestamp || 0) }})</i></small>
         </td>
       </tr>
       <tr>
@@ -44,31 +44,31 @@
               <tr>
                 <th class="text-left">Free</th>
                 <td align="right">
-                  {{ toCoin(result?.Wallet?.wallet?.Asset?.id, getWalletBalance?.free||0 - getWalletBalance?.locked||0).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+                  {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance?.free||0 - getAccountBalance?.locked||0).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
                 </td>
               </tr>
-              <tr v-if="Number(getWalletBalance?.locked || 0) > 0">
+              <tr v-if="Number(getAccountBalance?.locked || 0) > 0">
                 <th class="text-left">Locked</th>
                 <td align="right">
-                  {{ toCoin(result?.Wallet?.wallet?.Asset?.id, getWalletBalance.locked || 0n).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+                  {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance.locked || 0n).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
                 </td>
               </tr>
-              <tr v-if="BigInt(getWalletBalance?.reserved || 0) > 0n">
+              <tr v-if="BigInt(getAccountBalance?.reserved || 0) > 0n">
                 <th class="text-left">Reserved</th>
                 <td align="right">
-                  {{ toCoin(result?.Wallet?.wallet?.Asset?.id, getWalletBalance?.reserved).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+                  {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance?.reserved).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
                 </td>
               </tr>
-              <tr v-if="BigInt(getWalletBalance?.pooled || 0) > 0n">
+              <tr v-if="BigInt(getAccountBalance?.pooled || 0) > 0n">
                 <th class="text-left">Pooled</th>
                 <td align="right">
-                  {{ toCoin(result?.Wallet?.wallet?.Asset?.id, getWalletBalance?.pooled).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+                  {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance?.pooled).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
                 </td>
               </tr>
-              <tr v-if="BigInt(getWalletBalance?.claimable || 0) > 0n">
+              <tr v-if="BigInt(getAccountBalance?.claimable || 0) > 0n">
                 <th class="text-left">Claimable</th>
                 <td align="right">
-                  {{ toCoin(result?.Wallet?.wallet?.Asset?.id, getWalletBalance?.claimable).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+                  {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance?.claimable).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
                 </td>
               </tr>
             </tbody>
@@ -90,32 +90,32 @@ import { useGlobalUtils } from './utils';
 import { useStore } from 'vuex';
 import ClickToCopy from './ClickToCopy.vue';
 
-import { QUERY_WALLET_DETAILS, QUERY_WALLET_BALANCE } from '@/graphql';
+import { QUERY_ACCOUNT_DETAILS, QUERY_ACCOUNT_BALANCE } from '@/graphql';
 
 export default defineComponent({
-  name: 'WalletDetails',
+  name: 'AccountDetails',
   components: {
     ClickToCopy
   },
   props: {
-    walletId: {
+    accountId: {
       type: String,
       required: true
     },
     title: {
       type: String,
       required: false,
-      default: 'Wallet Details'
+      default: 'Account Details'
     }
   },
   setup(props) {
     const store = useStore()
     const profile = computed<IProfile>(() => store.state.profile)
-    const walletId = ref(props.walletId)
+    const accountId = ref(props.accountId)
     const { shortStash, toProfileDate } = useGlobalUtils()
 
-    const { result, loading, error, onResult, refetch } = useQuery(QUERY_WALLET_BALANCE, {
-      walletId: walletId.value
+    const { result, loading, error, onResult, refetch } = useQuery(QUERY_ACCOUNT_BALANCE, {
+      accountId: accountId.value
     }, {
       fetchPolicy: 'cache-and-network',
     });
@@ -125,16 +125,16 @@ export default defineComponent({
     // })
     
     const maxLocked: any = computed(() => {
-      if (!result.value?.Wallet?.wallet?.balance?.locks) return 0
-      return result.value?.Wallet?.wallet?.balance?.locks.reduce( (acc: bigint, lock: IBalanceLock) => {
+      if (!result.value?.Account?.account?.balance?.locks) return 0
+      return result.value?.Account?.account?.balance?.locks.reduce( (acc: bigint, lock: IBalanceLock) => {
         return (BigInt(lock.amount) > acc) ? BigInt(lock.amount) : acc
         }, 0n
       )
-      // return result.value?.Wallet?.wallet?.balance?.locks.reduce((acc: BigInt, lock: any) => acc + BigInt(lock.amount), 0n)
+      // return result.value?.Account?.account?.balance?.locks.reduce((acc: BigInt, lock: any) => acc + BigInt(lock.amount), 0n)
     })
 
-    const getWalletBalance = computed(() => {
-      const balance = result.value?.Wallet?.wallet?.balanceHistory[0]
+    const getAccountBalance = computed(() => {
+      const balance = result.value?.Account?.account?.balanceHistory[0]
       return balance
     })
 
@@ -150,9 +150,9 @@ export default defineComponent({
     }
 
     const getIndexDate = () => {
-      console.debug('getIndexDate', result.value?.Wallet?.wallet?.balanceHistory[0]?.timestamp)
-      if (!result.value?.Wallet?.wallet?.balanceHistory[0]?.timestamp) return '-'
-      return moment(result.value?.Wallet?.wallet?.balanceHistory[0]?.timestamp).format(profile.value.dateTimeFormat)
+      console.debug('getIndexDate', result.value?.Account?.account?.balanceHistory[0]?.timestamp)
+      if (!result.value?.Account?.account?.balanceHistory[0]?.timestamp) return '-'
+      return moment(result.value?.Account?.account?.balanceHistory[0]?.timestamp).format(profile.value.dateTimeFormat)
     }
 
     return {
@@ -160,11 +160,11 @@ export default defineComponent({
       toCoin,
       profile,
       maxLocked,
-      //walletId,
+      //accountId,
       result,
       loading,
       refetch,
-      getWalletBalance,
+      getAccountBalance,
       toProfileDate,
     }
 

@@ -9,8 +9,8 @@ import Login from '@/components/Login.vue'
 import Register from '@/components/Register.vue'
 import Profile from '@/components/Profile.vue'
 import Dashboard from '@/components/Dashboard.vue'
-import Wallets from '@/components/Wallets.vue'
-import Wallet from '@/components/Wallet.vue'
+import Accounts from '@/components/Accounts.vue'
+import Account from '@/components/Account.vue'
 import Portfolios from '@/components/Portfolios.vue'
 import Portfolio from '@/components/Portfolio.vue'
 import Assets from '@/components/Assets.vue'
@@ -41,8 +41,8 @@ const routes = [
   { path: '/asset/:assetId', name: 'Asset', component: Asset, props: true },
   { path: '/portfolio', name: 'Portfolios', component: Portfolios, props: true },
   { path: '/portfolio/:portfolioId', name: 'Portfolio', component: Portfolio },
-  { path: '/wallet', name: 'Wallets', component: Wallets },
-  { path: '/wallet/:walletId', name: 'Wallet', component: Wallet, props: true },
+  { path: '/account', name: 'Accounts', component: Accounts },
+  { path: '/account/:accountId', name: 'Account', component: Account, props: true },
   { path: '/profile', name: 'Profile', component: Profile },
   { path: '/currency', name: 'Currencies', component: Currencies },
   {

@@ -19,7 +19,7 @@
           <v-icon>mdi-refresh</v-icon>
         </v-btn>
 
-        <v-btn icon @click="showPortfolioWalletsDialog = !showPortfolioWalletsDialog">
+        <v-btn icon @click="showPortfolioAccountsDialog = !showPortfolioAccountsDialog">
           <v-icon>mdi-playlist-edit</v-icon>
         </v-btn>
 
@@ -48,12 +48,12 @@
 
     <v-tabs v-model="tab">
       <v-tab value="assets">Assets</v-tab>
-      <v-tab value="wallets">Wallets</v-tab>
+      <v-tab value="accounts">Accounts</v-tab>
     </v-tabs>
 
     <!-- <PortfolioAssets :portfolioId="portfolioId" v-show="tab=='assets'"></PortfolioAssets> -->
-    <AssetValueList :wallets="portfolio?.Wallets || []" :prices="prices" @select-asset="onSelectAsset" v-show="tab=='assets'"></AssetValueList>
-    <PortfolioWallets :portfolioId="portfolioId" v-show="tab=='wallets'"></PortfolioWallets>
+    <AssetValueList :accounts="portfolio?.Accounts || []" :prices="prices" @select-asset="onSelectAsset" v-show="tab=='assets'"></AssetValueList>
+    <PortfolioAccounts :portfolioId="portfolioId" v-show="tab=='accounts'"></PortfolioAccounts>
 
     <PortfolioEditDialog
       :visible="showPortfolioEditDialog"
@@ -61,11 +61,11 @@
       @closeDialog="onClosePortfolioEditDialog"
       @portfolioSaved="onPortfolioSaved"></PortfolioEditDialog>
 
-    <PortfolioWalletsDialog
+    <PortfolioAccountsDialog
       icon=""
-      :visible="showPortfolioWalletsDialog"
+      :visible="showPortfolioAccountsDialog"
       :portfolio="portfolio"
-      @closeDialog="onClosePortfolioWalletsDialog"></PortfolioWalletsDialog>
+      @closeDialog="onClosePortfolioAccountsDialog"></PortfolioAccountsDialog>
     
     <ConfirmDialog v-model="showConfirmDialog"
       :confirm="confirmDeletePortfolio"
@@ -83,28 +83,28 @@ import { useStore } from 'vuex';
 
 import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
-import { IAsset, IPortfolio, IWallet, ICurrency, IPrice } from './types';
+import { IAsset, IPortfolio, IAccount, ICurrency, IPrice } from './types';
 import { useGlobalUtils } from './utils';
 
 import ConfirmDialog from './ConfirmDialog.vue';
 import PortfolioEditDialog from './PortfolioEditDialog.vue';
 import PortfolioHistory from './PortfolioHistory.vue';
-import PortfolioWalletsDialog from './PortfolioWalletsDialog.vue';
+import PortfolioAccountsDialog from './PortfolioAccountsDialog.vue';
 // import PortfolioAssets from './PortfolioAssets.vue';
-import PortfolioWallets from './PortfolioWallets.vue';
+import PortfolioAccounts from './PortfolioAccounts.vue';
 import AssetValueList from './AssetValueList.vue';
 
 import { QUERY_PORTFOLIO_VIEW, MUT_PORTFOLIO_DELETE } from '@/graphql';
 
 export default defineComponent({
   components: {
-    // WalletList,
+    // AccountList,
     // ClickToCopy,
     PortfolioHistory,
     // PortfolioAssets,
-    PortfolioWallets,
+    PortfolioAccounts,
     AssetValueList,
-    PortfolioWalletsDialog,
+    PortfolioAccountsDialog,
     PortfolioEditDialog,
     ConfirmDialog,
   },
@@ -129,10 +129,10 @@ export default defineComponent({
     const assets = computed<IAsset[]>(() => store.state.asset.list)
     const totalValue = ref(0)
     const portfolio = ref<IPortfolio>()
-    const wallets = ref<IWallet[]>()
-    const walletIds = ref<string[]>(['waiting for ...'])
+    const accounts = ref<IAccount[]>()
+    const accountIds = ref<string[]>(['waiting for ...'])
     const prices = ref<IPrice[]>([])
-    const showPortfolioWalletsDialog = ref(false)
+    const showPortfolioAccountsDialog = ref(false)
     // console.debug('params', route.params)
     const showPortfolioEditDialog = ref(false)
 
@@ -149,9 +149,9 @@ export default defineComponent({
       // console.debug('onResult', queryResult)
       if (queryResult.partial) return
       portfolio.value = queryResult.data.Portfolio
-      walletIds.value = queryResult.data?.Portfolio?.Wallets.map((w: IWallet) => w.id) || []
-      // console.debug('wids', walletIds.value)
-      // refetchPrices({ ids: walletIds.value, tCurr: portfolio.value?.Currency?.code || '' })
+      accountIds.value = queryResult.data?.Portfolio?.Accounts.map((w: IAccount) => w.id) || []
+      // console.debug('wids', accountIds.value)
+      // refetchPrices({ ids: accountIds.value, tCurr: portfolio.value?.Currency?.code || '' })
       prices.value = queryResult.data.Prices
     })
 
@@ -176,7 +176,7 @@ export default defineComponent({
     }
 
     const portfolioValue = computed<Number>(() => {
-      return result?.value?.Portfolio?.Wallets.reduce((acc: number, w: IWallet) => {
+      return result?.value?.Portfolio?.Accounts.reduce((acc: number, w: IAccount) => {
         // console.debug('w', w.balance?.balance)
         // // console.debug('portfolioValue.reduce', acc, w.balance)
         // // const price = result.value.Prices.find((p: any) => p.f_curr === w.Asset.code)
@@ -246,12 +246,12 @@ export default defineComponent({
       showConfirmDialog.value = false
     }
 
-    // const onShowPortfolioWalletsDialog = () => {
-    //   showPortfolioWalletsDialog.value = false
+    // const onShowPortfolioAccountsDialog = () => {
+    //   showPortfolioAccountsDialog.value = false
     // }
-    const onClosePortfolioWalletsDialog = () => {
-      // console.debug('onClosePortfolioWalletsDialog')
-      showPortfolioWalletsDialog.value = false
+    const onClosePortfolioAccountsDialog = () => {
+      // console.debug('onClosePortfolioAccountsDialog')
+      showPortfolioAccountsDialog.value = false
     }
 
     const onClosePortfolioEditDialog = () => {
@@ -270,9 +270,9 @@ export default defineComponent({
       router.push(`/asset/${assetId}`)
     }
 
-    const gotoWallet = (item: any) => {
-      // console.debug('gotoWallet', item)
-      router.push(`/wallet/${item.id}`)
+    const gotoAccount = (item: any) => {
+      // console.debug('gotoAccount', item)
+      router.push(`/account/${item.id}`)
     }
     watch(() => tab.value, (newVal) => {
       // console.debug('route.query.tab', newVal)
@@ -309,14 +309,14 @@ export default defineComponent({
       portfolioValue,
       // loading2,
       reload,
-      wallets,
+      accounts,
       prices,
       error,
       doShowPortfolioEditDialog,
-      showPortfolioWalletsDialog,
+      showPortfolioAccountsDialog,
       showPortfolioEditDialog,
-      // onShowPortfolioWalletsDialog,
-      onClosePortfolioWalletsDialog,
+      // onShowPortfolioAccountsDialog,
+      onClosePortfolioAccountsDialog,
       onClosePortfolioEditDialog,
       onPortfolioSaved,
       toCoin,
@@ -325,7 +325,7 @@ export default defineComponent({
       showConfirmDialog,
       onCloseDeletePortfolio,
       onSelectAsset,
-      gotoWallet,
+      gotoAccount,
     }
   },
 })

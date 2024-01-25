@@ -21,10 +21,10 @@
         <!-- <span class="d-none d-sm-inline">&nbsp;Asset</span> -->
       </v-btn>
 
-      <v-btn @click="navTo('/wallet')">
+      <v-btn @click="navTo('/account')">
         <v-icon size="small" class="d-none d-sm-inline">mdi-wallet-outline</v-icon>
         <v-icon size="large" class="d-inline d-sm-none">mdi-wallet-outline</v-icon>
-        <!-- <span class="d-none d-sm-inline">&nbsp;Wallet</span> -->
+        <!-- <span class="d-none d-sm-inline">&nbsp;Account</span> -->
       </v-btn>
 
       <v-spacer></v-spacer>

@@ -12,15 +12,15 @@
     </v-card-title>
     <v-card-text>
       <component :is="'TransactionTable2'" class="d-none d-sm-block"
-        v-bind="{ list: wallet.transactions, wallet: wallet, loading: loading }"></component>
+        v-bind="{ list: account.transactions, account: account, loading: loading }"></component>
       <component :is="'TransactionList'" class="d-block d-sm-none"
-        v-bind="{ list: wallet.transactions, wallet: wallet, loading: loading }"></component>
+        v-bind="{ list: account.transactions, account: account, loading: loading }"></component>
     </v-card-text>
     <Loading :loading="loading" :contained="true"></Loading>
     <TransactionDownload
       :show-dialog="showDownloadDialog"
       @dialog-close="onDownloadDialogClose"
-      :wallet="wallet"></TransactionDownload>
+      :account="account"></TransactionDownload>
   </v-card>
 </template>
 
@@ -32,9 +32,9 @@ import TransactionTable2 from './TransactionTable2.vue';
 import TransactionList from './TransactionList.vue';
 import Loading from './Loading.vue';
 import TransactionDownload from './TransactionDownload.vue';
-import { IProfile, ITransaction, IWallet } from './types';
+import { IProfile, ITransaction, IAccount } from './types';
 
-import { QUERY_WALLET_TRANSACTIONS } from '@/graphql';
+import { QUERY_ACCOUNT_TRANSACTIONS } from '@/graphql';
 
 export default defineComponent({
   components: {
@@ -44,25 +44,25 @@ export default defineComponent({
     TransactionDownload
   },
   props: {
-    walletId: {
+    accountId: {
       type: String,
       required: true
     },
     title: {
       type: String,
       required: false,
-      default: 'Wallet Transactions',
+      default: 'Account Transactions',
     }
   },
   setup(props) {
     const store = useStore()
     const profile = computed<IProfile>(() => store.state.profile)
     const list = ref<ITransaction[]>([])
-    const wallet = ref<IWallet>({} as IWallet)
+    const account = ref<IAccount>({} as IAccount)
     const showDownloadDialog = ref(false)
 
-    const { result, loading, error, onResult, refetch } = useQuery(QUERY_WALLET_TRANSACTIONS, {
-      walletId: props.walletId,
+    const { result, loading, error, onResult, refetch } = useQuery(QUERY_ACCOUNT_TRANSACTIONS, {
+      accountId: props.accountId,
       limit: 50,
     }, {
       fetchPolicy: 'cache-and-network',
@@ -72,13 +72,13 @@ export default defineComponent({
 
     onResult((data) => {
       // console.debug('onTransactions', data)
-      wallet.value = data?.data?.Wallet?.wallet || {}
-      list.value = data?.data?.Wallet?.wallet?.transactions || []
+      account.value = data?.data?.Account?.account || {}
+      list.value = data?.data?.Account?.account?.transactions || []
     })
 
     onBeforeMount(() => {
       refetch({
-        walletId: props.walletId,
+        accountId: props.accountId,
         limit: 100
       })
     })
@@ -91,7 +91,7 @@ export default defineComponent({
       profile,
       refetch,
       loading,
-      wallet,
+      account,
       list,
       showDownloadDialog,
       onDownloadDialogClose

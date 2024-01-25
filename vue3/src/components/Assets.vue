@@ -102,10 +102,10 @@ import AssetPickerDialog from './AssetPickerDialog.vue'
 import AssetLogo from './AssetLogo.vue'
 import gql from 'graphql-tag';
 import { IAsset, ICurrency } from './types';
-// reusing the same query as the wallet list
-import { QUERY_WALLETS } from '@/graphql/wallets.gql';
+// reusing the same query as the account list
+import { QUERY_ACCOUNTS } from '@/graphql/accounts.gql';
 import { QUERY_PRICES } from '@/graphql/prices.gql';
-import { IProfile, IWallet, IWalletData } from './types';
+import { IProfile, IAccount, IAccountData } from './types';
 import { useGlobalUtils } from './utils';
 import router from '@/router';
 
@@ -128,7 +128,7 @@ interface IAssetView {
   assetId: string
   assetName: string
   assetCode: string
-  balance: IWalletData
+  balance: IAccountData
 }
 
 export default defineComponent({
@@ -159,7 +159,7 @@ export default defineComponent({
       ids: ['KSM', 'DOT', 'DOCK'],
       tCurr: profile.value.defaultCurrency, // 'GBP'
     }
-    const { result: resultWallets, refetch: refetchWallets, onResult: onWallets } = useQuery(QUERY_WALLETS, {}, {
+    const { result: resultAccounts, refetch: refetchAccounts, onResult: onAccounts } = useQuery(QUERY_ACCOUNTS, {}, {
       fetchPolicy: 'cache-first'
     })
     const { result: resultPrices, refetch: refetchPrices, onResult: onPrices } = useQuery(QUERY_PRICES, variables, {
@@ -171,7 +171,7 @@ export default defineComponent({
       return mdAndUp.value ? 'rounded-pill' : ''
     })
 
-    onWallets((data) => {
+    onAccounts((data) => {
       // console.debug('onResult', data)
       // if(data.data) list.value = data.data.me?.assets || []
       summarise()
@@ -182,42 +182,42 @@ export default defineComponent({
     //   console.debug('onPrices', data)
     // })
 
-    // summarise all wallets into asset balances
+    // summarise all accounts into asset balances
     const summarise = () => {
-      // console.debug('summarise...', resultWallets.value?.Wallets.length, 'wallets')
-      var assetBals = resultWallets.value?.Wallets.reduce((acc: any, wallet: IWallet) => {
-        // console.debug('reduce...', wallet.id)
+      // console.debug('summarise...', resultAccounts.value?.Accounts.length, 'accounts')
+      var assetBals = resultAccounts.value?.Accounts.reduce((acc: any, account: IAccount) => {
+        // console.debug('reduce...', account.id)
         // if (Array.isArray(acc)) {
-        const idx = acc.findIndex((x: IAssetView) => x.assetId === wallet.Asset.id)
+        const idx = acc.findIndex((x: IAssetView) => x.assetId === account.Asset.id)
         if (idx === -1) {
           // console.debug('new...')
-          // console.debug('wallet', wallet.balance)
+          // console.debug('account', account.balance)
           const twal = { 
-            assetId: wallet.Asset.id,
-            assetName: wallet.Asset.name,
-            assetCode: wallet.Asset.code,
+            assetId: account.Asset.id,
+            assetName: account.Asset.name,
+            assetCode: account.Asset.code,
             balance: {
-              free       : BigInt(wallet.balance?.free || 0) || 0n,
-              reserved   : BigInt(wallet.balance?.reserved || 0) || 0n,
-              // miscFrozen : BigInt(wallet.balance?.miscFrozen || 0) || 0n,
-              feeFrozen  : BigInt(wallet.balance?.feeFrozen || 0) || 0n,
-              pooled     : BigInt(wallet.balance?.pooled || 0) || 0n,
-              claimable  : BigInt(wallet.balance?.claimable || 0) || 0n,
-              locked     : BigInt(wallet.balance?.locked || 0) || 0n,
-              balance    : BigInt(wallet.balance?.balance || 0) || 0n
+              free       : BigInt(account.balance?.free || 0) || 0n,
+              reserved   : BigInt(account.balance?.reserved || 0) || 0n,
+              // miscFrozen : BigInt(account.balance?.miscFrozen || 0) || 0n,
+              feeFrozen  : BigInt(account.balance?.feeFrozen || 0) || 0n,
+              pooled     : BigInt(account.balance?.pooled || 0) || 0n,
+              claimable  : BigInt(account.balance?.claimable || 0) || 0n,
+              locked     : BigInt(account.balance?.locked || 0) || 0n,
+              balance    : BigInt(account.balance?.balance || 0) || 0n
             }
           }
           acc.push(twal)
         } else {
           // console.debug('existing...')
-          acc[idx].balance.free       += BigInt(wallet.balance?.free || 0) || 0n
-          acc[idx].balance.reserved   += BigInt(wallet.balance?.reserved || 0) || 0n
-          // acc[idx].balance.miscFrozen += BigInt(wallet.balance?.miscFrozen || 0) || 0n
-          acc[idx].balance.feeFrozen  += BigInt(wallet.balance?.feeFrozen || 0) || 0n
-          acc[idx].balance.pooled     += BigInt(wallet.balance?.pooled || 0) || 0n
-          acc[idx].balance.claimable  += BigInt(wallet.balance?.claimable || 0) || 0n
-          acc[idx].balance.locked     += BigInt(wallet.balance?.locked || 0) || 0n
-          acc[idx].balance.balance    += BigInt(wallet.balance?.balance || 0) || 0n
+          acc[idx].balance.free       += BigInt(account.balance?.free || 0) || 0n
+          acc[idx].balance.reserved   += BigInt(account.balance?.reserved || 0) || 0n
+          // acc[idx].balance.miscFrozen += BigInt(account.balance?.miscFrozen || 0) || 0n
+          acc[idx].balance.feeFrozen  += BigInt(account.balance?.feeFrozen || 0) || 0n
+          acc[idx].balance.pooled     += BigInt(account.balance?.pooled || 0) || 0n
+          acc[idx].balance.claimable  += BigInt(account.balance?.claimable || 0) || 0n
+          acc[idx].balance.locked     += BigInt(account.balance?.locked || 0) || 0n
+          acc[idx].balance.balance    += BigInt(account.balance?.balance || 0) || 0n
         }
         // } else {
         //   console.debug('acc is not an array', acc)
@@ -227,7 +227,7 @@ export default defineComponent({
       list.value = assetBals
     }
 
-    const sumBalance = (balance: IWalletData): BigInt => {
+    const sumBalance = (balance: IAccountData): BigInt => {
       const bal = BigInt(balance.free || 0)
         + BigInt(balance.reserved || 0)
         // + balance.miscFrozen || 0
@@ -266,7 +266,7 @@ export default defineComponent({
 
     const refetchAll = () => {
       refetchPrices()
-      refetchWallets()
+      refetchAccounts()
     }
 
     const { toCoin } = useGlobalUtils()
@@ -281,19 +281,19 @@ export default defineComponent({
     // }
 
     const calcTotalValue = () => {
-      // console.debug('calcTotalValue', resultWallets.value?.Wallets)
+      // console.debug('calcTotalValue', resultAccounts.value?.Accounts)
       totalValue.value = 0
       var ret = 0
       // todo :: reduce()
-      for(let i = 0; i < resultWallets.value?.Wallets?.length; i++) {
-        const wallet = resultWallets.value.Wallets[i]
-        // console.debug('calcTotalValue', wallet.Asset.id)
-        // // const val = toValue(wallet.Asset.id, wallet.balance?.free || 0)
-        // ret += toValue(wallet.Asset.id, wallet.balance?.free || 0)
-        // ret += toValue(wallet.Asset.id, wallet.balance?.reserved || 0)
-        // ret += toValue(wallet.Asset.id, wallet.balance?.pooled || 0)
-        // ret += toValue(wallet.Asset.id, wallet.balance?.claimable || 0)
-        ret += toValue(wallet.Asset.id, wallet.balance?.balance || 0)
+      for(let i = 0; i < resultAccounts.value?.Accounts?.length; i++) {
+        const account = resultAccounts.value.Accounts[i]
+        // console.debug('calcTotalValue', account.Asset.id)
+        // // const val = toValue(account.Asset.id, account.balance?.free || 0)
+        // ret += toValue(account.Asset.id, account.balance?.free || 0)
+        // ret += toValue(account.Asset.id, account.balance?.reserved || 0)
+        // ret += toValue(account.Asset.id, account.balance?.pooled || 0)
+        // ret += toValue(account.Asset.id, account.balance?.claimable || 0)
+        ret += toValue(account.Asset.id, account.balance?.balance || 0)
         // console.debug('val', val, typeof val)
         // ret += val
       }

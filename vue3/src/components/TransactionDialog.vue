@@ -31,10 +31,10 @@
             <!-- {{ shortStash(transaction?.recipientId) }} -->
             </td>
             <td><a :href="`http://`" target="_blank" rel="noopener noreferrer"></a></td></tr>
-          <!-- <tr><td>Fee Balances</td><td>{{ toCoin(wallet?.Asset.id || assetId, transaction?.feeBalances || 0n) }}</td></tr>
-          <tr><td>Fee Treasury</td><td>{{ toCoin(wallet?.Asset.id || assetId, transaction?.feeTreasury || 0n) }}</td></tr> -->
-          <tr><td>Total Fee</td><td>{{ toCoin(wallet?.Asset.id, transaction?.fee || 0n) }}</td></tr>
-          <tr><td>Amount</td><td :class="wallet?.address === transaction?.fromId ? 'text-red' : 'text-green'">
+          <!-- <tr><td>Fee Balances</td><td>{{ toCoin(account?.Asset.id || assetId, transaction?.feeBalances || 0n) }}</td></tr>
+          <tr><td>Fee Treasury</td><td>{{ toCoin(account?.Asset.id || assetId, transaction?.feeTreasury || 0n) }}</td></tr> -->
+          <tr><td>Total Fee</td><td>{{ toCoin(account?.Asset.id, transaction?.fee || 0n) }}</td></tr>
+          <tr><td>Amount</td><td :class="account?.address === transaction?.fromId ? 'text-red' : 'text-green'">
             {{ toCoin(transaction?.Asset.id || '', transaction?.amount || 0n) }}
           </td></tr>
           <!-- <tr><td>Success</td><td>{{ transaction?.success }}</td></tr> -->
@@ -53,7 +53,7 @@
 import { defineComponent, PropType, ref, computed, watch } from 'vue'
 import { useStore } from 'vuex';
 import moment from 'moment';
-import { IWallet, ITransaction } from './types';
+import { IAccount, ITransaction } from './types';
 import { useGlobalUtils } from './utils';
 import AssetLogo from './AssetLogo.vue';
 import ClickToCopy from './ClickToCopy.vue'
@@ -64,8 +64,8 @@ export default defineComponent({
     ClickToCopy
   },
   props: {
-    wallet: {
-      type: Object as PropType<IWallet>,
+    account: {
+      type: Object as PropType<IAccount>,
       required: false
     },
     // assetId: {

@@ -4,7 +4,7 @@
 
     <v-dialog v-model="showMe" activator="parent" maxWidth="800px">
       <v-card>
-        <v-card-title>Add Wallet</v-card-title>
+        <v-card-title>Add Account</v-card-title>
         <v-card-text>
           <v-form ref="form" v-model="valid" validateOn="input">
             <!-- Valid: {{ valid }} -->
@@ -37,7 +37,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn variant="tonal" color="red" @click="closeDialog()">Close</v-btn>
-          <v-btn variant="outlined" :disabled="!valid" color="primary" @click="addWallet()">Add</v-btn>
+          <v-btn variant="outlined" :disabled="!valid" color="primary" @click="addAccount()">Add</v-btn>
           <!-- Valid: {{ valid }} -->
         </v-card-actions>
       </v-card>
@@ -56,12 +56,12 @@ import gql from 'graphql-tag'
 // import { useForm } from 'vuetify'
 import { IAsset } from './types'
 
-const MUT_WALLET_ADD = gql`
-  mutation CreateWallet($name: String!, $assetId: String!, $address: String!) {
-    createWallet(name: $name, assetId: $assetId, address: $address) {
+const MUT_ACCOUNT_ADD = gql`
+  mutation CreateAccount($name: String!, $assetId: String!, $address: String!) {
+    createAccount(name: $name, assetId: $assetId, address: $address) {
       success
       message
-      wallet {
+      account {
         id
         name
         address
@@ -120,7 +120,7 @@ export default defineComponent({
     })
 
     const closeDialog = () => {
-      console.debug('WalletAddDialog.vue: closeDialog()')
+      console.debug('AccountAddDialog.vue: closeDialog()')
       showAssetPicker.value = false
       // showMe.value = false
       asset.value = {} as IAsset
@@ -132,20 +132,20 @@ export default defineComponent({
     }
 
     const onCloseAssetPicker = () => {
-      console.debug('WalletAddDialog.vue: onCloseAssetPicker')
+      console.debug('AccountAddDialog.vue: onCloseAssetPicker')
       showAssetPicker.value = false
     }
 
     const onSelectAsset = (item: IAsset) => {
       showAssetPicker.value = false
-      console.debug('WalletAddDialog.vue: onSelectAsset', item)
+      console.debug('AccountAddDialog.vue: onSelectAsset', item)
       asset.value = item
       console.log('checking validity')
       form.value?.checkValidity()
       form.value?.resetValidation()
     }
 
-    var { mutate, loading, error, onDone, onError } = useMutation(MUT_WALLET_ADD, () => ({
+    var { mutate, loading, error, onDone, onError } = useMutation(MUT_ACCOUNT_ADD, () => ({
       variables: {
         name: name.value,
         assetId: asset?.value.id || '',
@@ -161,15 +161,15 @@ export default defineComponent({
       console.debug('onError', data)
     })
 
-    const addWallet = async () => {
-      console.debug('addWallet', name.value, {...asset.value}, address.value)
+    const addAccount = async () => {
+      console.debug('addAccount', name.value, {...asset.value}, address.value)
       const input = { name: name.value, assetId: asset?.value.id, address: address.value };
       const res: any = await mutate(input);
       console.debug(res)
       if (res.data) {
-        const { success, message, wallet } = res.data.createWallet
+        const { success, message, account } = res.data.createAccount
         if(success) {
-          context.emit('walletAdded', wallet)
+          context.emit('accountAdded', account)
           closeDialog()
         }
       }
@@ -186,7 +186,7 @@ export default defineComponent({
       rules,
       onCloseAssetPicker,
       onSelectAsset,
-      addWallet,
+      addAccount,
       closeDialog,
     }
 

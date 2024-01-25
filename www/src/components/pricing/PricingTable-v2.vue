@@ -162,7 +162,7 @@ const plans = [
     current: false,
     advance: false,
     baseFeatures: [
-      'Manage Wallets',
+      'Manage Accounts',
       'Manage Portfolios',
       'View Balances & History',
       'Download CSV'

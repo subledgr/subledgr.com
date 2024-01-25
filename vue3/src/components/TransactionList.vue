@@ -14,7 +14,7 @@
             <!-- {{ tx.section }}.{{ tx.method }} -->
             <!-- <span v-if="tx.type==='utility.batch'"> ({{ tx.event }})</span> -->
           </v-col>
-          <v-col align="right" :class="tx.toId === wallet?.address ? 'text-green' : tx.fromId === wallet?.address ? 'text-red' : 'text-grey'">
+          <v-col align="right" :class="tx.toId === account?.address ? 'text-green' : tx.fromId === account?.address ? 'text-red' : 'text-grey'">
             {{ toCoin(tx?.Asset?.id, tx.amount).toLocaleString('en-GB') }}
             {{ tx?.Asset?.code }}
           </v-col>
@@ -34,14 +34,14 @@
       </v-list-item-subtitle>
 
     </v-list-item>
-    <transaction-dialog :transaction="transaction" :wallet="wallet" :showDialog="showDialog" @dialogClose="onDialogClosed"></transaction-dialog>
+    <transaction-dialog :transaction="transaction" :account="account" :showDialog="showDialog" @dialogClose="onDialogClosed"></transaction-dialog>
   </v-list>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType, computed, ref } from 'vue'
 import { useStore } from 'vuex'
-import { IWallet, IWalletData, ICurrency, ITransaction } from './types'
+import { IAccount, IAccountData, ICurrency, ITransaction } from './types'
 import TransactionDialog from './TransactionDialog.vue'
 import { useGlobalUtils } from './utils'
 import moment from 'moment'
@@ -58,8 +58,8 @@ export default defineComponent({
       type: Boolean,
       default: false
     },
-    wallet: {
-      type: Object as PropType<IWallet>,
+    account: {
+      type: Object as PropType<IAccount>,
       required: false
     },
     // get this from transaction.Asset.id
@@ -76,7 +76,7 @@ export default defineComponent({
     // const assetId = ref('')
 
     const { toCoin, toProfileDate } = useGlobalUtils()
-    // const wallet2 = computed<IWallet>(() => props.wallet || { address: '', Currency: {} } as IWallet)
+    // const account2 = computed<IAccount>(() => props.account || { address: '', Currency: {} } as IAccount)
     // const list2 = computed<ITransaction[]>(() => props.list || [])
 
     const typeName = (_type: string) => {
@@ -113,7 +113,7 @@ export default defineComponent({
       toCoin,
       toProfileDate,
       typeName,
-      // wallet2,
+      // account2,
       // list2,
       transaction,
       onShowTransaction,

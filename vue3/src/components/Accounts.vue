@@ -4,7 +4,7 @@
     <v-toolbar density="compact" :class="toolbarClass" style="background: none;">
       <v-toolbar-title>
         <v-icon>mdi-wallet-outline</v-icon>
-        Wallets
+        Accounts
       </v-toolbar-title>
       <!-- <v-toolbar-items> -->
         <v-text-field prepend-icon="mdi-magnify" hide-details v-model="search"></v-text-field>
@@ -16,13 +16,13 @@
         <!-- <v-btn icon>
           <v-icon>mdi-plus</v-icon>
         </v-btn> -->
-        <WalletAddDialog icon="mdi-wallet-plus-outline" @walletAdded="onWalletAdded"></WalletAddDialog>
+        <AccountAddDialog icon="mdi-wallet-plus-outline" @accountAdded="onAccountAdded"></AccountAddDialog>
       <!-- </v-toolbar-items> -->
     </v-toolbar>
 
     <v-row class="ma-1">
       <v-col cols="1">&nbsp;</v-col>
-      <v-col cols="3">Wallet</v-col>
+      <v-col cols="3">Account</v-col>
       <v-col cols="4" class="text-center">Holdings</v-col>
       <v-col cols="4" class="text-right">
         <v-btn flat @click="order = order * -1">
@@ -32,7 +32,7 @@
       </v-col>
     </v-row>
 
-    <WalletList :list="filteredList" :order="order" :prices="prices" @clickWallet="gotoWallet"></WalletList>
+    <AccountList :list="filteredList" :order="order" :prices="prices" @clickAccount="gotoAccount"></AccountList>
 
   </v-container>
 </template>
@@ -45,17 +45,17 @@ import { useDisplay } from 'vuetify'
 
 import { useQuery } from '@vue/apollo-composable'
 
-import WalletList from './WalletList.vue';
-import WalletAddDialog from './WalletAddDialog.vue';
+import AccountList from './AccountList.vue';
+import AccountAddDialog from './AccountAddDialog.vue';
 import { shortStash } from './utils';
 
-import { QUERY_WALLETS } from '@/graphql/wallets.gql';
-import { IWallet, IAsset, ICurrency, IPrice } from './types'
+import { QUERY_ACCOUNTS } from '@/graphql/accounts.gql';
+import { IAccount, IAsset, ICurrency, IPrice } from './types'
 
 export default defineComponent({
   components: {
-    WalletList,
-    WalletAddDialog
+    AccountList,
+    AccountAddDialog
   },
   setup () {
     // const apolloClient = useApolloClient()
@@ -72,12 +72,12 @@ export default defineComponent({
     const totalValue = ref(0.0)
     const order = ref(-1)
 
-    const list = ref<IWallet[]>()
+    const list = ref<IAccount[]>()
     const search = ref('')
     const filteredList = computed(() => {
       return search.value === ''
         ? list.value
-        : list.value?.filter((f: IWallet) => {
+        : list.value?.filter((f: IAccount) => {
           return f.name.toLowerCase().includes(search.value.toLowerCase())
             || f.address.toLowerCase().includes(search.value.toLowerCase())
         }) || []
@@ -89,33 +89,32 @@ export default defineComponent({
       tCurr: profile.value.defaultCurrency // 'GBP'
     }
 
-    // console.debug('QUERY_WALLETS', QUERY_WALLETS)
-    var { result, loading, refetch, onResult } = useQuery(QUERY_WALLETS, variables, {
+    var { result, loading, refetch, onResult } = useQuery(QUERY_ACCOUNTS, variables, {
       // fetchPolicy: 'cache-only'
       fetchPolicy: 'cache-first'
     })
 
     onResult(queryResult => {
       // console.log('got data', queryResult.data)
-      list.value = queryResult?.data?.Wallets || []
+      list.value = queryResult?.data?.Accounts || []
       prices.value = queryResult?.data?.Prices || []
       calcTotalValue()
     })
 
     const calcTotalValue = () => {
-      // console.debug('getWalletsValue', result.value?.Wallets)
+      // console.debug('getAccountsValue', result.value?.Accounts)
       totalValue.value = 0
       var ret = 0
       // todo :: reduce()
-      for(let i = 0; i < result.value?.Wallets?.length; i++) {
-        const wallet = result.value.Wallets[i]
-        // console.debug('calcTotalValue', wallet.Asset?.id)
-        // // const val = toValue(wallet.Asset?.id, wallet.balance?.free || 0)
-        // ret += toValue(wallet.Asset?.id, wallet.balance?.free || 0)
-        // ret += toValue(wallet.Asset?.id, wallet.balance?.reserved || 0)
-        // ret += toValue(wallet.Asset?.id, wallet.balance?.pooled || 0)
-        // ret += toValue(wallet.Asset?.id, wallet.balance?.pooledClaimable || 0)
-        ret += toValue(wallet.Asset?.id, wallet.balance?.balance || 0)
+      for(let i = 0; i < result.value?.Accounts?.length; i++) {
+        const account = result.value.Accounts[i]
+        // console.debug('calcTotalValue', account.Asset?.id)
+        // // const val = toValue(account.Asset?.id, account.balance?.free || 0)
+        // ret += toValue(account.Asset?.id, account.balance?.free || 0)
+        // ret += toValue(account.Asset?.id, account.balance?.reserved || 0)
+        // ret += toValue(account.Asset?.id, account.balance?.pooled || 0)
+        // ret += toValue(account.Asset?.id, account.balance?.pooledClaimable || 0)
+        ret += toValue(account.Asset?.id, account.balance?.balance || 0)
         // console.debug('val', val, typeof val)
         // ret += val
       }
@@ -123,9 +122,9 @@ export default defineComponent({
       totalValue.value = ret
     }
 
-    const gotoWallet = (item: any) => {
-      // console.debug('gotoWallet', item)
-      router.push(`/wallet/${item.id}`)
+    const gotoAccount = (item: any) => {
+      // console.debug('gotoAccount', item)
+      router.push(`/account/${item.id}`)
     }
 
     const refresh = () => {
@@ -136,8 +135,8 @@ export default defineComponent({
       }, 200)
     }
 
-    const onWalletAdded = (wallet: any) => {
-      console.debug('Wallets.vue: onWalletAdded()', wallet)
+    const onAccountAdded = (account: any) => {
+      console.debug('Accounts.vue: onAccountAdded()', account)
       refetch()
     }
 
@@ -177,11 +176,11 @@ export default defineComponent({
       search,
       prices,
       refresh,
-      gotoWallet,
-      onWalletAdded,
+      gotoAccount,
+      onAccountAdded,
       // toCoin,
       // toValue,
-      // walletValue,
+      // accountValue,
       // sumBalance,
       totalValue,
       shortStash,

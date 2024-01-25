@@ -28,7 +28,7 @@
           A portfolio will have a reporting currency, which will be used to convert all transactions into the reporting currency.
         </p>
         <p>
-          The same features for <router-link to="/asset">assets</router-link> & <router-link to="/wallet">wallets</router-link> (accounts) should be available at portfolio level, eg. 
+          The same features for <router-link to="/asset">assets</router-link> & <router-link to="/account">accounts</router-link> (accounts) should be available at portfolio level, eg. 
           transactions, balances, reports, etc.
         </p>
       </v-card-text>
@@ -45,7 +45,7 @@ import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
 import { gql } from '@apollo/client/core';
 
 import { shortStash } from './utils';
-import { IAsset, ICurrency, IPortfolio, IWallet, IWalletBalance } from './types';
+import { IAsset, ICurrency, IPortfolio, IAccount, IAccountBalance } from './types';
 
 import PortfolioList from './PortfolioList.vue';
 import PortfolioAddDialog from './PortfolioAddDialog.vue';
@@ -56,7 +56,7 @@ export const QUERY_PORTFOLIOS = gql`
       id
       name
       # status
-      Wallets {
+      Accounts {
         id
         Asset {
           id
@@ -100,7 +100,6 @@ export default defineComponent({
       tCurr: profile.value.defaultCurrency // 'GBP'
     }
 
-    // console.debug('QUERY_WALLETS', QUERY_WALLETS)
     var { result, loading, refetch, onResult } = useQuery(QUERY_PORTFOLIOS, variables, {
       // fetchPolicy: 'cache-only'
       fetchPolicy: 'cache-first'
@@ -112,7 +111,7 @@ export default defineComponent({
       // calcTotalValue()
     })
 
-    const sumBalance = (balance: IWalletBalance): BigInt => {
+    const sumBalance = (balance: IAccountBalance): BigInt => {
       const bal = BigInt(balance.free || 0)
         + BigInt(balance.reserved || 0)
         // + balance.miscFrozen || 0
@@ -123,15 +122,15 @@ export default defineComponent({
       return bal
     }
   
-    const sortedResult = computed((): IWallet[] => {
-      // console.debug('sortedResult', result.value?.Wallets?.list)
-      if (!result.value?.Wallets) return []
+    const sortedResult = computed((): IAccount[] => {
+      // console.debug('sortedResult', result.value?.Accounts?.list)
+      if (!result.value?.Accounts) return []
       const list = [...result.value?.Portfolios] || []
       // console.debug('list', list)
-      var sortedList = list.sort((a: IWallet, b: IWallet) => {
+      var sortedList = list.sort((a: IAccount, b: IAccount) => {
         // console.debug(a, b)
-        const valA = walletValue(a)
-        const valB = walletValue(b)
+        const valA = accountValue(a)
+        const valB = accountValue(b)
         // console.debug('sortedList', valA, valB)
         if (valA > valB) return 1 * order.value
         if (valB > valA) return -1 * order.value        
@@ -152,18 +151,18 @@ export default defineComponent({
     }
 
     const calcTotalValue = () => {
-      // console.debug('getWalletsValue', result.value?.Wallets)
+      // console.debug('getAccountsValue', result.value?.Accounts)
       totalValue.value = 0
       var ret = 0
       // todo :: reduce()
-      for(let i = 0; i < result.value?.Wallets?.length; i++) {
-        const wallet = result.value.Wallets[i]
-        // console.debug('calcTotalValue', wallet.Asset?.id)
-        // const val = toValue(wallet.Asset?.id, wallet.balance?.free || 0)
-        ret += toValue(wallet.Asset?.id, wallet.balance?.free || 0)
-        ret += toValue(wallet.Asset?.id, wallet.balance?.reserved || 0)
-        ret += toValue(wallet.Asset?.id, wallet.balance?.pooled || 0)
-        ret += toValue(wallet.Asset?.id, wallet.balance?.pooledClaimable || 0)
+      for(let i = 0; i < result.value?.Accounts?.length; i++) {
+        const account = result.value.Accounts[i]
+        // console.debug('calcTotalValue', account.Asset?.id)
+        // const val = toValue(account.Asset?.id, account.balance?.free || 0)
+        ret += toValue(account.Asset?.id, account.balance?.free || 0)
+        ret += toValue(account.Asset?.id, account.balance?.reserved || 0)
+        ret += toValue(account.Asset?.id, account.balance?.pooled || 0)
+        ret += toValue(account.Asset?.id, account.balance?.pooledClaimable || 0)
         // console.debug('val', val, typeof val)
         // ret += val
       }
@@ -184,15 +183,15 @@ export default defineComponent({
       }, 200)
     }
 
-    const onPortfolioAdded = (wallet: any) => {
-      // console.debug('Wallets.vue: onWalletAdded()', wallet)
+    const onPortfolioAdded = (account: any) => {
+      // console.debug('Accounts.vue: onAccountAdded()', account)
       refetch()
     }
 
-    const walletValue = (wallet: IWallet): number => {
-      // console.debug('walletValue', wallet)
-      const totalTokens = sumBalance(wallet.balance)
-      const value = toValue(wallet.Asset?.id, totalTokens)
+    const accountValue = (account: IAccount): number => {
+      // console.debug('accountValue', account)
+      const totalTokens = sumBalance(account.balance)
+      const value = toValue(account.Asset?.id, totalTokens)
       return value
     }
 
@@ -223,8 +222,8 @@ export default defineComponent({
       if (route.query.refresh) {
         refresh()
       }
-      // if (result.value?.Wallets?.list) {
-      //   list.value = result.value?.Wallets?.list
+      // if (result.value?.Accounts?.list) {
+      //   list.value = result.value?.Accounts?.list
       // }
     })
 
@@ -242,7 +241,7 @@ export default defineComponent({
       onPortfolioAdded,
       toCoin,
       toValue,
-      walletValue,
+      accountValue,
       sumBalance,
       totalValue,
       shortStash,

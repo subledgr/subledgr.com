@@ -23,21 +23,21 @@ import { defineComponent, ref, computed, PropType } from 'vue'
 import { useStore } from 'vuex'
 import { useGlobalUtils } from './utils'
 import { useQuery } from '@vue/apollo-composable'
-import { IAsset, IWallet, IPrice, IProfile } from './types'
+import { IAsset, IAccount, IPrice, IProfile } from './types'
 import moment from 'moment'
-import { QUERY_WALLET_BALANCE1, QUERY_PRICE } from '@/graphql'
+import { QUERY_ACCOUNT_BALANCE1, QUERY_PRICE } from '@/graphql'
 import { watch } from 'vue'
-import WalletTransactions from './WalletTransactions.vue'
+import AccountTransactions from './AccountTransactions.vue'
 
 export default defineComponent({
-  name: 'WalletValue',
+  name: 'AccountValue',
   props: {
-    walletId: {
+    accountId: {
       type: String,
       required: true,
     },
-    // wallet: {
-    //   type: Object as PropType<IWallet>,
+    // account: {
+    //   type: Object as PropType<IAccount>,
     //   required: true,
     // },
     title: {
@@ -51,25 +51,25 @@ export default defineComponent({
     const { toCoin } = useGlobalUtils()
     const profile = computed<IProfile>(() => store.state.profile)
 
-    const wallet = ref<IWallet>()
+    const account = ref<IAccount>()
     const price = ref<IPrice>()
 
-    const walletVariables = ref({
-      walletId: props.walletId
+    const accountVariables = ref({
+      accountId: props.accountId
     })
-    const { loading: walletLoading, result: walletResult, onResult: onWalletResult, refetch: walletRefetch } = useQuery(
-      QUERY_WALLET_BALANCE1,
-      walletVariables.value, {
+    const { loading: accountLoading, result: accountResult, onResult: onAccountResult, refetch: accountRefetch } = useQuery(
+      QUERY_ACCOUNT_BALANCE1,
+      accountVariables.value, {
       fetchPolicy: 'cache-and-network',
     })
-    onWalletResult((result) => {
-      // console.log('onWalletResult', result)
-      wallet.value = result.data?.Wallet?.wallet
+    onAccountResult((result) => {
+      // console.log('onAccountResult', result)
+      account.value = result.data?.Account?.account
     })
     
     const priceVariables = computed(() => {
       return {
-        fCurr: wallet.value?.Asset?.code,
+        fCurr: account.value?.Asset?.code,
         tCurr: profile.value?.defaultCurrency
       }
     })
@@ -88,19 +88,19 @@ export default defineComponent({
       price.value = result.data?.Price
     })
 
-    const loading = computed(() => walletLoading.value || priceLoading.value)
+    const loading = computed(() => accountLoading.value || priceLoading.value)
 
     const refetch = async () => {
-      // console.log('refetch wallet', walletVariables.value)
-      await walletRefetch(walletVariables.value)
+      // console.log('refetch account', accountVariables.value)
+      await accountRefetch(accountVariables.value)
       // console.log('refetch price', priceVariables.value)
       await priceRefetch(priceVariables.value)
     }
 
     const calcValue = computed(() => {
-      // console.debug('calcValue', wallet.value, price.value)
-      if (!wallet.value || !price.value) return 0
-      const coin = toCoin(wallet.value.Asset.id, BigInt(wallet.value.balance?.balance))
+      // console.debug('calcValue', account.value, price.value)
+      if (!account.value || !price.value) return 0
+      const coin = toCoin(account.value.Asset.id, BigInt(account.value.balance?.balance))
       return coin * Number(price.value.value)
     })
 

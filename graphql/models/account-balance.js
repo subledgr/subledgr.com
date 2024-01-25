@@ -1,7 +1,7 @@
 'use strict';
 import { Sequelize, DataTypes } from "sequelize";
 
-const walletBalanceModel = {
+const accountBalanceModel = {
   definition: {
     // id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     // Postgres UUID
@@ -30,11 +30,11 @@ const walletBalanceModel = {
     updatedAt: { type: DataTypes.DATE, allowNull: false },
   },
   options: {
-    tableName: 'wallet_balance',
+    tableName: 'account_balance',
     timestamps: true,
     // createdAt: true,
     // updatedAt: false
   }
 }
 
-export { walletBalanceModel }
+export { accountBalanceModel }

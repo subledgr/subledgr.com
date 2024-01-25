@@ -3,21 +3,21 @@
     <v-icon :icon="icon"></v-icon>
     <v-dialog v-model="x_visible" activator="parent" maxWidth="800px">
       <v-card>
-        <v-card-title>Edit Portfolio</v-card-title>
+        <v-card-title>Edit Account</v-card-title>
         <v-card-text>
           <v-form ref="form" v-model="valid" validateOn="input">
             <v-row>
-              <v-text-field v-model="_portfolio.name"
+              <v-text-field v-model="_account.name"
                 label="Name"
                 :rules="rules.name"
-                v-on:keyup.enter="savePortfolio()"></v-text-field>
+                v-on:keyup.enter="saveAccount()"></v-text-field>
             </v-row>
           </v-form>
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn variant="tonal" color="red" @click="closeDialog()">Close</v-btn>
-          <v-btn variant="outlined" :disabled="!valid" color="primary" @click="savePortfolio()">Save</v-btn>
+          <v-btn variant="outlined" :disabled="!valid" color="primary" @click="saveAccount()">Save</v-btn>
         </v-card-actions>
       </v-card>  
     </v-dialog>
@@ -28,17 +28,17 @@
 import { defineComponent, watch, ref, PropType } from 'vue'
 // import CurrencyPickerDialog from './CurrencyPickerDialog.vue'
 import { useMutation } from '@vue/apollo-composable'
-import { ICurrency, IPortfolio } from './types'
+import { ICurrency, IAccount } from './types'
 import { MUT_PORTFOLIO_EDIT } from '@/graphql'
 
 export default defineComponent({
   components: {
     // CurrencyPickerDialog
   },
-  emits: ['closeDialog', 'portfolioSaved'],
+  emits: ['closeDialog', 'accountSaved'],
   props: {
-    portfolio: {
-      type: Object as PropType<IPortfolio>,
+    account: {
+      type: Object as PropType<IAccount>,
       // required: true,
       default: () => ({})
     },
@@ -66,9 +66,9 @@ export default defineComponent({
     }
 
     // const visible = ref(props.visible)
-    const _portfolio = ref<IPortfolio>({ id: '', name: '', Currency: {} as ICurrency, status: '', start_date: '', Accounts: [] })
-    _portfolio.value.name = props.portfolio.name
-    _portfolio.value.id = props.portfolio.id
+    const _account = ref<IAccount>({ id: '', name: '', Currency: {} as ICurrency, status: '', start_date: '', Accounts: [] })
+    _account.value.name = props.account.name
+    _account.value.id = props.account.id
     const x_visible = ref(false)
 
     var showPicker = ref(false)
@@ -76,9 +76,9 @@ export default defineComponent({
     var currencyEl = ref<HTMLFormElement>()
     var valid = ref(false)
 
-    watch(() => props.portfolio, (newVal) => {
-      _portfolio.value.id = newVal?.id
-      _portfolio.value.name = newVal?.name
+    watch(() => props.account, (newVal) => {
+      _account.value.id = newVal?.id
+      _account.value.name = newVal?.name
     })
 
     watch(() => props.visible, (newVal) => {
@@ -93,31 +93,31 @@ export default defineComponent({
 
     var { mutate, loading, error } = useMutation(MUT_PORTFOLIO_EDIT, () => ({
       variables: {
-        id: _portfolio.value?.id,
-        name: _portfolio.value?.name,
+        id: _account.value?.id,
+        name: _account.value?.name,
       }
     }));
 
-    const savePortfolio = async () => {
-      // console.debug('savePortfolio', _portfolio.value)
-      const variables = { id: _portfolio.value?.id, name: _portfolio.value?.name };
+    const saveAccount = async () => {
+      // console.debug('saveAccount', _account.value)
+      const variables = { id: _account.value?.id, name: _account.value?.name };
       // console.debug('variables', variables)
       const res: any = await mutate(variables);
       console.debug(res)
       if (res.data) {
-        const { success, message, portfolio } = res.data.savePortfolio
+        const { success, message, account } = res.data.saveAccount
         if(success) {
-          context.emit('portfolioSaved')
+          context.emit('accountSaved')
           closeDialog()
         } else {
-          console.error('savePortfolio', message)
+          console.error('saveAccount', message)
         }
       }
     }
 
     return {
       x_visible,
-      _portfolio,
+      _account,
       currency,
       currencyEl,
       showPicker,
@@ -127,7 +127,7 @@ export default defineComponent({
       rules,
       // onClosePicker,
       // onSelectCurrency,
-      savePortfolio,
+      saveAccount,
       closeDialog,
     }
 

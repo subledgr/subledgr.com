@@ -14,7 +14,7 @@ query PortfolioView($portfolioId: String!, $ids: [String!], $tCurr: String!) {
     # Currency {
     #   code
     # }
-    Wallets {
+    Accounts {
       id
       name
       address
@@ -39,8 +39,8 @@ query PortfolioView($portfolioId: String!, $ids: [String!], $tCurr: String!) {
 }
 `
 
-export const QUERY_PORTFOLIO_WALLETS = gql`
-query PortfolioWallets($portfolioId: String!, $ids: [String!], $tCurr: String!) {
+export const QUERY_PORTFOLIO_ACCOUNTS = gql`
+query PortfolioAccounts($portfolioId: String!, $ids: [String!], $tCurr: String!) {
   Prices(ids: $ids, t_curr: $tCurr) {
     datetime
     f_curr
@@ -53,7 +53,7 @@ query PortfolioWallets($portfolioId: String!, $ids: [String!], $tCurr: String!) 
     # Currency {
     #   code
     # }
-    Wallets {
+    Accounts {
       id
       name
       address
@@ -92,7 +92,7 @@ query PortfolioHistory($portfolioId: String, $ids: [String!], $tCurr: String!) {
     # Currency {
     #   code
     # }
-    Wallets {
+    Accounts {
       id
       name
       address

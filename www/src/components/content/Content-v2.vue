@@ -20,7 +20,7 @@
 
           <div class="text-medium-emphasis text-body-2">
             <!-- Embrace the future of frontend development with Vuetify 3. Our latest version offers an enhanced suite of tools designed to elevate user interfaces. With improved performance, more intuitive code structures, and a comprehensive range of customizable components, Vuetify 3 is here to transform your Vue.js projects into seamless, visually stunning experiences. -->
-            An overview of your wallets, aggregated by asset.
+            An overview of your accounts, aggregated by asset.
           </div>
         </v-col>
 

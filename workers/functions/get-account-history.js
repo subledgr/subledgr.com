@@ -11,20 +11,20 @@ const __dirname = path.resolve();
 // import { DataStore } from '../../data/data-store.js'
 import cfg from '../../config/config.js'
 import { transactionModel } from '../../graphql/models/transaction.js'
-import { walletModel } from '../../graphql/models/wallet.js'
-import { walletBalanceModel } from '../../graphql/models/wallet-balance.js';
+import { accountModel } from '../../graphql/models/account.js'
+import { accountBalanceModel } from '../../graphql/models/account-balance.js';
 
 // FIXME: get this from config
 const DOTSAMA_REST_API_BASE_URL = 'https://api.metaspan.io/api'
-const JOB_NAME = 'getWalletHistory'
+const JOB_NAME = 'getAccountHistory'
 
 /*
  * for each block where an account has events, calculate the balance
  */
-export async function getWalletHistory(job) {
+export async function getAccountHistory(job) {
 
   console.debug(`[worker] ${JOB_NAME}`, job.data)
-  var { chainId='', walletId='', fromBlock=0 } = job.data
+  var { chainId='', accountId='', fromBlock=0 } = job.data
 
   var result = []
 
@@ -42,17 +42,17 @@ export async function getWalletHistory(job) {
     cfg.indexDb.options
   )
 
-  const Wallet = db.define('wallet', walletModel.definition, walletModel.options)
+  const Account = db.define('account', accountModel.definition, accountModel.options)
   const Transaction = indexDB.define('transaction', transactionModel.definition, transactionModel.options)
-  const WalletBalance = db.define('wallet_balance', walletBalanceModel.definition, walletBalanceModel.options)
+  const AccountBalance = db.define('account_balance', accountBalanceModel.definition, accountBalanceModel.options)
 
   // select distinct blockNumber from transaction where chainId = chainId and (from = address or to = address)
   // for each blockNumber, get the balance
   try {
 
-    const wallet = await Wallet.findOne({ where: { id: walletId } })
-    if (!wallet) throw new Error(`wallet not found: ${walletId}`)
-    const address = wallet.address
+    const account = await Account.findOne({ where: { id: accountId } })
+    if (!account) throw new Error(`account not found: ${accountId}`)
+    const address = account.address
 
     // connect to ws rpc
     const provider = new WsProvider(`wss://rpc.metaspan.io/${chainId}`)
@@ -73,15 +73,29 @@ export async function getWalletHistory(job) {
     console.debug('currentBlock', currentBlock.block.header)
     const currentBlockNumber = currentBlock.block.header.number
 
-    // get the last block number of walletBalance for this walletId
+    // get the last block number of accountBalance for this accountId
     if (fromBlock === 0) {
-      const lastBlockNumber = await WalletBalance.max('blockNumber', { where: { id: walletId } })
+      const lastBlockNumber = await AccountBalance.max('blockNumber', { where: { id: accountId } })
       if (lastBlockNumber) fromBlock = lastBlockNumber || 0
     }
 
     console.debug('fromBlock', fromBlock)
-    job.log(`[worker] ${JOB_NAME} processing wallet ${wallet.id} ${wallet.assetId} ${wallet.address} fromBlock ${fromBlock}`)
+    job.log(`[worker] ${JOB_NAME} processing account ${account.id} ${account.assetId} ${account.address} fromBlock ${fromBlock}`)
     // process.exit(0)
+
+    // const lastTransaction = await Transaction.findOne({
+    //   where: {
+    //     chainId,
+    //     // blockNumber: { [Sequelize.Op.gt]: BigInt(fromBlock-1) },
+    //     [Sequelize.Op.or]: [{ fromId: address }, { toId: address }] 
+    //   },
+    //   order: [['blockNumber', 'DESC']],
+    // })
+    // // console.debug('lastTransaction', lastTransaction)
+    // const lastTransactionBlockNumber = lastTransaction ? lastTransaction.blockNumber : 0
+    // console.debug('lastTransactionBlockNumber', lastTransactionBlockNumber)
+
+    // Since the last known transaction, query the get the highest blockNumber for each day that has passed
 
     // TODO: limit this to the last 1000 blocks where an address/blockNumber has no balance?
     var blockNumbers = await Transaction.findAll({
@@ -172,7 +186,7 @@ export async function getWalletHistory(job) {
 
       // console.log('result', JSON.stringify(ret))
       result.push({
-        id: wallet.id,
+        id: account.id,
         blockNumber,
         timestamp: 0,
         ...ret,
@@ -182,7 +196,7 @@ export async function getWalletHistory(job) {
 
       // commit every 10 blocks
       if (result.length > 10) {
-        await WalletBalance.bulkCreate(result, {
+        await AccountBalance.bulkCreate(result, {
           updateOnDuplicate: ['timestamp', 'free', 'reserved', 'frozen', 'pooled', 'claimable', 'locked', 'balance', 'updatedAt']
         })
         result = []
@@ -199,7 +213,7 @@ export async function getWalletHistory(job) {
   } finally {
     // commit the last batch
     if (result.length > 0) {
-      await WalletBalance.bulkCreate(result, {
+      await AccountBalance.bulkCreate(result, {
         updateOnDuplicate: ['timestamp', 'free', 'reserved', 'frozen', 'pooled', 'claimable', 'locked', 'balance', 'updatedAt']
       })
     }
