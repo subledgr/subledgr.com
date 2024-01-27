@@ -128,7 +128,7 @@ export default defineComponent({
             },
             title: {
               display: true,
-              text: `Token (${result.value?.Account.account.Asset?.code})`
+              text: `Token (${result.value?.Account.Asset?.code})`
             }
           },
           x: {
@@ -147,15 +147,15 @@ export default defineComponent({
       return {
         // labels: [ 'January', 'February', 'March' ],
         // labels: result.value?.PriceHistory?.slice(0, periods.value).map((m) => m.key) || [],
-        labels: result.value?.Account.account?.valueHistory?.map((m: any) => m.datetime) || [],
+        labels: result.value?.Account.valueHistory?.map((m: any) => m.datetime) || [],
         datasets: [ {
           // data: [40, 20, 12]
           // data: result.value?.PriceHistory?.slice(0, periods.value).map((m) => m.price) || []
           yAxisID: 'y',
           borderColor: 'red', // isDarkMode.value ? 'red' : 'rgba(0,0,0,0.5)',
           label: 'Value',
-          data: result.value?.Account.account?.valueHistory?.map((m: any) => {
-            const assetId = result.value.Account.account.Asset.id
+          data: result.value?.Account.valueHistory?.map((m: any) => {
+            const assetId = result.value.Account.Asset.id
             const coinVal = toCoin(assetId, m.closing_balance)
             // console.debug('coinVal', assetId, coinVal)
             return coinVal * m.closing_price
@@ -164,8 +164,8 @@ export default defineComponent({
           yAxisID: 'y1',
           borderColor: 'purple', // isDarkMode.value ? 'blue' : 'rgba(0,0,0,0.5)',
           label: 'Token',
-          data: result.value?.Account.account?.valueHistory?.map((m: any) => {
-            const assetId = result.value.Account.account.Asset.id
+          data: result.value?.Account.valueHistory?.map((m: any) => {
+            const assetId = result.value.Account.Asset.id
             return toCoin(assetId, m.closing_balance)
           }) || []
         } ]

@@ -95,8 +95,10 @@ export default defineComponent({
     const totalValue = ref(0.0)
     const order = ref(-1)
 
+    const assetIds = assets.value.filter(f => f.active).map(m => m.code)
+    // console.debug('assetIds', assetIds)
     const variables = {
-      ids: ['KSM', 'DOT', 'DOCK'],
+      ids: assetIds, // ['KSM', 'DOT', 'DOCK'],
       tCurr: profile.value.defaultCurrency // 'GBP'
     }
 

@@ -42,6 +42,7 @@ import { defineComponent, watch, computed, ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router';
 import { useStore } from 'vuex';
 import { useDisplay } from 'vuetify'
+import { useGlobalUtils } from './utils';
 
 import { useQuery } from '@vue/apollo-composable'
 
@@ -63,6 +64,7 @@ export default defineComponent({
     const display = useDisplay()
     const store = useStore()
     const router = useRouter()
+    const { handleError } = useGlobalUtils()
     const profile = computed(() => store.state.profile)
     const assets = computed<IAsset[]>(() => store.state.asset.list)
     const currencies = computed<ICurrency[]>(() => store.state.currency.list)
@@ -84,14 +86,21 @@ export default defineComponent({
     })
     const prices = ref<IPrice[]>()
 
+    const assetIds = assets.value.filter(f => f.active).map(m => m.code)
+    // console.debug('assetIds', assetIds)
     const variables = {
-      priceIds: ['KSM', 'DOT', 'DOCK'],
+      priceIds: assetIds, // ['KSM', 'DOT', 'DOCK'],
       tCurr: profile.value.defaultCurrency // 'GBP'
     }
 
-    var { result, loading, refetch, onResult } = useQuery(QUERY_ACCOUNTS, variables, {
+    var { result, loading, refetch, onResult, onError } = useQuery(QUERY_ACCOUNTS, variables, {
       // fetchPolicy: 'cache-only'
       fetchPolicy: 'cache-first'
+    })
+
+    onError((error: any) => {
+      console.debug(error)
+      handleError(error)
     })
 
     onResult(queryResult => {

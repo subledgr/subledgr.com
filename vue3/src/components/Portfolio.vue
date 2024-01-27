@@ -136,9 +136,11 @@ export default defineComponent({
     // console.debug('params', route.params)
     const showPortfolioEditDialog = ref(false)
 
+    const assetIds = assets.value.filter(f => f.active).map(m => m.code)
+    // console.debug('assetIds', assetIds)
     const { result, loading, error, onResult, refetch } = useQuery(QUERY_PORTFOLIO_VIEW, {
       portfolioId: route.params.portfolioId,
-      ids: ['KSM', 'DOT', 'DOCK'], // FIXME: get from elsewhere
+      ids: assetIds, // ['KSM', 'DOT', 'DOCK', 'ACA'], // FIXME: get from elsewhere
       tCurr: profile.value.defaultCurrency // 'GBP'
     }, {
       fetchPolicy: 'cache-and-network',

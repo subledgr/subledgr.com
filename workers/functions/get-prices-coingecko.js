@@ -19,10 +19,12 @@ const ds = new DataStore({ pruning: cfg.pruning })
 // const apiUrl = 'http://subledgr-api:4000/api/'
 
 // FIXME move this to a central config / model?
+// Get this from the list of active assets in DB
 const currencies = {
   polkadot: { code: 'DOT', },
   kusama: { code: 'KSM' },
-  dock: { code: 'DOCK' }
+  dock: { code: 'DOCK' },
+  acala: { code: 'ACA' }
 }
 
 export async function getPricesCG(job) {

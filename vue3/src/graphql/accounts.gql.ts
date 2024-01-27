@@ -60,16 +60,16 @@ export const QUERY_ACCOUNTS = gql`
 export const QUERY_ACCOUNT = gql`
   query Account($accountId: String!) {
     Account(id: $accountId) {
-      account {
+      # account {
+      id
+      name
+      address
+      Asset {
         id
-        name
-        address
-        Asset {
-          id
-        }
       }
-      error
-      message
+      # }
+      # error
+      # message
     }
   }
 `
@@ -77,7 +77,7 @@ export const QUERY_ACCOUNT = gql`
 export const QUERY_ACCOUNT_BALANCE = gql`
 query AccountBalance($accountId: String!) {
   Account(id: $accountId) {
-    account {
+    # account {
       id
       name
       address
@@ -107,7 +107,7 @@ query AccountBalance($accountId: String!) {
         createdAt
         updatedAt
       }
-    }
+    # }
   }
 }
 `
@@ -115,7 +115,7 @@ query AccountBalance($accountId: String!) {
 export const QUERY_ACCOUNT_BALANCE1 = gql`
 query AccountBalance($accountId: String!) {
   Account(id: $accountId) {
-    account {
+    # account {
       id
       name
       address
@@ -135,7 +135,7 @@ query AccountBalance($accountId: String!) {
         locked
         balance
       }
-    }
+    # }
   }
 }
 `
@@ -143,7 +143,7 @@ query AccountBalance($accountId: String!) {
 export const QUERY_ACCOUNT_DETAILS = gql`
 query AccountView($accountId: String!) {
   Account(id: $accountId) {
-    account {
+    # account {
       id
       name
       address
@@ -168,9 +168,9 @@ query AccountView($accountId: String!) {
           reasons
         }
       }
-    }
-    error
-    message
+    # }
+    # error
+    # message
   }
 }
 `
@@ -178,7 +178,7 @@ query AccountView($accountId: String!) {
 export const QUERY_ACCOUNT_TRANSACTIONS = gql`
   query AccountView($accountId: String!, $offset: Int, $limit: Int) {
     Account(id: $accountId) {
-      account {
+      # account {
         id
         name
         address
@@ -219,9 +219,9 @@ export const QUERY_ACCOUNT_TRANSACTIONS = gql`
           # updatedAt
           # createdAt
         }
-      }
-      error
-      message
+      # }
+      # error
+      # message
     }
   }
 `
@@ -229,7 +229,7 @@ export const QUERY_ACCOUNT_TRANSACTIONS = gql`
 export const QUERY_ACCOUNT_VALUE_HISTORY = gql`
 query AccountValueHistory($accountId: String!, $tCurr: String, $periods: Int, $granulatity: String) {
   Account(id: $accountId) {
-    account {
+    # account {
       id
       name
       Asset {
@@ -242,7 +242,7 @@ query AccountValueHistory($accountId: String!, $tCurr: String, $periods: Int, $g
         closing_balance
         closing_price
       }
-    }
+    # }
   }
 }`
 
@@ -253,6 +253,40 @@ export const QUERY_ACCOUNT_CHART = gql`
         period
         value
       }
+    }
+  }
+`
+
+export const QUERY_ACCOUNT_PORTFOLIOS = gql`
+  query AccountView($accountId: String!) {
+    Account(id: $accountId) {
+      # account {
+        id
+        # name
+        # address
+        # Asset {
+        #   id
+        # }
+        portfolios {
+          id
+          name
+        }
+        # balance {
+        #   id
+        #   free
+        #   reserved
+        #   miscFrozen
+        #   feeFrozen
+        #   pooled
+        #   locks {
+        #     id
+        #     amount
+        #     reasons
+        #   }
+        # }
+      # }
+      # error
+      # message
     }
   }
 `

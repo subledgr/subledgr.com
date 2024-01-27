@@ -16,16 +16,18 @@ import { defineComponent, computed, ref } from 'vue'
 import { useStore } from 'vuex'
 import { useQuery } from '@vue/apollo-composable'
 import moment from 'moment'
-import { QUERY_PORTFOLIO_VIEW } from '@/graphql';
 
-import { Line } from 'vue-chartjs'
+import { QUERY_PORTFOLIO_VIEW } from '@/graphql';
+import { IAsset } from './types';
+
+// import { Line } from 'vue-chartjs'
 import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, TimeSeriesScale, CategoryScale, LinearScale } from 'chart.js'
 import 'chartjs-adapter-moment'
 
 export default defineComponent({
   name: 'PortfolioHistory',
   components: {
-    Line
+    // Line
   },
   props: {
     portfolioId: String,
@@ -37,11 +39,14 @@ export default defineComponent({
   setup(props) {
     const store = useStore()
     const profile = computed(() => store.state.profile)
+    const assets = computed<IAsset[]>(() => store.state.asset.list)
     const periods = ref(props.periods)
     const isDarkMode = computed(() => store.state.isDarkMode)
     
+    const assetIds = assets.value.filter(f => f.active).map(m => m.code)
+    // console.debug('assetIds', assetIds)
     const variables = {
-      ids: ['KSM', 'DOT', 'DOCK'], // FIXME where should this go?
+      ids: assetIds, // ['KSM', 'DOT', 'DOCK'], // FIXME where should this go?
       id: props.portfolioId,
       tCurr: profile.value.defaultCurrency, // 'GBP'
     }

@@ -17,7 +17,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn variant="tonal" color="red" @click="closeDialog()">Close</v-btn>
-          <v-btn variant="outlined" :disabled="!valid" color="primary" @click="saveAccount()">Save</v-btn>
+          <v-btn variant="outlined" :disabled="!valid" color="primary" :loading="loading" @click="saveAccount()">Save</v-btn>
         </v-card-actions>
       </v-card>  
     </v-dialog>
@@ -28,7 +28,7 @@
 import { defineComponent, watch, ref, PropType } from 'vue'
 // import CurrencyPickerDialog from './CurrencyPickerDialog.vue'
 import { useMutation } from '@vue/apollo-composable'
-import { ICurrency, IAccount } from './types'
+import { ICurrency, IAccount, IAccountBalance, IAsset } from './types'
 import { MUT_PORTFOLIO_EDIT } from '@/graphql'
 
 export default defineComponent({
@@ -51,22 +51,19 @@ export default defineComponent({
   setup(props, context) {
 
     const form = ref<HTMLFormElement>()
-    // const name = ref('')
-    // const address = ref('')
     const rules = {
-    //   address: [
-    //     (v: string) => !!v || 'Address is required',
-    //     (v: string) => v.length >= 8 || 'Address must be more than 8 characters',
-    //   ],
+      // address: [
+      //   (v: string) => !!v || 'Address is required',
+      //   (v: string) => v.length >= 8 || 'Address must be more than 8 characters',
+      // ],
       name: [ (val:string) => !!val || 'Name is required' ],
-    //   currency: [ (val: any) => {
-    //     console.debug('rules.currency', val)
-    //     return !!val?.symbol || 'Currency is required'
-    //   } ]
+      // currency: [ (val: any) => {
+      //   console.debug('rules.currency', val)
+      //   return !!val?.symbol || 'Currency is required'
+      // } ]
     }
 
-    // const visible = ref(props.visible)
-    const _account = ref<IAccount>({ id: '', name: '', Currency: {} as ICurrency, status: '', start_date: '', Accounts: [] })
+    const _account = ref<IAccount>({ id: '', name: '', assetId: '', Asset: {} as IAsset, address: '', balance: {} as IAccountBalance, transactions: [] })
     _account.value.name = props.account.name
     _account.value.id = props.account.id
     const x_visible = ref(false)
@@ -118,6 +115,7 @@ export default defineComponent({
     return {
       x_visible,
       _account,
+      loading,
       currency,
       currencyEl,
       showPicker,

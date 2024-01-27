@@ -64,7 +64,7 @@ export default defineComponent({
     })
     onAccountResult((result) => {
       // console.log('onAccountResult', result)
-      account.value = result.data?.Account?.account
+      account.value = result.data?.Account
     })
     
     const priceVariables = computed(() => {
@@ -100,7 +100,7 @@ export default defineComponent({
     const calcValue = computed(() => {
       // console.debug('calcValue', account.value, price.value)
       if (!account.value || !price.value) return 0
-      const coin = toCoin(account.value.Asset.id, BigInt(account.value.balance?.balance))
+      const coin = toCoin(account.value.Asset.id, BigInt(account.value.balance?.balance || 0))
       return coin * Number(price.value.value)
     })
 

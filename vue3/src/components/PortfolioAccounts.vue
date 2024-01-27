@@ -14,9 +14,9 @@ import { defineComponent, computed } from 'vue'
 import { useStore } from 'vuex'
 import { useRouter } from 'vue-router'
 import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
-import gql from 'graphql-tag'
-import AccountList from './AccountList.vue';
 
+import AccountList from './AccountList.vue';
+import { IAsset } from './types';
 import { QUERY_PORTFOLIO_ACCOUNTS } from '../graphql'
 
 export default defineComponent({
@@ -32,11 +32,15 @@ export default defineComponent({
   setup(props) {
 
     const store = useStore()
+    const assets = computed<IAsset[]>(() => store.state.asset.list)
     const router = useRouter()
     const profile = computed(() => store.state.profile )
+    
+    const assetIds = assets.value.filter(f => f.active).map(m => m.code)
+    // console.debug('assetIds', assetIds)
     const { result, loading, error, onResult, refetch } = useQuery(QUERY_PORTFOLIO_ACCOUNTS, {
       portfolioId: props.portfolioId,
-      ids: ['KSM', 'DOT', 'DOCK'], // FIXME: get from store
+      ids: assetIds, // ['KSM', 'DOT', 'DOCK'], // FIXME: get from store
       tCurr: profile.value.defaultCurrency // 'GBP'
     }, {
       fetchPolicy: 'cache-and-network',

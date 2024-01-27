@@ -10,6 +10,8 @@ type Query {
   UserByEmail(email: String): User
   UserById(id: Int): User
   Users: [User]
+  Account(id: String!): Account
+  Accounts(ids: [String], assetId: String, page: Int, offset: Int, search: String): [Account] # AccountsResponse
   Asset(id: String!): Asset
   Assets: [Asset]
   Currencies: [Currency]
@@ -23,8 +25,6 @@ type Query {
   Profile: UserProfile
   SymbolPriceTicker(symbol: String): SymbolPriceTicker
   Transactions(chainId: String, accountId: String, address: String, ids: [String], offset: Int, limit: Int): [Transaction]
-  Accounts(ids: [String], assetId: String, page: Int, offset: Int, search: String): [Account] # AccountsResponse
-  Account(id: String!): AccountResponse
 }
 
 type Mutation {
@@ -392,11 +392,11 @@ type ExtrinsicsResponse {
   extrinsics: [Extrinsic]
 }
 
-type AccountResponse {
-  account: Account
-  error: Boolean
-  message: String
-}
+# type AccountResponse {
+#   account: Account
+#   error: Boolean
+#   message: String
+# }
 
 type CreatePortfolioResponse {
   success: Boolean!

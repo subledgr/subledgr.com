@@ -54,8 +54,11 @@ export async function getAccountHistory(job) {
     if (!account) throw new Error(`account not found: ${accountId}`)
     const address = account.address
 
+    var rpcUrl = `wss://rpc.metaspan.io/${chainId}`
+    if (chainId === 'acala') rpcUrl = `wss://acala-rpc.dwellir.com`
+    console.debug('rpcUrl', rpcUrl)
     // connect to ws rpc
-    const provider = new WsProvider(`wss://rpc.metaspan.io/${chainId}`)
+    const provider = new WsProvider(rpcUrl)
     provider.on('error', (error) => {
       console.error('ws provider error', error)
       job.log('Provider ERROR', JSON.stringify(error, Object.getOwnPropertyNames(error)))
@@ -72,7 +75,7 @@ export async function getAccountHistory(job) {
     })
 
     var currentBlock = (await api.rpc.chain.getBlock()).toJSON()
-    console.debug('currentBlock', currentBlock.block.header)
+    console.debug('currentBlock', currentBlock.block.header.number)
     const currentBlockNumber = currentBlock.block.header.number
 
     // get the last block number of accountBalance for this accountId
@@ -141,7 +144,8 @@ export async function getAccountHistory(job) {
       // var rest = await axios.get(url, { params })
       var res = await apiAt.query.system.account(address)
       var { nonce, consumers, providers, sufficients, data } = res.toJSON()
-      // console.debug('res', data)
+      console.debug('res', data)
+
       ret.free = BigInt(data.free  || 0)
       ret.reserved = BigInt(data.reserved || 0)
       ret.frozen = BigInt(data.frozen || 0)

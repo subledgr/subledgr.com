@@ -40,10 +40,24 @@ CREATE TABLE `portfolio_account` (
   KEY `portfolio_wallet_ibfk_2` (`portfolioId`),
   CONSTRAINT `portfolio_account_ibfk_1` FOREIGN KEY (`accountId`) REFERENCES `account` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `portfolio_account_ibfk_2` FOREIGN KEY (`portfolioId`) REFERENCES `portfolio` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-)
+);
+
+CREATE TABLE `portfolio` (
+  `id` char(36) NOT NULL,
+  `name` varchar(64) DEFAULT NULL,
+  `currencyCode` varchar(32) DEFAULT NULL,
+  `createdAt` datetime NOT NULL,
+  `updatedAt` datetime NOT NULL,
+  `userId` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `userId` (`userId`),
+  CONSTRAINT `portfolio_ibfk_1` FOREIGN KEY (`userId`) REFERENCES `user` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
 
 INSERT INTO `account` (`id`, `name`, `assetId`, `address`, `userId`, `createdAt`, `updatedAt`)
-select * from wallet;
+select`id`, `name`, `assetId`, `address`, `userId`, `createdAt`, `updatedAt`
+from wallet;
 
 insert into account_balance (
   `id`,
@@ -58,8 +72,19 @@ insert into account_balance (
   `createdAt`,
   `updatedAt`
  )
-select * from wallet_balance;
-
+select `id`,
+  `blockNumber`,
+  `timestamp`,
+  `free`,
+  `reserved`,
+  `pooled`,
+  `claimable`,
+  `locked`,
+  `balance`,
+  `createdAt`,
+  `updatedAt`
+ from wallet_balance;
+ 
 insert into portfolio_account (
   `createdAt`,
   `updatedAt`,

@@ -36,39 +36,7 @@ interface IPortfolio {
   name: string
 }
 
-const QUERY_ACCOUNT_PORTFOLIOS = gql`
-  query AccountView($accountId: String!) {
-    Account(id: $accountId) {
-      account {
-        id
-        # name
-        # address
-        # Asset {
-        #   id
-        # }
-        portfolios {
-          id
-          name
-        }
-        # balance {
-        #   id
-        #   free
-        #   reserved
-        #   miscFrozen
-        #   feeFrozen
-        #   pooled
-        #   locks {
-        #     id
-        #     amount
-        #     reasons
-        #   }
-        # }
-      }
-      error
-      message
-    }
-  }
-`
+import { QUERY_ACCOUNT_PORTFOLIOS } from '@/graphql'
 
 export default defineComponent({
   name: '',
@@ -90,7 +58,7 @@ export default defineComponent({
     },
   },
   setup(props) {
-    const isLoading = computed(() => props.loading)
+    //const isLoading = computed(() => props.loading)
     const list = ref<IPortfolio[]>([])
     const { result, loading, error, onResult, refetch } = useQuery(QUERY_ACCOUNT_PORTFOLIOS, {
       accountId: props.accountId
@@ -102,11 +70,11 @@ export default defineComponent({
 
     onResult((result) => {
       // console.debug('onResult', result)
-      list.value = result.data?.Account?.account.portfolios || []
+      list.value = result.data?.Account?.portfolios || []
     })
 
     return {
-      loading,
+      //loading,
       list,
       refetch
     }

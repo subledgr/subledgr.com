@@ -23,6 +23,7 @@ import { useQuery } from '@vue/apollo-composable'
 import AppBar from './components/AppBar.vue'
 import NavDrawer from './components/NavDrawer.vue'
 import BottomNavigation from './components/BottomNavigation.vue'
+import { useGlobalUtils } from '@/components/utils'
 
 import { QUERY_PROFILE } from './graphql/profile.gql'
 
@@ -39,9 +40,15 @@ export default defineComponent({
     const isDarkMode = computed(() => store.state.isDarkMode)
     const loggedIn = computed(() => store.getters.loggedIn)
     const route = useRoute()
+    const { handleError } = useGlobalUtils()
     const showAppBar = computed(() => !['/login', '/register', '/reset', '/reset/:resetToken'].includes(route.matched[0]?.path))
 
-    const { loading, error, onResult, refetch } = useQuery(QUERY_PROFILE)
+    const { loading, error, onResult, refetch, onError } = useQuery(QUERY_PROFILE)
+
+    onError((error: any) => {
+      console.error(error)
+      handleError(error)
+    })
 
     if (profile.initial) {
       refetch()

@@ -72,8 +72,8 @@ export default defineComponent({
 
     onResult((data) => {
       // console.debug('onTransactions', data)
-      account.value = data?.data?.Account?.account || {}
-      list.value = data?.data?.Account?.account?.transactions || []
+      account.value = data?.data?.Account || {}
+      list.value = data?.data?.Account?.transactions || []
     })
 
     onBeforeMount(() => {

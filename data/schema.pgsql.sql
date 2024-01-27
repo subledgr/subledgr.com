@@ -1,8 +1,17 @@
+/**
+
+NOT HERE, PUT THE FILE IN ../docker/data/schema.mariadb.sql
+
+**/
+
+
+
+
 --
 -- PostgreSQL database dump
 --
 
-CREATE USER subledgr;
+CREATE USER subledgr IDENTIFIED BY 'subledgr';
 CREATE DATABASE subledgr;
 GRANT ALL PRIVILEGES ON DATABASE subledgr TO subledgr;
 

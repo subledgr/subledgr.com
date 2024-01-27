@@ -87,28 +87,9 @@ import { defineComponent, ref, computed, watch } from 'vue'
 import { useDisplay } from 'vuetify';
 // import { useQuery, useMutation } from '@vue/apollo-composable';
 import { useStore } from 'vuex';
-import AssetPickerDialog from './AssetPickerDialog.vue'
+// import AssetPickerDialog from './AssetPickerDialog.vue'
 import AssetLogo from './AssetLogo.vue'
-import gql from 'graphql-tag';
 import { IAsset, ICurrency, IPrice, IAccountBalance, IProfile, IAccount } from './types';
-// reusing the same query as the account list
-// import { QUERY_ACCOUNTS } from '@/graphql/accounts.gql';
-// import { QUERY_PRICES } from '@/graphql/prices.gql';
-// import router from '@/router';
-
-// // TODO - assetId vs assetId
-// const MUT_ADD_ASSET = gql`
-// mutation MutAddAsset ($assetId: String) {
-//   addAsset(assetId: $assetId) {
-//     success
-//     message
-//     Asset {
-//       id
-//       code
-//     }
-//   }
-// }
-// `
 
 interface IAssetView {
   // id: string
@@ -121,7 +102,7 @@ interface IAssetView {
 export default defineComponent({
   components: {
     AssetLogo,
-    AssetPickerDialog
+    // AssetPickerDialog
   },
   props: {
     prices: {
@@ -141,17 +122,12 @@ export default defineComponent({
     // const loggedIn = computed(() => store.getters.loggedIn)
 
     const loading = ref(false)
-    const showAssetPicker = ref(false)
+    // const showAssetPicker = ref(false)
     const list = ref<IAssetView[]>([])
     const assets = computed<IAsset[]>(() => store.state.asset.list)
     const currencies = computed<ICurrency[]>(() => store.state.currency.list)
     const currency = currencies.value.find(c => c.code === profile.value.defaultCurrency)
     const totalValue = ref(0.0)
-
-    const variables = {
-      ids: ['KSM', 'DOT', 'DOCK'], // FIXME where should this go?
-      tCurr: profile.value.defaultCurrency, // 'GBP'
-    }
 
     const toolbarClass = computed(() => {
       const { mdAndUp } = display
