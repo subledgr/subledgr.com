@@ -2,7 +2,8 @@
 const chains = [
   { id: '3dpass', type: 'crypto', name: '3DPass', active: false, parent: '', parachain: false, code: '', logo: 'images/logos/chains/3dpass.png' },
   { id: 'aband', type: 'crypto', name: 'Aband', active: false, parent: 'kusama', parachain: true, code: '', logo: 'images/logos/empty.svg' },
-  { id: 'acala', type: 'crypto', name: 'Acala', active: false, parent: 'polkadot', parachain: true, code: '', logo: 'images/logos/chains/acala.svg' },
+  { id: 'acala', type: 'crypto', name: 'Acala', active: true, 
+    decimals: 12, parent: 'polkadot', parachain: true, code: 'ACA', logo: 'images/logos/chains/acala.svg' },
 
   { id: 'ajuna network', type: 'crypto', name: 'Ajuna Network', active: false, parent: 'polkadot', parachain: true, code: '', logo: 'images/logos/nodes/ajuna.png' },
   { id: 'aleph zero', type: 'crypto', name: 'Aleph Zero', active: false, parent: '', parachain: false, code: '', logo: 'images/logos/chains/aleph.svg' },

@@ -11,7 +11,7 @@
       </v-btn>
       
       <v-toolbar-title>
-        {{ result?.Account?.account.name || accountId }}
+        {{ result?.Account?.name || accountId }}
       </v-toolbar-title>
       <v-toolbar-items>
         <v-btn elevation="0">
@@ -19,7 +19,7 @@
           <v-menu activator="parent">
             <v-list>
               <v-list-item>
-                <a :href="`https://${result?.Account?.account?.Asset?.id || ''}.subscan.io/account/${result?.Account?.account?.address}`" target="_blank">
+                <a :href="`https://${result?.Account?.Asset?.id || ''}.subscan.io/account/${result?.Account?.address}`" target="_blank">
                   <v-icon>mdi-magnify</v-icon>&nbsp;View
                 </a>
               </v-list-item>

@@ -1,8 +1,10 @@
 import { useStore } from "vuex"
 import { computed } from "vue"
 import moment from "moment"
+import { unwrapResolverError } from '@apollo/server/errors'
 
 import { IAsset } from "./types"
+import router from '../router'
 
 export function shortStash (stash: string | undefined, chars=6) {
   if (!stash) return ''
@@ -16,6 +18,23 @@ export function useGlobalUtils () {
   const profile = store.state.profile
   const transactionState = store.state.transaction
   const assets = computed<IAsset[]>(() => JSON.parse(JSON.stringify(store.state.asset.list)))
+
+  const handleError = (error: Error) => {
+    console.debug('utils.ts: handleError', typeof error)
+    console.debug(JSON.parse(JSON.stringify(error)))
+    switch (true) {
+      case String(error.message).startsWith('AuthenticationError:'):
+        console.error(error)
+        console.warn(error.message)
+        router.push('/login')
+        break
+      case String(error.message).startsWith('PasswordResetError:'):
+        console.error(error)
+        break
+      default:
+        throw error
+    }
+  }
 
   /**
    * 
@@ -39,6 +58,7 @@ export function useGlobalUtils () {
   }
 
   return {
+    handleError,
     shortStash,
     toCoin,
     toProfileDate,

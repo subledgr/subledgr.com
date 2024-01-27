@@ -17,8 +17,8 @@
       </v-toolbar-items>
     </v-toolbar>
 
-    <v-list :loading="loading">
-      <v-progress-linear indeterminate v-show="loading"></v-progress-linear>
+    <v-list>
+      <v-progress-linear indeterminate v-show="loadingAccounts"></v-progress-linear>
       <v-list-item v-if="!loggedIn">
         <v-row>
           <v-col>
@@ -156,10 +156,11 @@ export default defineComponent({
     })
 
     const variables = {
-      ids: ['KSM', 'DOT', 'DOCK'],
+      // FIXME get the list of asset.codes from api
+      ids: ['KSM', 'DOT', 'DOCK', 'ACA'],
       tCurr: profile.value.defaultCurrency, // 'GBP'
     }
-    const { result: resultAccounts, refetch: refetchAccounts, onResult: onAccounts } = useQuery(QUERY_ACCOUNTS, {}, {
+    const { result: resultAccounts, refetch: refetchAccounts, onResult: onAccounts, loading: loadingAccounts } = useQuery(QUERY_ACCOUNTS, {}, {
       fetchPolicy: 'cache-first'
     })
     const { result: resultPrices, refetch: refetchPrices, onResult: onPrices } = useQuery(QUERY_PRICES, variables, {
@@ -337,6 +338,7 @@ export default defineComponent({
       loading,
       list,
       currency,
+      loadingAccounts,
       mutate,
       showAssetPicker,
       onCloseAssetPicker,

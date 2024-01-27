@@ -9,8 +9,8 @@
         </v-col>
         <v-col>
           <small>
-            {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance?.balance).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
-            {{ result?.Account?.account?.Asset?.code }}
+            {{ toCoin(result?.Account?.Asset?.id, getAccountBalance?.balance).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+            {{ result?.Account?.Asset?.code }}
           </small>
         </v-col>
       </v-row>
@@ -21,19 +21,19 @@
       <tr>
         <th class="text-left">Address</th>
         <td class="text-right">
-          <ClickToCopy :display="shortStash(result?.Account.account.address)" :text="result?.Account.account.address"></ClickToCopy>
+          <ClickToCopy :display="shortStash(result?.Account.address)" :text="result?.Account.address"></ClickToCopy>
         </td>
       </tr>
       <tr>
         <th class="text-left">Total</th>
         <td class="text-right">
-          {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance?.balance) }}
+          {{ toCoin(result?.Account?.Asset?.id, getAccountBalance?.balance) }}
         </td>
       </tr>
       <tr>
         <th class="text-left">Index:</th>
         <td class="text-right">
-          <small><i>( {{ toProfileDate(result?.Account?.account?.balanceHistory[0]?.timestamp || 0) }})</i></small>
+          <small><i>( {{ toProfileDate(result?.Account?.balanceHistory[0]?.timestamp || 0) }})</i></small>
         </td>
       </tr>
       <tr>
@@ -44,31 +44,31 @@
               <tr>
                 <th class="text-left">Free</th>
                 <td align="right">
-                  {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance?.free||0 - getAccountBalance?.locked||0).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+                  {{ toCoin(result?.Account?.Asset?.id, getAccountBalance?.free||0 - getAccountBalance?.locked||0).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
                 </td>
               </tr>
               <tr v-if="Number(getAccountBalance?.locked || 0) > 0">
                 <th class="text-left">Locked</th>
                 <td align="right">
-                  {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance.locked || 0n).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+                  {{ toCoin(result?.Account?.Asset?.id, getAccountBalance.locked || 0n).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
                 </td>
               </tr>
               <tr v-if="BigInt(getAccountBalance?.reserved || 0) > 0n">
                 <th class="text-left">Reserved</th>
                 <td align="right">
-                  {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance?.reserved).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+                  {{ toCoin(result?.Account?.Asset?.id, getAccountBalance?.reserved).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
                 </td>
               </tr>
               <tr v-if="BigInt(getAccountBalance?.pooled || 0) > 0n">
                 <th class="text-left">Pooled</th>
                 <td align="right">
-                  {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance?.pooled).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+                  {{ toCoin(result?.Account?.Asset?.id, getAccountBalance?.pooled).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
                 </td>
               </tr>
               <tr v-if="BigInt(getAccountBalance?.claimable || 0) > 0n">
                 <th class="text-left">Claimable</th>
                 <td align="right">
-                  {{ toCoin(result?.Account?.account?.Asset?.id, getAccountBalance?.claimable).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+                  {{ toCoin(result?.Account?.Asset?.id, getAccountBalance?.claimable).toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
                 </td>
               </tr>
             </tbody>
@@ -125,16 +125,16 @@ export default defineComponent({
     // })
     
     const maxLocked: any = computed(() => {
-      if (!result.value?.Account?.account?.balance?.locks) return 0
-      return result.value?.Account?.account?.balance?.locks.reduce( (acc: bigint, lock: IBalanceLock) => {
+      if (!result.value?.Account?.balance?.locks) return 0
+      return result.value?.Account?.balance?.locks.reduce( (acc: bigint, lock: IBalanceLock) => {
         return (BigInt(lock.amount) > acc) ? BigInt(lock.amount) : acc
         }, 0n
       )
-      // return result.value?.Account?.account?.balance?.locks.reduce((acc: BigInt, lock: any) => acc + BigInt(lock.amount), 0n)
+      // return result.value?.Account?.balance?.locks.reduce((acc: BigInt, lock: any) => acc + BigInt(lock.amount), 0n)
     })
 
     const getAccountBalance = computed(() => {
-      const balance = result.value?.Account?.account?.balanceHistory[0]
+      const balance = result.value?.Account?.balanceHistory[0]
       return balance
     })
 
@@ -150,9 +150,9 @@ export default defineComponent({
     }
 
     const getIndexDate = () => {
-      console.debug('getIndexDate', result.value?.Account?.account?.balanceHistory[0]?.timestamp)
-      if (!result.value?.Account?.account?.balanceHistory[0]?.timestamp) return '-'
-      return moment(result.value?.Account?.account?.balanceHistory[0]?.timestamp).format(profile.value.dateTimeFormat)
+      console.debug('getIndexDate', result.value?.Account?.balanceHistory[0]?.timestamp)
+      if (!result.value?.Account?.balanceHistory[0]?.timestamp) return '-'
+      return moment(result.value?.Account?.balanceHistory[0]?.timestamp).format(profile.value.dateTimeFormat)
     }
 
     return {

@@ -1,5 +1,6 @@
 // import { createUser, findUserByEmail, findUserById, comparePassword } from '../models/user.js';
 // import User from '../models/user.js'
+
 import axios from 'axios'
 import Binance from 'binance-api-node'
 const binance = Binance.default()
@@ -39,7 +40,6 @@ const mailer = nodemailer.createTransport({
   }
 })
 
-
 // Map from currencyCode to indexDb.transaction.chain
 // TODO where should this go? and what is it used for?
 const ccChain = {
@@ -59,15 +59,6 @@ const assetMap = new BiDirectionalMap({
   'kusama': 'Kusama'
 })
 
-class AuthenticationError extends Error {
-  constructor(message) {
-    super(message);
-    this.name = "AuthenticationError";
-    this.statusCode = 401;
-  }
-}
-const requireAuthResponse = { error: true, message: 'You must be authenticated'}
-
 const resolvers = {
   // handle BigInt data type
   BigInt: new GraphQLScalarType({
@@ -82,16 +73,42 @@ const resolvers = {
   }),
   Query: {
     me: async (_, args, { db, user }) => {
-      if (!user) {
-        throw new AuthenticationError('You must be logged in');
-      }
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const me = await db.User.findOne({ where: { id: user.id } })
       // don't use include. these will be populated by the User section below (if/when required)
       // , { include: ['profile', 'accounts', 'portfolios']});
       return me;
     },
-    Assets: async (_, args, { db, user }) => {
-      // if (!user) { throw new AuthenticationError('You must be logged in'); }
+    Accounts: async (_, args, context) => {
+      console.debug('Accounts', args)
+      const { ids, assetId, page = 1, offset = 0, search = '' } = args
+      const { user, db } = context
+      var list = []
+      // if (!user) throw new AuthenticationError(['AuthenticationError', 'You must be logged in']);
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
+      const where = { userId: user?.id }
+      if (ids) {
+        where.id = { [Op.in]: ids }
+      }
+      if (assetId) {
+        where.assetId = assetId
+      }
+      console.debug('where', where)
+      list = await db.Account.findAll({ where })
+      // return { Accounts: list, error: false, message: '' }
+      return list || []
+    },
+    Account: async (_, args, context) => {
+      const { id = null } = args
+      console.debug('resolvers.Query.Account', id)
+      const { user, db } = context
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
+      const account = await db.Account.findOne({ where: { id, userId: user.id } }) // , { include: ['user', 'asset']})
+      return account
+    },
+    Assets: async (_, args, context) => {
+      const { user, db } = context
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const assets = await db.Asset.findAll();
       return assets;
     },
@@ -111,18 +128,19 @@ const resolvers = {
     // },
     Asset: async (_, args, { db, user }) => {
       const { id } = args
-      // if (!user) { throw new AuthenticationError('You must be logged in') }
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const asset = await db.Asset.findByPk(id);
       return asset;
     },
     Currencies: async (_, __, { db, user }) => {
-      // if (!user) { throw new AuthenticationError('You must be logged in') }
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const currencies = await db.Currency.findAll()
       return currencies
     },
     CryptoCurrencies: async (_, args, { user }) => {
       // if (!user) return requireAuthResponse
       console.debug('resolvers.js: CryptoCurrencies()')
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       var resp 
       try {
         resp = await cb.getCryptoCurrencies()
@@ -136,6 +154,7 @@ const resolvers = {
       var { fromCurrency = 'DOT', toCurrency = 'GBP', toDate, interval='h', periods=24 } = args
       var fromDate = moment(toDate).add(-periods, interval)
       const { user, db } = context
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const prices = db.Price.findAll({ where: { f_curr: fromCurrency, t_curr: toCurrency }, limit: 50 })
       // const intervalKeys = 
       // const intervals = new Map()
@@ -148,10 +167,9 @@ const resolvers = {
     Users: async (parent, args, context, info) => {
       // console.debug(context)
       const { user, db } = context
-      // console.debug('resolvers.Query.users:', user, db)
-      // if (!user) {
-      //   throw new AuthenticationError('You must be logged in');
-      // }
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
+      // FIXME we need admin role
+      throw new Error('who is calling this function?')
       const result = await db.User.findAll();
       return result;
     },
@@ -163,6 +181,8 @@ const resolvers = {
       console.debug('userById: user', user)
       const result = await db.User.findOne({ where: { id } });
       result.token = token
+      // FIXME we need admin role
+      throw new Error('who is calling this function?')
       return result;
     },
     UserByEmail: async (parent, args, context, info) => {
@@ -171,12 +191,14 @@ const resolvers = {
       console.debug('userByEmail()', email)
       const { user, db } = context
       const result = await db.User.findOne({ where: { email } });
+      // FIXME we need admin role
+      throw new Error('who is calling this function?')
       return result;
     },
     Portfolio: async (_, args, context) => {
       const { id } = args
       const { user, db } = context
-      if (!user) { return { list: [], error: true, message: 'You must be logged in', list } }
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       var list = []
       const where = { id }
       const model = await db.Portfolio.findOne({ where }, { include: 'accounts' })
@@ -187,13 +209,13 @@ const resolvers = {
       const { page = 1, offset = 0, search = '' } = args
       const { user, db } = context
       var list = []
-      if (!user) { return { error: true, message: 'You must be logged in', list } }
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       try {
         list = await db.Portfolio.findAll({ where: { userId: user.id }, include: 'accounts' })
       } catch (err) {
         console.error(err)
       }
-       // list = await db.Portfolio.findAll({}) //, { include: Account })
+      // list = await db.Portfolio.findAll({}) //, { include: Account })
       // const wids = await db.Account.findAll({}, )
       // console.log('list', list)
       return list
@@ -208,7 +230,7 @@ const resolvers = {
       const { user, db } = context
       const { f_curr, t_curr, limit=100 } = args
       console.debug('Price', f_curr, t_curr)
-      // if (!user) { return { error: true, message: 'You must be logged in', list } }
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const prices = await db.Price.findAll({ where: { f_curr, t_curr }, order: [['datetime', 'DESC']], limit: limit })
       return prices[0]
     },
@@ -218,6 +240,7 @@ const resolvers = {
      */
     Prices: async (_, args, context) => {
       const { user, db } = context
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const { ids=[], f_curr, t_curr } = args
       var result = []
       for (let i = 0; i < ids.length; i++) {
@@ -235,7 +258,7 @@ const resolvers = {
       const { user, db } = context
       const { f_curr, t_curr, period='h', limit, fromDate } = args
       console.debug('PriceHistory', f_curr, t_curr)
-      // if (!user) { return { error: true, message: 'You must be logged in', list } }
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const prices = await db.Price.findAll({ where: { f_curr, t_curr }, order: [['datetime', 'DESC']], limit: limit })
       const periodPrices = {}
       // group prices by period
@@ -263,84 +286,58 @@ const resolvers = {
     Profile: async (_, args, context) => {
       const { user, db } = context
       console.debug('Profile()', user)
-      if (!user) { return { error: true, message: 'You must be logged in' } }
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       return await db.Profile.findOne({ where: { id: user.id } })
     },
     SymbolPriceTicker: async (_, args, context) => {
+      const { user } = context
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const { symbol } = args
       const price = await binance.prices({ symbol })
       console.debug('price', price)
       return { symbol, price: parseFloat(price[symbol]) }
     },
+    // Transactions: async (_, args, context) => {
+    //   console.debug('Transactions', args)
+    //   const { user, db } = context
+    //   if (!user) throw new Error('AuthenticationError: You must be logged in');
+    //   const { assetId, accountId, address, ids, offset = 0, limit = 50 } = args
+    //   const where = {}
+    //   if (accountId) {
+    //     const account = await db.Account.findByPk(accountId)
+    //     const asset = await db.Asset.findByPk(account.assetId)
+    //     // const asset = await db.Asset.find({ where: { code: account.}})
+    //     where.chain = assetMap.getByKey(asset.id) // dock => Dock PoS Mainnet
 
-    Transactions: async (_, args, context) => {
-      console.debug('Transactions', args)
+    //     console.warn('HELLO WORLD')
 
-      const { assetId, accountId, address, ids, offset = 0, limit = 50 } = args
-      const { user, db } = context
-      const where = {}
-      if (accountId) {
-        const account = await db.Account.findByPk(accountId)
-        const asset = await db.Asset.findByPk(account.assetId)
-        // const asset = await db.Asset.find({ where: { code: account.}})
-        where.chain = assetMap.getByKey(asset.id) // dock => Dock PoS Mainnet
+    //     // where[Op.or] = { recipientId: account.address, senderId: account.address }
+    //     where[Op.or] = { toId: account.address, fromId: account.address }
+    //   }
+    //   // if (address) { where[Op.or] = { recipientId: address, senderId: address } }
+    //   if (address) { where[Op.or] = { toId: address, fromId: address } }
+    //   if (ids) {
+    //     try {
+    //       const accounts = await db.Account.findAll({ where: { id: { [Op.in]: ids } } })
+    //       const addresses = accounts.map(m => m.address)
+    //       //const account = accounts[0]
+    //       //const asset = await db.Asset.findByPk(account.assetId)
+    //       //where.chain = assetMap.getByKey(asset.id) // dock => Dock PoS Mainnet
+    //       // where[Op.or] = { recipientId: { [Op.in]: addresses }, senderId: { [Op.in]: addresses } }
+    //       where[Op.or] = { toId: { [Op.in]: addresses }, fromId: { [Op.in]: addresses } }
+    //       // FIXME what if an account is found on multiple chains?
+    //     } catch (err) {
+    //       console.error(err)
+    //     }
+    //   }
+    //   console.log('we are here')
+    //   console.debug(JSON.stringify(where), offset, limit)
+    //   const order = [['blockNumber', 'DESC'], ['id', 'DESC']]
+    //   const list = await db.Transaction.findAll({ where, order, offset, limit })
 
-        console.warn('HELLO WORLD')
-
-        // where[Op.or] = { recipientId: account.address, senderId: account.address }
-        where[Op.or] = { toId: account.address, fromId: account.address }
-      }
-      // if (address) { where[Op.or] = { recipientId: address, senderId: address } }
-      if (address) { where[Op.or] = { toId: address, fromId: address } }
-      if (ids) {
-        try {
-          const accounts = await db.Account.findAll({ where: { id: { [Op.in]: ids } } })
-          const addresses = accounts.map(m => m.address)
-          //const account = accounts[0]
-          //const asset = await db.Asset.findByPk(account.assetId)
-          //where.chain = assetMap.getByKey(asset.id) // dock => Dock PoS Mainnet
-          // where[Op.or] = { recipientId: { [Op.in]: addresses }, senderId: { [Op.in]: addresses } }
-          where[Op.or] = { toId: { [Op.in]: addresses }, fromId: { [Op.in]: addresses } }
-          // FIXME what if an account is found on multiple chains?
-        } catch (err) {
-          console.error(err)
-        }
-      }
-      console.log('we are here')
-      console.debug(JSON.stringify(where), offset, limit)
-      const order = [['blockNumber', 'DESC'], ['id', 'DESC']]
-      const list = await db.Transaction.findAll({ where, order, offset, limit })
-
-      console.log('\nreturning', list.length, 'items\n')
-      return list || []
-    },
-
-    Accounts: async (_, args, context) => {
-      console.debug('Accounts', args)
-      const { ids, assetId, page = 1, offset = 0, search = '' } = args
-      const { user, db } = context
-      var list = []
-      if (!user) { return { list: [], error: true, message: 'You must be logged in', list } }
-      const where = { userId: user?.id }
-      if (ids) {
-        where.id = { [Op.in]: ids }
-      }
-      if (assetId) {
-        where.assetId = assetId
-      }
-      console.debug('where', where)
-      list = await db.Account.findAll({ where })
-      // return { Accounts: list, error: false, message: '' }
-      return list || []
-    },
-    Account: async (_, args, context) => {
-      const { id = null } = args
-      console.debug('resolvers.Query.Account', id)
-      const { user, db } = context
-      if (!user) { return { error: true, message: 'You must be logged in', account: null } }
-      const account = await db.Account.findOne({ where: { id, userId: user.id } }) // , { include: ['user', 'asset']})
-      return { account, error: false, message: '' }
-    },
+    //   console.log('\nreturning', list.length, 'items\n')
+    //   return list || []
+    // },
   },
 
   Portfolio: {
@@ -791,10 +788,7 @@ const resolvers = {
       console.log('123123123')
       const user = await db.User.findOne({ where: { email } });
       console.debug('log')
-      if (!user) {
-        // throw new AuthenticationError('Invalid email or password');
-        return { success: false, message: 'Invalid email or token', id: 0, email: email }
-      }
+      if (!user) throw new Error('PasswordResetError: Invalid email');
       // 1. send resetToken
       // 2. recv resetToken
       if (token && password) {
@@ -829,8 +823,7 @@ const resolvers = {
     },
     addAsset: async (_, args, context) => {
       const { user, db } = context
-      // check user login
-      if (!user) throw new AuthenticationError('You must be logged in');
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const { assetId } = args
       console.debug('addAsset', args)
       const userModel = await db.User.findByPk(user.id, { include: ['assets'] })
@@ -849,8 +842,7 @@ const resolvers = {
     // },
     createPortfolio: async (_, args, context) => {
       const { user, db } = context
-      // check user login
-      if (!user) throw new AuthenticationError('You must be logged in');
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const { name } = args
       console.debug('createPortfolio', args)
       // check currency
@@ -865,7 +857,7 @@ const resolvers = {
     savePortfolio: async (_, args, context) => {
       const { user, db } = context
       // check user login
-      if (!user) throw new AuthenticationError('You must be logged in');
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const { id, name } = args
       console.debug('savePortfolio', args)
       // check account exists?
@@ -878,7 +870,7 @@ const resolvers = {
     deletePortfolio: async (_, args, context) => {
       const { user, db } = context
       // check user login
-      if (!user) throw new AuthenticationError('You must be logged in');
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const { id, name } = args
       console.debug('deletePortfolio', args)
       // check account exists?
@@ -890,7 +882,7 @@ const resolvers = {
     setPortfolioAccounts: async (_, args, context) => {
       const { user, db } = context
       // check user login
-      if (!user) throw new AuthenticationError('You must be logged in');
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       // Find or create accounts based on accountIds
       const { id, accountIds } = args
       const portfolio = await db.Portfolio.findByPk(id)
@@ -917,7 +909,7 @@ const resolvers = {
     createAccount: async (_, args, context) => {
       const { user, db } = context
       // check user login
-      if (!user) throw new AuthenticationError('You must be logged in');
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const { name, assetId, address } = args
       console.debug('createAccount', args)
       // check currency
@@ -931,13 +923,14 @@ const resolvers = {
       // trigger the getAccountHistory worker
       const q_getAccountHistory = new Queue('getAccountHistory', { connection: cfg.redis })
       await q_getAccountHistory.add('getAccountHistory', { chainId: assetId, accountId: account.id })
-      return { success: created, message: `Account ${created ? 'created' : 'retrieved'}`, account }
+      // return { success: created, message: `Account ${created ? 'created' : 'retrieved'}`, account }
+      return account
     },
     deleteAccount: async (_, args, context) => {
       console.debug('deleteAccount', args, context.user)
       const { user, db } = context
       // check user login
-      if (!user) throw new AuthenticationError('You must be logged in');
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
       const { id } = args
       // // check currency
       // const curr = await db.Currency.findOne({ where: { code: currencyCode } })
