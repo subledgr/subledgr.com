@@ -40,7 +40,7 @@ type Mutation {
   setPortfolioAccounts(id: String!, accountIds: [String]!): CreatePortfolioResponse
 
   # Account management
-  createAccount(name: String!, assetId: String!, address: String!): CreateAccountResponse
+  createAccount(name: String!, assetId: String!, address: String!): Account # CreateAccountResponse
   deleteAccount(id: String!): DeleteAccountResponse
 
   # Asset management
