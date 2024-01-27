@@ -155,9 +155,11 @@ export default defineComponent({
       console.debug('watch.showAssetPicker', newVal)
     })
 
+    const assetIds = assets.value.filter(f => f.active).map(m => m.code)
+    // console.debug('assetIds', assetIds)
     const variables = {
       // FIXME get the list of asset.codes from api
-      ids: ['KSM', 'DOT', 'DOCK', 'ACA'],
+      ids: assetIds, // ['KSM', 'DOT', 'DOCK', 'ACA'],
       tCurr: profile.value.defaultCurrency, // 'GBP'
     }
     const { result: resultAccounts, refetch: refetchAccounts, onResult: onAccounts, loading: loadingAccounts } = useQuery(QUERY_ACCOUNTS, {}, {

@@ -86,8 +86,10 @@ export default defineComponent({
     })
     const prices = ref<IPrice[]>()
 
+    const assetIds = assets.value.filter(f => f.active).map(m => m.code)
+    // console.debug('assetIds', assetIds)
     const variables = {
-      priceIds: ['KSM', 'DOT', 'DOCK'],
+      priceIds: assetIds, // ['KSM', 'DOT', 'DOCK'],
       tCurr: profile.value.defaultCurrency // 'GBP'
     }
 
