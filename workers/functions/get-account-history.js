@@ -58,6 +58,7 @@ export async function getAccountHistory(job) {
     const provider = new WsProvider(`wss://rpc.metaspan.io/${chainId}`)
     provider.on('error', (error) => {
       console.error('ws provider error', error)
+      job.log('Provider ERROR', JSON.stringify(error, Object.getOwnPropertyNames(error)))
     })
     let api
     // if (chainId === 'dock') {
@@ -67,6 +68,7 @@ export async function getAccountHistory(job) {
     // }
     api.on('error', (error) => {
       console.error('api error', error)
+      job.log('API ERROR', JSON.stringify(error, Object.getOwnPropertyNames(error)))
     })
 
     var currentBlock = (await api.rpc.chain.getBlock()).toJSON()
@@ -208,6 +210,7 @@ export async function getAccountHistory(job) {
 
   } catch (err) {
     // job.log('debug 4')
+    job.log('ERROR', JSON.stringify(err, Object.getOwnPropertyNames(err)))
     console.error(err)
 
   } finally {
