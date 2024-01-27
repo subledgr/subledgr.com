@@ -12,7 +12,7 @@ import * as pkg2 from '@bull-board/api'
 const { createBullBoard } = pkg2
 import { BullMQAdapter } from '@bull-board/api/bullMQAdapter.js'
 
-// in docker we map 23000 to 3000
+// in docker compose we map 23000 to 3000
 const PORT = cfg.bullmq.port // process.env.SUBLEDGR_BULLMQ_PORT || 3000
 
 // import { asyncForeach } from './lib/utils.js'
@@ -60,7 +60,7 @@ const q_getAccountHistory = new Queue('getAccountHistory', qOpts)
 const w_getPricesCMC = new Worker('getPricesCMC', getPricesCMC, qOpts)
 const w_getPricesCG = new Worker('getPricesCG', getPricesCG, qOpts)
 const w_getAccountsHistory = new Worker('getAccountsHistory', getAccountsHistory, qOpts)
-const w_getAccountHistory = new Worker('getAccountHistory', getAccountHistory, qOpts)
+const w_getAccountHistory = new Worker('getAccountHistory', getAccountHistory, { concurrency: 2, ...qOpts })
 
 // handle all error/failed
 jobs.forEach((job) => {
