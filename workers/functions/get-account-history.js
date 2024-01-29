@@ -24,6 +24,7 @@ const JOB_NAME = 'getAccountHistory'
 export async function getAccountHistory(job) {
 
   console.debug(`[worker] ${JOB_NAME}`, job.data)
+  job.log(`${JOB_NAME} starting...`)
   var { chainId='', accountId='', fromBlock=0 } = job.data
 
   var result = []
@@ -50,6 +51,7 @@ export async function getAccountHistory(job) {
   // for each blockNumber, get the balance
   try {
 
+    job.log(`Checking account for ${accountId}`)
     const account = await Account.findOne({ where: { id: accountId } })
     if (!account) throw new Error(`account not found: ${accountId}`)
     const address = account.address
@@ -58,6 +60,7 @@ export async function getAccountHistory(job) {
     if (chainId === 'acala') rpcUrl = `wss://acala-rpc.dwellir.com`
     console.debug('rpcUrl', rpcUrl)
     // connect to ws rpc
+    job.log(`Creating provider for ${rpcUrl}`)
     const provider = new WsProvider(rpcUrl)
     provider.on('error', (error) => {
       console.error('ws provider error', error)
@@ -67,14 +70,17 @@ export async function getAccountHistory(job) {
     // if (chainId === 'dock') {
     //   api = await DockAPI.init({ provider })
     // } else {
-      api = await ApiPromise.create({ provider })
+    job.log(`Creating api for ${rpcUrl}`)
+    api = await ApiPromise.create({ provider })
     // }
     api.on('error', (error) => {
       console.error('api error', error)
       job.log('API ERROR', JSON.stringify(error, Object.getOwnPropertyNames(error)))
     })
 
+    job.log(`Getting currentBlock`)
     var currentBlock = (await api.rpc.chain.getBlock()).toJSON()
+    job.log(`...${currentBlock.block.header.number}`)
     console.debug('currentBlock', currentBlock.block.header.number)
     const currentBlockNumber = currentBlock.block.header.number
 
@@ -212,13 +218,6 @@ export async function getAccountHistory(job) {
     console.debug('provider disconnecting...')
     await provider.disconnect()
 
-  } catch (err) {
-    // job.log('debug 4')
-    job.log('ERROR', JSON.stringify(err, Object.getOwnPropertyNames(err)))
-    console.error(err)
-
-  } finally {
-    // commit the last batch
     if (result.length > 0) {
       await AccountBalance.bulkCreate(result, {
         updateOnDuplicate: ['timestamp', 'free', 'reserved', 'frozen', 'pooled', 'claimable', 'locked', 'balance', 'updatedAt']
@@ -226,6 +225,23 @@ export async function getAccountHistory(job) {
     }
     console.log(`[worker] ${JOB_NAME} done...`)
     job.log(`${JOB_NAME} done...`)
-    // return result
+    return new Promise.resolve()
+
+  } catch (err) {
+    // job.log('debug 4')
+    job.log('ERROR', JSON.stringify(err, Object.getOwnPropertyNames(err)))
+    console.error(err)
+    return new Promise.reject(err)
+
+  // } finally {
+  //   // commit the last batch
+  //   if (result.length > 0) {
+  //     await AccountBalance.bulkCreate(result, {
+  //       updateOnDuplicate: ['timestamp', 'free', 'reserved', 'frozen', 'pooled', 'claimable', 'locked', 'balance', 'updatedAt']
+  //     })
+  //   }
+  //   console.log(`[worker] ${JOB_NAME} done...`)
+  //   job.log(`${JOB_NAME} done...`)
+  //   // return result
   }
 }
