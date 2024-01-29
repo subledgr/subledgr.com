@@ -55,27 +55,35 @@ export async function getPricesCMC(job) {
           //   conflictFields: ['datetime', 'f_curr', 't_curr']
           })
           if (res) {
-            console.log(res)
+            // console.log(res)
+            job.log(`Price created for ${price.symbol}:${t_curr}, ${data.price}`)
           }
   
         }
       }
       // job.log('debug 2')
     } else {
-      // job.log('debug 3')
+      job.log('ERROR: no data returned')
+      job.log(JSON.stringify(ret))
       console.log(ret)
+      return Promise.reject(new Error('No data returned. '))
     }
+
+    console.log('[worker] getPrices done...')
+    job.log('getPrices done...')
+    return Promise.resolve()
 
   } catch (err) {
     // job.log('debug 4')
     console.error(err)
+    return Promise.reject(err)
 
-  } finally {
-    // do not close the connection, or, open it at the start?
-    // ds.close()
-    // job.log('debug 5')
-    console.log('[worker] getPrices done...')
-    job.log('getPrices done...')
-    return result
+  // } finally {
+  //   // do not close the connection, or, open it at the start?
+  //   // ds.close()
+  //   // job.log('debug 5')
+  //   console.log('[worker] getPrices done...')
+  //   job.log('getPrices done...')
+  //   return result
   }
 }

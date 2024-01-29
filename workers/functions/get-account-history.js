@@ -58,10 +58,12 @@ export async function getAccountHistory(job) {
 
     var rpcUrl = `wss://rpc.metaspan.io/${chainId}`
     if (chainId === 'acala') rpcUrl = `wss://acala-rpc.dwellir.com`
+    if (chainId === 'dock') rpcUrl = 'wss://mainnet-node.dock.io'
     console.debug('rpcUrl', rpcUrl)
     // connect to ws rpc
     job.log(`Creating provider for ${rpcUrl}`)
-    const provider = new WsProvider(rpcUrl)
+    // connection timeout 10 seconds
+    const provider = new WsProvider(rpcUrl, false, null, 10_000)
     provider.on('error', (error) => {
       console.error('ws provider error', error)
       job.log('Provider ERROR', JSON.stringify(error, Object.getOwnPropertyNames(error)))
@@ -71,12 +73,15 @@ export async function getAccountHistory(job) {
     //   api = await DockAPI.init({ provider })
     // } else {
     job.log(`Creating api for ${rpcUrl}`)
-    api = await ApiPromise.create({ provider })
+    api = await ApiPromise.create({ provider, throwOnConnect: true })
     // }
     api.on('error', (error) => {
       console.error('api error', error)
       job.log('API ERROR', JSON.stringify(error, Object.getOwnPropertyNames(error)))
     })
+    job.log('got api... waiting for ready')
+    await api.isReady
+    job.log('api ready!')
 
     job.log(`Getting currentBlock`)
     var currentBlock = (await api.rpc.chain.getBlock()).toJSON()
