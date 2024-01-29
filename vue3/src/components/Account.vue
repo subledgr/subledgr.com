@@ -62,8 +62,8 @@ import { useStore } from 'vuex';
 
 import { useQuery, useMutation } from '@vue/apollo-composable'
 import { apolloProvider } from '@/plugins/apollo/index';
-
 import gql from 'graphql-tag'
+
 import TransactionList from './TransactionList.vue';
 // import TransactionTable from './TransactionTable.vue';
 import TransactionTable2 from './TransactionTable2.vue';
@@ -100,7 +100,7 @@ export default defineComponent({
     const router = useRouter()
     const store = useStore()
     const profile = computed(() => store.state.profile)
-    const { shortStash } = useGlobalUtils()
+    const { shortStash, handleError } = useGlobalUtils()
     const loggedIn = ref(store.getters.loggedIn)
     if( !loggedIn.value ) router.push({ name: 'Login', params: {message: 'You must be logged in to see accounts' } })
 
@@ -129,12 +129,13 @@ export default defineComponent({
       }
     `)
 
-    onDone((data) => {
-      console.debug('onDone', data)
-    })
+    // onDone((data) => {
+    //   console.debug('onDone', data)
+    // })
 
-    onError((data) => {
-      console.debug('onError', data)
+    onError((error) => {
+      console.debug('onError', error)
+      handleError(error)
     })
 
     const confirmDeleteAccount = async () => {

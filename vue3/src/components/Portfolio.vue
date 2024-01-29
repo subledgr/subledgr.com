@@ -118,7 +118,7 @@ export default defineComponent({
     const tab = ref('assets')
     const currencies = computed<ICurrency[]>(() => store.state.currency.list)
     const currency = currencies.value.find(c => c.code === profile.value.defaultCurrency)
-    const { shortStash } = useGlobalUtils()
+    const { shortStash, handleError } = useGlobalUtils()
     // const profile = store.state.profile
     const loggedIn = ref(store.getters.loggedIn)
     if( !loggedIn.value ) router.push({ name: 'Login', params: {message: 'You must be logged in to see portfolios' } })
@@ -138,7 +138,7 @@ export default defineComponent({
 
     const assetIds = assets.value.filter(f => f.active).map(m => m.code)
     // console.debug('assetIds', assetIds)
-    const { result, loading, error, onResult, refetch } = useQuery(QUERY_PORTFOLIO_VIEW, {
+    const { result, loading, error, onResult, refetch, onError } = useQuery(QUERY_PORTFOLIO_VIEW, {
       portfolioId: route.params.portfolioId,
       ids: assetIds, // ['KSM', 'DOT', 'DOCK', 'ACA'], // FIXME: get from elsewhere
       tCurr: profile.value.defaultCurrency // 'GBP'
@@ -147,6 +147,7 @@ export default defineComponent({
       // fetchPolicy: 'no-cache',
       // pollInterval: 1000,
     });
+    
     onResult((queryResult) => {
       // console.debug('onResult', queryResult)
       if (queryResult.partial) return
@@ -155,6 +156,11 @@ export default defineComponent({
       // console.debug('wids', accountIds.value)
       // refetchPrices({ ids: accountIds.value, tCurr: portfolio.value?.Currency?.code || '' })
       prices.value = queryResult.data.Prices
+    })
+
+    onError((error) => {
+      console.error(error)
+      handleError(error)
     })
 
     const { mutate, loading: loading2, error: error2 } = useMutation(MUT_PORTFOLIO_DELETE, () => ({

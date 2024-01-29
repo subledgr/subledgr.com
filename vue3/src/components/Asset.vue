@@ -111,7 +111,7 @@ export default defineComponent({
   },
   setup (props) {
     const store = useStore()
-    const { shortStash, toCoin } = useGlobalUtils()
+    const { shortStash, toCoin, handleError } = useGlobalUtils()
     const profile = computed(() => store.state.profile)
     const currency = computed(() => store.state.currency.list.find((c: any) => c.code === profile.value.defaultCurrency))
     const loggedIn = computed<boolean>(() => store.getters.loggedIn)
@@ -128,7 +128,7 @@ export default defineComponent({
       assetId: props.assetId,
       tCurr: profile.value.defaultCurrency
     }
-    const { loading, result, refetch, onResult } = useQuery(QUERY_ACCOUNTS, variables, {
+    const { loading, result, refetch, onResult, onError } = useQuery(QUERY_ACCOUNTS, variables, {
       fetchPolicy: 'cache-first'
     })
     onResult((queryResult) => {
@@ -137,6 +137,11 @@ export default defineComponent({
       // summarise()
       list.value = queryResult.data?.Accounts?.filter((account: IAccount) => account.Asset.id === asset.value?.id)
       calcTotalValue()
+    })
+
+    onError((error) => {
+      console.error(error)
+      handleError(error)
     })
 
     // const variables2 = computed(() => { return {

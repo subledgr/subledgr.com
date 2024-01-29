@@ -141,6 +141,7 @@ export default defineComponent({
     const store = useStore()
     const profile = computed<IProfile>(() => store.state.profile)
     const loggedIn = computed(() => store.getters.loggedIn)
+    const { toCoin, handleError } = useGlobalUtils()
 
     const loading = ref(false)
     const showAssetPicker = ref(false)
@@ -162,11 +163,20 @@ export default defineComponent({
       ids: assetIds, // ['KSM', 'DOT', 'DOCK', 'ACA'],
       tCurr: profile.value.defaultCurrency, // 'GBP'
     }
-    const { result: resultAccounts, refetch: refetchAccounts, onResult: onAccounts, loading: loadingAccounts } = useQuery(QUERY_ACCOUNTS, {}, {
+    const { result: resultAccounts, refetch: refetchAccounts, onResult: onAccounts, loading: loadingAccounts, onError: onAccountsError } = useQuery(QUERY_ACCOUNTS, {}, {
       fetchPolicy: 'cache-first'
     })
-    const { result: resultPrices, refetch: refetchPrices, onResult: onPrices } = useQuery(QUERY_PRICES, variables, {
+    const { result: resultPrices, refetch: refetchPrices, onResult: onPrices, onError: onPricesError } = useQuery(QUERY_PRICES, variables, {
       fetchPolicy: 'cache-first'
+    })
+
+    onAccountsError((error) => {
+      console.error(error)
+      handleError(error)
+    })
+    onPricesError((error) => {
+      console.error(error)
+      handleError(error)
     })
 
     const toolbarClass = computed(() => {
@@ -272,7 +282,6 @@ export default defineComponent({
       refetchAccounts()
     }
 
-    const { toCoin } = useGlobalUtils()
     // const toCoin =  (assetId: string, val: BigInt) => {
     //   // const currs = {...chains.value}
     //   // console.debug('currs', currs)

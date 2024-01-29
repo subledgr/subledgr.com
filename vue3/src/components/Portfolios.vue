@@ -44,7 +44,7 @@ import { useDisplay } from 'vuetify'
 import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
 import { gql } from '@apollo/client/core';
 
-import { shortStash } from './utils';
+import { useGlobalUtils } from './utils';
 import { IAsset, ICurrency, IPortfolio, IAccount, IAccountBalance } from './types';
 
 import PortfolioList from './PortfolioList.vue';
@@ -85,6 +85,7 @@ export default defineComponent({
     const store = useStore()
     const router = useRouter()
     const route = useRoute()
+    const { shortStash, handleError } = useGlobalUtils()
     const profile = computed(() => store.state.profile)
     const assets = computed<IAsset[]>(() => store.state.asset.list)
     const currencies = computed<ICurrency[]>(() => store.state.currency.list)
@@ -102,7 +103,7 @@ export default defineComponent({
       tCurr: profile.value.defaultCurrency // 'GBP'
     }
 
-    var { result, loading, refetch, onResult } = useQuery(QUERY_PORTFOLIOS, variables, {
+    var { result, loading, refetch, onResult, onError } = useQuery(QUERY_PORTFOLIOS, variables, {
       // fetchPolicy: 'cache-only'
       fetchPolicy: 'cache-first'
     })
@@ -111,6 +112,11 @@ export default defineComponent({
       // console.log('got data', queryResult.data)
       list.value = queryResult.data.Portfolios
       // calcTotalValue()
+    })
+
+    onError((error) => {
+      console.error(error)
+      handleError(error)
     })
 
     const sumBalance = (balance: IAccountBalance): BigInt => {
