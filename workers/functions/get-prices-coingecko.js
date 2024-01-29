@@ -90,7 +90,8 @@ export async function getPricesCG(job) {
             console.error(err)
           }
           if (res) {
-            console.log(res)
+            // console.log(res)
+            job.log(`Price created for ${currencies[currency].code}:${quote.toUpperCase()}, ${price}`)
           }
         }
       }  
