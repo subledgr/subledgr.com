@@ -46,17 +46,17 @@ export default defineComponent({
     const { loading, error, onResult, refetch, onError } = useQuery(QUERY_PROFILE)
 
     onError((error: any) => {
-      console.error(error)
-      handleError(error)
+      // console.error(error)
+      // handleError(error)
     })
 
-    if (profile.initial) {
+    if (profile.initial && loggedIn.value) {
       refetch()
     }
-    onResult((value) => {
-      // console.debug('QUERY_PROFILE', value)
-      if (value.data?.Profile !== null) {
-        store.dispatch('profile/setProfile', { profile: value.data.Profile })
+    onResult((result) => {
+      // console.debug('QUERY_PROFILE', result)
+      if (result.data?.Profile) {
+        store.dispatch('profile/setProfile', { profile: result.data.Profile })
       }
       store.dispatch('init')
     })
