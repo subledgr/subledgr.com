@@ -2,6 +2,7 @@
   <v-app-bar
     app
     scroll-behavior="elevate"
+    style="background: none;"
     >
     <template v-slot:prepend>
     </template>
@@ -40,19 +41,19 @@
         <span class="d-none d-sm-inline">&nbsp;Market</span>
       </v-btn> -->
 
-      <v-btn tile @click="navTo('/portfolio')">
+      <v-btn tile @click="navTo('/portfolio')" v-show="loggedIn">
         <v-icon size="small" class="d-none d-sm-inline">mdi-folder-pound-outline</v-icon>
         <v-icon size="x-large" class="d-inline d-sm-none">mdi-folder-pound-outline</v-icon>
         <span class="d-none d-sm-inline">&nbsp;Portfolio</span>
       </v-btn>
 
-      <v-btn tile @click="navTo('/asset')">
+      <v-btn tile @click="navTo('/asset')" v-show="loggedIn">
         <v-icon size="small" class="d-none d-sm-inline">mdi-cash</v-icon>
         <v-icon size="x-large" class="d-inline d-sm-none">mdi-cash</v-icon>
         <span class="d-none d-sm-inline">&nbsp;Asset</span>
       </v-btn>
 
-      <v-btn @click="navTo('/account')">
+      <v-btn @click="navTo('/account')" v-show="loggedIn">
         <v-icon size="small" class="d-none d-sm-inline">mdi-wallet-outline</v-icon>
         <v-icon size="x-large" class="d-inline d-sm-none">mdi-wallet-outline</v-icon>
         <span class="d-none d-sm-inline">&nbsp;Account</span>
@@ -65,7 +66,7 @@
     <v-spacer class="d-none d-md-inline"></v-spacer>
 
     <template v-slot:append>
-      <v-app-bar-nav-icon @click="toggleDrawer()"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon @click="toggleDrawer()" v-show="loggedIn"></v-app-bar-nav-icon>
       <!-- <v-btn icon>
         <v-icon small>mdi-plus</v-icon>
       </v-btn> -->
@@ -106,19 +107,19 @@ export default defineComponent({
     const loggedIn = computed(() => store.getters.loggedIn);
 
     const activeTab = null
-    const items = [
-      { text: "Dashboard", icon: 'mdi-view-dashboard-outline', to: '/dashboard', exact: false },
-      { text: "Portfolio", icon: 'mdi-folder-pound-outline', to: "/portfolio", exact: false },
-      { text: "Asset", icon: 'mdi-cash', to: "/asset", exact: false },
-      { text: "Account", icon: 'mdi-wallet-outline', to: "/account", exact: false },
-    ]
+    // const items = [
+    //   { text: "Dashboard", icon: 'mdi-view-dashboard-outline', to: '/dashboard', exact: false },
+    //   { text: "Portfolio", icon: 'mdi-folder-pound-outline', to: "/portfolio", exact: false },
+    //   { text: "Asset", icon: 'mdi-cash', to: "/asset", exact: false },
+    //   { text: "Account", icon: 'mdi-wallet-outline', to: "/account", exact: false },
+    // ]
 
     return {
       store,
       loggedIn,
       drawer,
       activeTab,
-      items
+      // items
     }
   },
   watch: {

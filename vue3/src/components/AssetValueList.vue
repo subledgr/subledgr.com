@@ -19,7 +19,7 @@
 
     <!-- {{ list }} -->
 
-    <v-list>
+    <v-list style="background: none;">
       <!-- <v-list-item v-if="!loggedIn">
         <v-row>
           <v-col>

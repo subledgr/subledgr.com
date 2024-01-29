@@ -9,7 +9,8 @@
       :itemsPerPage="itemsPerPage"
       @update:itemsPerPage="onUpdateItemsPerPage"
       @click:row="onShowTransaction"
-      no-data-text="No data">
+      no-data-text="No data"
+      style="background: none;">
       
       <template v-slot:[`item.amount`]="{ item }">
         <span :class="getClass(item.toId)">

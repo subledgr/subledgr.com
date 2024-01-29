@@ -1,5 +1,5 @@
 <template>
-  <v-card elevation="0">
+  <v-card elevation="0" style="background: none;">
     <v-card-title>
       {{ title }}
       <v-btn flat icon @click="refetch()"><v-icon size="v-small">mdi-refresh</v-icon></v-btn>

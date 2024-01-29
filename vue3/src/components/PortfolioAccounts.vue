@@ -1,5 +1,5 @@
 <template>
-  <v-card>
+  <v-card style="background: none;">
     <v-card-title>Accounts</v-card-title>
     <!-- {{ result?.Portfolio.Currency }} -->
     <v-card-text>

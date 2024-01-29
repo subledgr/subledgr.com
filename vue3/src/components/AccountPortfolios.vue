@@ -1,5 +1,5 @@
 <template>
-  <v-card elevation="0">
+  <v-card elevation="0" style="background: none;">
     <v-card-title>
       Portfolios
       <v-btn flat icon @click="refetch"><v-icon size="v-small">mdi-refresh</v-icon></v-btn>
@@ -7,7 +7,7 @@
     <!-- <v-card-subtitle v-show="list.length == 0">
       This account is not used in any portfolio ({{ list.length }})
     </v-card-subtitle> -->
-    <v-list max-height="200" :loading="loading">
+    <v-list max-height="200" :loading="loading" style="background: none;">
       <v-list-item v-for="item in list" v-bind:key="item.id" :to="`/portfolio/${item.id}`">
         <template v-slot:prepend>
           <v-icon>mdi-folder-pound-outline</v-icon>

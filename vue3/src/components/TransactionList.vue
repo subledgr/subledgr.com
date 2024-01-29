@@ -1,5 +1,5 @@
 <template>
-  <v-list :loading="loading">
+  <v-list :loading="loading" style="background: none;">
     <v-list-item v-for="(tx, idx) in list" v-bind:key="idx" @click="onShowTransaction(tx)">
       <!-- <template v-slot:prepend>
         <v-avatar size="small" color="grey-lighten-2">

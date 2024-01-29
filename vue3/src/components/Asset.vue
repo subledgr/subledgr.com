@@ -18,7 +18,7 @@
 
     <AssetPriceHistory :asset-id="asset?.code || ''" :periods="100"></AssetPriceHistory>
     <v-card-title>Accounts</v-card-title>
-    <v-list :loading="loading">
+    <v-list style="background: none;" :loading="loading">
       <v-list-item v-show="loading">
         <v-list-item-title>
           Loading accounts...

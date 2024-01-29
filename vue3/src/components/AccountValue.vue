@@ -1,5 +1,5 @@
 <template>
-  <v-card elevation="0">
+  <v-card elevation="0" style="background: none;">
     <v-card-title>
       <v-row>
         <v-col>{{ title }}</v-col>

@@ -1,5 +1,5 @@
 <template>
-  <v-list>
+  <v-list style="background: none;">
 
     <!-- <v-list-item>
       <v-text-field v-model="search" id="search" ref="input" label="Search" @input="onSearch(search)" autofocus>

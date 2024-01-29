@@ -22,12 +22,18 @@ export default createVuetify({
           secondary: '#5CBBF6',
         },
       },
-      // dark: {
+      dark: {
       //   colors: {
       //     primary: '#1867C0',
       //     secondary: '#5CBBF6',
       //   },
-      // },
+        colors: {
+          primary: '#512DA8',   // Example primary color
+          secondary: '#D1C4E9', // Example secondary color
+          background: '#120D1E', // Very dark purple as background
+          // ... other colors
+        },
+      },
     },
   },
 })

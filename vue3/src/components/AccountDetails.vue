@@ -1,6 +1,6 @@
 <template>
   
-  <v-card elevation="0">
+  <v-card elevation="0" style="background: none;">
     <v-card-title>
       <v-row>
         <v-col>{{ title }}</v-col>
@@ -17,7 +17,7 @@
     </v-card-title>
     <v-card-text>
       <!-- <v-progress-linear indeterminate v-show="loading"></v-progress-linear> -->
-    <v-table>
+    <v-table style="background: none;">
       <tr>
         <th class="text-left">Address</th>
         <td class="text-right">
@@ -39,7 +39,7 @@
       <tr>
         <th class="text-left">Breakdown</th>
         <td>
-          <v-table density="comfortable">
+          <v-table density="compact" style="background: none;">
             <tbody>
               <tr>
                 <th class="text-left">Free</th>

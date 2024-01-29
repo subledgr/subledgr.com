@@ -1,5 +1,5 @@
 <template>
-  <v-list>
+  <v-list style="background: none;">
     <!-- {{ list }} -->
     <v-progress-linear
       indeterminate

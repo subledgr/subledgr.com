@@ -17,7 +17,7 @@
       </v-toolbar-items>
     </v-toolbar>
 
-    <v-list>
+    <v-list style="background: none;">
       <v-progress-linear indeterminate v-show="loadingAccounts"></v-progress-linear>
       <v-list-item v-if="!loggedIn">
         <v-row>
