@@ -100,17 +100,23 @@ export async function getPricesCG(job) {
       // job.log('debug 3')
       console.log(ret)
     }
+    console.log('[worker] getPrices:coingecko done...')
+    job.log('getPrices:coingecko done...')
+    return Promise.resolve(result)
 
   } catch (err) {
     // job.log('debug 4')
+    job.log('[worker] getPrices:coingecko error...')
+    job.log(JSON.stringify(err))
     console.error(err)
+    return Promise.reject(err);
 
-  } finally {
-    // do not close the connection, or, open it at the start?
-    // ds.close()
-    // job.log('debug 5')
-    console.log('[worker] getPrices:coingecko done...')
-    job.log('getPrices:coingecko done...')
-    return result
+  // } finally {
+  //   // do not close the connection, or, open it at the start?
+  //   // ds.close()
+  //   // job.log('debug 5')
+  //   console.log('[worker] getPrices:coingecko done...')
+  //   job.log('getPrices:coingecko done...')
+  //   return result
   }
 }
