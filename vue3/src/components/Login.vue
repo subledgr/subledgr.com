@@ -73,6 +73,8 @@ const MUT_USER_LOGIN = gql`
         dateTimeFormat
         defaultCurrency
         defaultDecimals
+        locale
+        itemsPerPage
       }
     }
   }

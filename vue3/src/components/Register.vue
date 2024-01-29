@@ -55,6 +55,7 @@
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
+import { useStore } from 'vuex'
 import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
 import { useRouter } from 'vue-router'
@@ -66,6 +67,14 @@ const MUT_USER_REGISTER = gql`
       id
       message
       success
+      token
+      profile {
+        dateTimeFormat
+        defaultCurrency
+        defaultDecimals
+        locale
+        itemsPerPage
+      }
     }
   }
 `
@@ -73,6 +82,7 @@ const MUT_USER_REGISTER = gql`
 export default defineComponent({
   name: 'RegisterC',
   setup () {
+    const store = useStore()
     const router = useRouter()
     var { mutate, loading, error } = useMutation(MUT_USER_REGISTER, () => ({
       variables: {
@@ -81,12 +91,12 @@ export default defineComponent({
       }
     }));
 
-    const email = ref('derek@colley.cc');
+    const email = ref('');
     const emailRules = [
       (value: string) => !!value || 'Email is required',
       (value: string) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) || 'Email must be valid',
     ]
-    const password = ref('pass1234kk');
+    const password = ref('');
     const passRules = [
       (v: string) => !!v || 'Password is required',
       (v: string) => v.length > 8 || 'Name must be more than 8 characters'
@@ -100,12 +110,17 @@ export default defineComponent({
       // handle success
       console.debug(res.data.register)
       if (res.data.register) {
-        const { id, email, success, message } = res.data.register
+        const { id, email, success, message, token, profile } = res.data.register
         if (!success) {
           registrationMessage.value = message
           setTimeout(() => { registrationMessage.value = '' }, 3000)
         } else {
-          router.push('/')
+          registrationMessage.value = message
+          await store.dispatch('login', { id, email, token })
+          await store.dispatch('profile/setProfile', { profile } )
+          setTimeout(() => {
+            router.push('/profile')
+          }, 3000)
         }
       }
     };

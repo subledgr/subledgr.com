@@ -83,6 +83,8 @@ type UserRegisterResponse {
   message: String!
   id: Int
   email: String
+  token: String
+  profile: UserProfile
 }
 type UserLoginResponse {
   success: Boolean!

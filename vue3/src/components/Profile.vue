@@ -1,7 +1,7 @@
 <template>
-  <v-container fluid class="py-0 px-0">
+  <v-container class="py-0 px-0">
 
-    <v-toolbar density="compact">
+    <v-toolbar density="compact" style="background: none;">
       <v-toolbar-title>
         Profile
       </v-toolbar-title>
@@ -12,7 +12,7 @@
         <!-- form: {{ form }} <br> -->
         <!-- dirty: {{ isDirty }}. -->
         <v-form ref="formRef">
-          <v-text-field
+          <!-- <v-text-field
             class="mb-0"
             v-model="profile.dateTimeFormat"
             label="DateTime Format"
@@ -22,7 +22,7 @@
             ></v-text-field>
           <div class="text-right mb-5" style="margin-bottom: 10;">
               DateTime Format: <a href="https://momentjs.com/docs/#/displaying/format/" target="_blank">https://momentjs.com/docs/#/displaying/format</a> <br>
-          </div>
+          </div> -->
           
           <v-select
             v-model="profile.itemsPerPage"
@@ -104,12 +104,9 @@
         <v-spacer></v-spacer>
         <v-alert v-if="error" type="error">{{ error.message }}</v-alert>
 
-        <!-- {{ profile }} -->
-
       </v-card-text>
     </v-card>
 
-    |{{ user }}|
     <br>
   </v-container>
 </template>

@@ -735,21 +735,36 @@ const resolvers = {
     register: async (_, { email, password }, { db }) => {
       // const user = await createUser(email, password);
       var user = await db.User.findOne({ where: { email }})
+      var profile = {}
       var success = false
       if (!user) {
         success = true,
         user = await db.User.create({email, password});
+        profile = await db.Profile.create({
+          id: user.id,
+          dateTimeFormat: 'YYYY.MM.DD HH:mm',
+          defaultCurrency: 'GBP',
+          locale: 'en-GB',
+          defaultDecimals: 3,
+          itemsPerPage: 10
+        })
+      } else {
+        throw new Error('UserRegistrationError: email already exists. Please login or use password reset.')
       }
-      const profile = await db.Profile.create({
-        id: user.id,
-        dateTimeFormat: 'DD/MM/YYYY HH:mm:ss',
-        defaultCurrency: 'GBP',
-        locale: 'en-GB',
-        defaultDecimals: 3,
+      const tpl = fs.readFileSync(__dirname + '/templates/register.mjml', 'utf-8')
+      const html1 = mustache.render(tpl, { baseUrl: process.env.SUBLEDGR_APP_BASEURL })
+      const html2 = mjml2html(html1, { validationLevel: 'skip' }).html
+      const ret = await mailer.sendMail({
+        // from: 'derek@metaspan.com',
+        to: user.email,
+        subject: 'Subledgr: New Account',
+        text: '',
+        html: html2
       })
+      console.log('mailer resp', ret)
       const token = db.User.generateToken(user);
       user.token = token
-      return { success, message: `User ${success ? 'registration ok' : 'exists'}`, id: user.id, email: user.email, token };
+      return { success, message: `User ${success ? 'registration ok' : 'exists'}`, id: user.id, email: user.email, profile, token };
     },
     login: async (_, args, { db }) => {
       // const user = await findUserByEmail(email);
@@ -812,7 +827,7 @@ const resolvers = {
         const ret = await mailer.sendMail({
           // from: 'derek@metaspan.com',
           to: user.email,
-          subject: 'Subledgr Password Reset',
+          subject: 'Subledgr: Password Reset',
           text: '',
           html: html2
         })
