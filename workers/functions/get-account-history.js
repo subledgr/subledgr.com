@@ -225,13 +225,13 @@ export async function getAccountHistory(job) {
     }
     console.log(`[worker] ${JOB_NAME} done...`)
     job.log(`${JOB_NAME} done...`)
-    return new Promise.resolve()
+    return Promise.resolve()
 
   } catch (err) {
     // job.log('debug 4')
     job.log('ERROR', JSON.stringify(err, Object.getOwnPropertyNames(err)))
     console.error(err)
-    return new Promise.reject(err)
+    return Promise.reject(err)
 
   // } finally {
   //   // commit the last batch
