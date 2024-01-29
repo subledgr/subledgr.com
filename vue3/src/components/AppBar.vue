@@ -2,9 +2,10 @@
   <v-app-bar
     app
     scroll-behavior="elevate"
-    style="background: none;"
+    :style="`background: ${ isDarkMode ? '#120D1E' : ''};`"
     >
     <template v-slot:prepend>
+      {{ isDarkMode }}
     </template>
 
     <v-app-bar-title style="cursor: pointer;" @click="navTo('/')">
@@ -105,6 +106,7 @@ export default defineComponent({
     const store = useStore()
     const drawer = computed(() => store.state.drawer);
     const loggedIn = computed(() => store.getters.loggedIn);
+    const isDarkMode = computed(() => store.state.isDarkMode)
 
     const activeTab = null
     // const items = [
@@ -116,6 +118,7 @@ export default defineComponent({
 
     return {
       store,
+      isDarkMode,
       loggedIn,
       drawer,
       activeTab,
