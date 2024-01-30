@@ -4,9 +4,9 @@
     scroll-behavior="elevate"
     :style="`background: ${ isDarkMode ? '#120D1E' : ''};`"
     >
-    <template v-slot:prepend>
+    <!-- <template v-slot:prepend>
       {{ isDarkMode }}
-    </template>
+    </template> -->
 
     <v-app-bar-title style="cursor: pointer;" @click="navTo('/')">
       <v-avatar class="rounded-circle" >
