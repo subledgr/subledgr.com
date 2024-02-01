@@ -1,0 +1,30 @@
+<mjml>
+  <!-- head section -->
+  <mj-head>
+    <mj-font name="Open Sans" href="https://fonts.googleapis.com/css2?family=Open+Sans" />
+    <mj-attributes>
+      <mj-text font-family="Open Sans" font-size="16px" line-height="26px" color="#637381" />
+      <mj-button background-color="#5666F6" font-size="14px" color="#ffffff" 
+          font-family="Open Sans" text-transform="capitalize" height="45px" width="200px" />
+      <mj-class name="head-text" font-size="48px" text-transform="capitalize" padding-bottom="30px" line-height="48px"/>
+      <mj-class name="social-bg"  background-color="#A1A0A0"/>
+    </mj-attributes>
+  </mj-head>
+  <mj-body>
+    <mj-section>
+      <mj-column>
+        <mj-text>
+          Subledgr User Registration<br>
+          A new user has been created.
+        </mj-text>
+        <mj-divider  />
+        <mj-button href="{{ baseUrl }}/login">Click to login</mj-button>
+        <mj-text>
+          BaseUrl: {{ baseUrl }}
+        </mj-text>
+        
+      </mj-column>
+    </mj-section>
+    
+  </mj-body>
+</mjml>
