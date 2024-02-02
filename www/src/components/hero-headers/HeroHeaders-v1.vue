@@ -6,8 +6,9 @@
   >
     <template #image>
       <v-img
+        cover
         lazy-src="/heroheaders1-sm.png"
-        src="/heroheaders1.webp"
+        src="/images/heroheaders1.webp"
       />
     </template>
     <v-layout class="h-100">

@@ -1,6 +1,6 @@
 <template>
   <v-system-bar
-    color="#262626"
+    color="#120D1E"
     height="56"
   >
     <div class="d-flex align-center">
@@ -23,6 +23,7 @@
     <v-spacer />
 
     <v-btn
+      size="small"
       append-icon="mdi-open-in-new"
       color="primary"
       href="https://app.subledgr.com/"

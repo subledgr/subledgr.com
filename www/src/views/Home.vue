@@ -1,7 +1,7 @@
 <template>
   <v-container
     fluid
-    class="pa-2 ma-0"
+    class="pa-0 ma-0"
   >
     <!-- <h1>Home</h1> -->
     <HeroHeaderV1 />

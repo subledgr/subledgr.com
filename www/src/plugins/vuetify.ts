@@ -20,16 +20,15 @@ export default createVuetify({
     themes: {
       light: {
         colors: {
-          background: '#DEDEDE',
-          primary: '#472AB2',
-          secondary: '#4AEAD8'
+          primary: '#1867C0',
+          secondary: '#5CBBF6'
         }
       },
       dark: {
-        dark: true,
         colors: {
-          primary: '#472AB2',
-          secondary: '#4AEAD8'
+          primary: '#512DA8',
+          secondary: '#D1C4E9',
+          background: '#120D1E' // Very dark purple as background
         }
       }
     }
