@@ -297,47 +297,49 @@ const resolvers = {
       console.debug('price', price)
       return { symbol, price: parseFloat(price[symbol]) }
     },
-    // Transactions: async (_, args, context) => {
-    //   console.debug('Transactions', args)
-    //   const { user, db } = context
-    //   if (!user) throw new Error('AuthenticationError: You must be logged in');
-    //   const { assetId, accountId, address, ids, offset = 0, limit = 50 } = args
-    //   const where = {}
-    //   if (accountId) {
-    //     const account = await db.Account.findByPk(accountId)
-    //     const asset = await db.Asset.findByPk(account.assetId)
-    //     // const asset = await db.Asset.find({ where: { code: account.}})
-    //     where.chain = assetMap.getByKey(asset.id) // dock => Dock PoS Mainnet
+    Transactions: async (_, args, context) => {
+      console.debug('Transactions', args)
+      const { user, db } = context
+      if (!user) throw new Error('AuthenticationError: You must be logged in');
+      const { assetId, accountId, address, ids, offset = 0, limit = 50 } = args
+      const where = {}
+      if (accountId) {
+        // make sure this is an account for the user
+        const account = await db.Account.findOne({ id: accountId, userId: user.id })
+        if (!account) throw new Error('InvalidAccountError: no account for userid accountId combo')
+        const asset = await db.Asset.findByPk(account.assetId)
+        // const asset = await db.Asset.find({ where: { code: account.}})
+        where.chain = assetMap.getByKey(asset.id) // dock => Dock PoS Mainnet
 
-    //     console.warn('HELLO WORLD')
+        console.warn('HELLO WORLD')
 
-    //     // where[Op.or] = { recipientId: account.address, senderId: account.address }
-    //     where[Op.or] = { toId: account.address, fromId: account.address }
-    //   }
-    //   // if (address) { where[Op.or] = { recipientId: address, senderId: address } }
-    //   if (address) { where[Op.or] = { toId: address, fromId: address } }
-    //   if (ids) {
-    //     try {
-    //       const accounts = await db.Account.findAll({ where: { id: { [Op.in]: ids } } })
-    //       const addresses = accounts.map(m => m.address)
-    //       //const account = accounts[0]
-    //       //const asset = await db.Asset.findByPk(account.assetId)
-    //       //where.chain = assetMap.getByKey(asset.id) // dock => Dock PoS Mainnet
-    //       // where[Op.or] = { recipientId: { [Op.in]: addresses }, senderId: { [Op.in]: addresses } }
-    //       where[Op.or] = { toId: { [Op.in]: addresses }, fromId: { [Op.in]: addresses } }
-    //       // FIXME what if an account is found on multiple chains?
-    //     } catch (err) {
-    //       console.error(err)
-    //     }
-    //   }
-    //   console.log('we are here')
-    //   console.debug(JSON.stringify(where), offset, limit)
-    //   const order = [['blockNumber', 'DESC'], ['id', 'DESC']]
-    //   const list = await db.Transaction.findAll({ where, order, offset, limit })
+        // where[Op.or] = { recipientId: account.address, senderId: account.address }
+        where[Op.or] = { toId: account.address, fromId: account.address }
+      }
+      // if (address) { where[Op.or] = { recipientId: address, senderId: address } }
+      if (address) { where[Op.or] = { toId: address, fromId: address } }
+      if (ids) {
+        try {
+          const accounts = await db.Account.findAll({ where: { id: { [Op.in]: ids } } })
+          const addresses = accounts.map(m => m.address)
+          //const account = accounts[0]
+          //const asset = await db.Asset.findByPk(account.assetId)
+          //where.chain = assetMap.getByKey(asset.id) // dock => Dock PoS Mainnet
+          // where[Op.or] = { recipientId: { [Op.in]: addresses }, senderId: { [Op.in]: addresses } }
+          where[Op.or] = { toId: { [Op.in]: addresses }, fromId: { [Op.in]: addresses } }
+          // FIXME what if an account is found on multiple chains?
+        } catch (err) {
+          console.error(err)
+        }
+      }
+      console.log('we are here')
+      console.debug(JSON.stringify(where), offset, limit)
+      const order = [['blockNumber', 'DESC'], ['id', 'DESC']]
+      const list = await db.Transaction.findAll({ where, order, offset, limit })
 
-    //   console.log('\nreturning', list.length, 'items\n')
-    //   return list || []
-    // },
+      console.log('\nreturning', list.length, 'items\n')
+      return list || []
+    },
   },
 
   Portfolio: {
@@ -531,7 +533,73 @@ const resolvers = {
       }
       return ret
     },
-
+    /**
+     * Get blocks for an account, where there is a movement on account
+     */
+    blocks: async (account, args, context) => {
+      const { user, db } = context
+      const { offset = 0, limit = 50 } = args
+      // get a distinct list of block numbers
+      const blockNumbers = await db.Transaction.findAll({ where: {
+        chainId: account.assetId,
+        [Op.or]: { toId: account.address, fromId: account.address }
+      }, attributes: ['blockNumber'], group: ['blockNumber'], order: [['blockNumber', 'ASC']]})
+      // work out prevBlock and nextBlock for each block
+      const blocks = blockNumbers.map((block, idx) => {
+        return {
+          blockNumber: block.blockNumber,
+          nextBlock: blockNumbers[idx+1]?.blockNumber,
+          prevBlock: blockNumbers[idx-1]?.blockNumber
+        }
+      })
+      return blocks.slice(offset, offset + limit)
+    },
+    /**
+     * Get block accounting for an account, where there is a movement on account
+     */
+    block: async (account, args, context) => {
+      const { user, db } = context
+      const { blockNumber } = args
+      console.debug('Account.block', account.id, account.address, blockNumber)
+      // console.debug('account', account)
+      const asset = await db.Asset.findByPk(account.assetId)
+      // get the previous block
+      const prevBlock = await db.Transaction.findOne({ where: {
+        chainId: account.assetId,
+        [Op.or]: { fromId: account.address, toId: account.address },
+        blockNumber: { [Op.lt]: blockNumber }
+      }, order: [['blockNumber', 'DESC']] })
+      const prevBlockBalance = await db.AccountBalance.findOne({ where: {
+        id: account.id,
+        blockNumber,
+      }, order: [['timestamp', 'DESC']] })
+      // get the current block balance
+      const blockBalance = await db.AccountBalance.findOne({ where: {
+        id: account.id,
+        blockNumber,
+      }})
+      console.debug('blockBalance', blockBalance)
+      // get the current block
+      const events = await db.Transaction.findAll({ where: {
+        chainId: account.assetId,
+        [Op.or]: { fromId: account.address, toId: account.address },
+        blockNumber: { [Op.eq]: blockNumber }
+      }, order: [['timestamp', 'ASC']] })
+      // get the next block
+      const nextBlock = await db.Transaction.findOne({ where: {
+        chainId: account.assetId,
+        [Op.or]: { fromId: account.address, toId: account.address },
+        blockNumber: { [Op.gt]: blockNumber }
+      }, order: [['blockNumber', 'ASC']] })
+      return {
+        chainId: asset?.id || 'null',
+        blockNumber,
+        balance: blockBalance,
+        prevBlock: { blockNumber: prevBlock?.blockNumber, balance: prevBlockBalance?.balance },
+        events,
+        nextBlock: { blockNumber: nextBlock?.blockNumber }
+      }
+    },
     balanceHistory: async (account, args, context) => {
       console.debug('Account.balanceHistory', account.assetId, account.id, account.address)
       const { user, db } = context
@@ -615,7 +683,7 @@ const resolvers = {
       // console.debug('sqlQuery', sqlQuery)
 
       const ret = await db.sequelize.query(sqlQuery)
-      console.debug('ret', ret)
+      // console.debug('ret', ret)
       return ret[0]
     },
     User: async (account, args, context) => {

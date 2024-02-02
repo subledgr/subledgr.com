@@ -1,15 +1,18 @@
 <template>
-    <v-dialog v-model="x_visible" maxWidth="800px">
+    <v-dialog
+      v-model="x_visible"
+      maxWidth="800px"
+      >
       <template v-slot:activator="{ props }">
         <v-btn v-if="icon !== ''">
           <v-icon :icon="icon" v-show="icon"></v-icon>
         </v-btn>
       </template>
       <template v-slot:default="{ isActive }">
-        <v-card>
+        <v-card :style="`background: ${theme.current.value.colors.background}`">
           <v-card-title>Select Accounts for {{ portfolio?.name }}</v-card-title>
           <v-card-text>
-            <v-data-table
+            <v-data-table style="background: none;"
               v-model="selected"
               :headers="headers"
               :items="items"
@@ -24,8 +27,8 @@
           </v-card-text>
           <v-card-actions>
             <v-spacer></v-spacer>
-            <v-btn variant="tonal" color="red" @click="closeDialog()">Close</v-btn>
-            <v-btn @click="setPortfolioAccounts()">Save</v-btn>
+            <v-btn @click="closeDialog()">Close</v-btn>
+            <v-btn variant="tonal" color="primary" @click="setPortfolioAccounts()">Save</v-btn>
           </v-card-actions>
         </v-card>
       </template>
@@ -35,6 +38,7 @@
 <script lang="ts">
 import { defineComponent, watch, ref, computed, PropType } from 'vue'
 import { useQuery, useMutation } from '@vue/apollo-composable'
+import { useTheme } from 'vuetify'
 import gql from 'graphql-tag'
 import { IPortfolio, IAccount } from './types'
 
@@ -98,6 +102,7 @@ export default defineComponent({
   },
   emits: ['closeDialog', 'openDialog'],
   setup(props, { emit }) {
+    const theme = useTheme()
 
     // const visible = computed(() => props.visible)
     const x_visible = ref(false) // ref(props.visible)
@@ -183,6 +188,7 @@ export default defineComponent({
     }
 
     return {
+      theme,
       error,
       x_visible,
       headers,

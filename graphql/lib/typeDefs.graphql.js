@@ -47,6 +47,61 @@ type Mutation {
   addAsset(assetId: String): AddAssetResponse
 }
 
+type Account
+@key(fields: "id")
+{
+  id: String!
+  User: User
+  # assetId: String
+  Asset: Asset
+  address: String!
+  name: String!
+  # balance: AccountData
+  balance: AccountBalance
+  portfolios: [Portfolio]
+  transactions(limit: Int, offset: Int): [Transaction]
+  block(blockNumber: BigInt): AccountBlockResponse
+  blocks(limit: Int, offset: Int): [AccountBlockListItem]
+  extrinsics: ExtrinsicsResponse
+  events: EventsResponse
+  chartData(period: String): [AccountChartItem]
+  balanceHistory(fromBlock: BigInt, fromDate: String, limit: Int): [AccountBalance]
+  valueHistory(t_curr: String, periods: Int, granulatity: String): [AccountValueItem]
+}
+type AccountBlockListItem {
+  blockNumber: BigInt
+  prevBlock: BigInt
+  nextBlock: BigInt
+}
+type AccountBlockDetails {
+  blockNumber: BigInt
+  balance: AccountBalance
+}
+type AccountBlockResponse {
+  chainId: String
+  blockNumber: BigInt
+  balance: AccountBalance
+  prevBlock: AccountBlockDetails
+  events: [Transaction]
+  nextBlock: AccountBlockDetails
+}
+
+type AccountBalance
+# @key(fields: ["id", "blockNumber"])
+{
+  id: String
+  blockNumber: BigInt
+  timestamp: String
+  free: BigInt
+  reserved: BigInt
+  pooled: BigInt
+  claimable: BigInt
+  locked: BigInt
+  balance: BigInt
+  createdAt: String
+  updatedAt: String
+}
+
 type AccountData 
 @key(fields: "id")
 {
@@ -59,6 +114,24 @@ type AccountData
   pooledClaimable: BigInt
   locks: [BalanceLock]
 }
+
+type AccountValueItem {
+  datetime: String
+  closing_balance: BigInt
+  closing_price: Float
+}
+
+type AccountChartItem {
+  period: String
+  value: Float
+}
+
+type AccountsResponse {
+  Accounts: [Account]
+  error: Boolean
+  message: String
+}
+
 # type Account {
 #   nonce: Int
 #   consumers: Int
@@ -325,59 +398,6 @@ type UserProfile
   locale: String
   defaultDecimals: Int
   itemsPerPage: Int
-}
-
-type Account
-@key(fields: "id")
-{
-  id: String!
-  User: User
-  # assetId: String
-  Asset: Asset
-  address: String!
-  name: String!
-  # balance: AccountData
-  balance: AccountBalance
-  portfolios: [Portfolio]
-  transactions(limit: Int, offset: Int): [Transaction]
-  extrinsics: ExtrinsicsResponse
-  events: EventsResponse
-  chartData(period: String): [AccountChartItem]
-  balanceHistory(fromBlock: BigInt, fromDate: String, limit: Int): [AccountBalance]
-  valueHistory(t_curr: String, periods: Int, granulatity: String): [AccountValueItem]
-}
-
-type AccountBalance
-# @key(fields: ["id", "blockNumber"])
-{
-  id: String
-  blockNumber: BigInt
-  timestamp: String
-  free: BigInt
-  reserved: BigInt
-  pooled: BigInt
-  claimable: BigInt
-  locked: BigInt
-  balance: BigInt
-  createdAt: String
-  updatedAt: String
-}
-
-type AccountValueItem {
-  datetime: String
-  closing_balance: BigInt
-  closing_price: Float
-}
-
-type AccountChartItem {
-  period: String
-  value: Float
-}
-
-type AccountsResponse {
-  Accounts: [Account]
-  error: Boolean
-  message: String
 }
 
 type EventsResponse {

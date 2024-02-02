@@ -34,14 +34,14 @@
       </v-list-item-subtitle>
 
     </v-list-item>
-    <transaction-dialog :transaction="transaction" :account="account" :showDialog="showDialog" @dialogClose="onDialogClosed"></transaction-dialog>
+    <transaction-dialog :transaction="transaction" :account="account" :showDialog="showDialog" @closeDialog="onDialogClosed"></transaction-dialog>
   </v-list>
 </template>
 
 <script lang="ts">
 import { defineComponent, PropType, computed, ref } from 'vue'
 import { useStore } from 'vuex'
-import { IAccount, IAccountData, ICurrency, ITransaction } from './types'
+import { IAccount, ICurrency, ITransaction } from './types'
 import TransactionDialog from './TransactionDialog.vue'
 import { useGlobalUtils } from './utils'
 import moment from 'moment'
@@ -73,11 +73,8 @@ export default defineComponent({
     const profile = store.state.profile
     const currency = computed(() => store.state.currency.list.find((c: ICurrency) => c.code === profile.defaultCurrency))
     const transactionState = store.state.transaction
-    // const assetId = ref('')
 
     const { toCoin, toProfileDate } = useGlobalUtils()
-    // const account2 = computed<IAccount>(() => props.account || { address: '', Currency: {} } as IAccount)
-    // const list2 = computed<ITransaction[]>(() => props.list || [])
 
     const typeName = (_type: string) => {
       var [module, method] = _type.split('.')
@@ -98,7 +95,7 @@ export default defineComponent({
     const showDialog = ref(false)
     const transaction = ref<ITransaction>()
     const onShowTransaction = (tx: ITransaction) => {
-      console.debug('onShowTransaction', showDialog.value)
+      // console.debug('onShowTransaction', showDialog.value)
       transaction.value = tx
       showDialog.value = true
     }
@@ -113,8 +110,6 @@ export default defineComponent({
       toCoin,
       toProfileDate,
       typeName,
-      // account2,
-      // list2,
       transaction,
       onShowTransaction,
       showDialog,

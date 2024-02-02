@@ -1,32 +1,30 @@
 <template>
-  <v-btn>
-    <v-icon :icon="icon"></v-icon>
-    <v-dialog v-model="x_visible" activator="parent" maxWidth="800px">
-      <v-card>
-        <v-card-title>Edit Portfolio</v-card-title>
-        <v-card-text>
-          <v-form ref="form" v-model="valid" validateOn="input">
-            <v-row>
-              <v-text-field v-model="l_portfolio.name"
-                label="Name"
-                :rules="rules.name"
-                v-on:keyup.enter="savePortfolio()"></v-text-field>
-            </v-row>
-          </v-form>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn variant="tonal" color="red" @click="closeDialog()">Close</v-btn>
-          <v-btn variant="outlined" :disabled="!valid" color="primary" @click="savePortfolio()">Save</v-btn>
-        </v-card-actions>
-      </v-card>  
-    </v-dialog>
-  </v-btn>
+  <v-dialog v-model="showMe" maxWidth="800px">
+    <v-card :style="`background: ${theme.current.value.colors.background}`">
+      <v-card-title>Edit Portfolio</v-card-title>
+      <v-card-text>
+        <v-form ref="form" v-model="valid" validateOn="input">
+          <v-row>
+            <v-text-field v-model="portfolioName"
+              label="Name"
+              :rules="rules.name"
+              v-on:keyup.enter="savePortfolio()"></v-text-field>
+          </v-row>
+        </v-form>
+      </v-card-text>
+      <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn variant="tonal" color="red" @click="closeDialog()">Close</v-btn>
+        <v-btn variant="outlined" :disabled="!valid" color="primary" @click="savePortfolio()">Save</v-btn>
+      </v-card-actions>
+    </v-card>  
+  </v-dialog>
 </template>
 
 <script lang="ts">
 import { defineComponent, watch, ref, PropType } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
+import { ThemeDefinition, useTheme } from 'vuetify'
 
 import { ICurrency, IPortfolio } from './types'
 import { MUT_PORTFOLIO_EDIT } from '@/graphql'
@@ -34,9 +32,6 @@ import { MUT_PORTFOLIO_EDIT } from '@/graphql'
 import { useGlobalUtils } from './utils'
 
 export default defineComponent({
-  components: {
-    // CurrencyPickerDialog
-  },
   emits: ['closeDialog', 'portfolioSaved'],
   props: {
     portfolio: {
@@ -52,10 +47,11 @@ export default defineComponent({
   },
   setup(props, context) {
 
+    const theme = useTheme()
+    console.debug('theme', theme.current.value.dark)
     const { handleError } = useGlobalUtils()
-    const form = ref<HTMLFormElement>()
-    // const name = ref('')
-    // const address = ref('')
+    // const form = ref<HTMLFormElement>()
+
     const rules = {
     //   address: [
     //     (v: string) => !!v || 'Address is required',
@@ -68,36 +64,42 @@ export default defineComponent({
     //   } ]
     }
 
-    // const visible = ref(props.visible)
-    const l_portfolio = ref<IPortfolio>({ id: '', name: '', Currency: {} as ICurrency, status: '', start_date: '', Accounts: [] })
-    l_portfolio.value.name = props.portfolio.name
-    l_portfolio.value.id = props.portfolio.id
-    const x_visible = ref(false)
-
-    var showPicker = ref(false)
+    const portfolioName = ref(props.portfolio.name)
+    const portfolioId = ref(props.portfolio.id)
+    
+    const showMe = ref(false)
     var currency = ref<ICurrency>({} as ICurrency)
     var currencyEl = ref<HTMLFormElement>()
     var valid = ref(false)
 
     watch(() => props.portfolio, (newVal) => {
-      l_portfolio.value.id = newVal?.id
-      l_portfolio.value.name = newVal?.name
+      portfolioId.value = newVal?.id
+      portfolioName.value = newVal?.name
     })
 
     watch(() => props.visible, (newVal) => {
-      // console.debug('watch.visible', newVal)
-      x_visible.value = newVal
+      // console.debug('watch.showMe', newVal)
+      showMe.value = newVal
+      console.debug('theme', theme.current.value.colors)
+    })
+
+    watch(() => showMe.value, (newVal) => {
+      // console.debug('watch.showMe', newVal)
+      if (!newVal) {
+        context.emit('closeDialog')
+      }
     })
 
     const closeDialog = () => {
-      x_visible.value = false
+      // console.debug('closeDialog')
+      showMe.value = false
       context.emit('closeDialog')
     }
 
     var { mutate, loading, error, onError } = useMutation(MUT_PORTFOLIO_EDIT, () => ({
       variables: {
-        id: l_portfolio.value?.id,
-        name: l_portfolio.value?.name,
+        id: portfolioId.value,
+        name: portfolioName.value,
       }
     }));
 
@@ -108,10 +110,10 @@ export default defineComponent({
 
     const savePortfolio = async () => {
       // console.debug('savePortfolio', l_portfolio.value)
-      const variables = { id: l_portfolio.value?.id, name: l_portfolio.value?.name };
+      const variables = { id: portfolioId.value, name: portfolioName.value };
       // console.debug('variables', variables)
       const res: any = await mutate(variables);
-      console.debug(res)
+      // console.debug(res)
       if (res.data) {
         const { success, message, portfolio } = res.data.savePortfolio
         if(success) {
@@ -124,17 +126,13 @@ export default defineComponent({
     }
 
     return {
-      x_visible,
-      l_portfolio,
+      theme,
+      portfolioName,
       currency,
       currencyEl,
-      showPicker,
-      name,
-      // address,
+      showMe,
       valid,
       rules,
-      // onClosePicker,
-      // onSelectCurrency,
       savePortfolio,
       closeDialog,
     }

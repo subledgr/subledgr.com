@@ -1,6 +1,6 @@
 <template>
-  <v-dialog v-model="showMe">
-    <v-card>
+  <v-dialog v-model="showMe" max-width="500">
+    <v-card :style="`background: ${theme.current.value.colors.background}`">
       <v-card-title>
         <AssetLogo :asset-id="transaction?.Asset.id || ''"></AssetLogo> {{ transaction?.Asset.name || '' }} Transaction
          <!-- on {{ transaction?.chainId }} -->
@@ -43,7 +43,7 @@
       <!-- {{ transaction }} -->
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn @click="closeDialog">Close</v-btn>
+        <v-btn @click="closeDialog()">Close</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -52,6 +52,7 @@
 <script lang="ts">
 import { defineComponent, PropType, ref, computed, watch } from 'vue'
 import { useStore } from 'vuex';
+import { useTheme } from 'vuetify'
 import moment from 'moment';
 import { IAccount, ITransaction } from './types';
 import { useGlobalUtils } from './utils';
@@ -79,9 +80,11 @@ export default defineComponent({
       type: Boolean
     }
   },
+  emits: ['closeDialog'],
   setup(props, context) {
     const store = useStore()
-    const profile = store.state.profile
+    const theme = useTheme()
+    const profile = (() => store.state.profile)
     const { shortStash, toCoin, toProfileDate } = useGlobalUtils()
     const showMe = ref(false)
 
@@ -92,13 +95,13 @@ export default defineComponent({
     })
 
     watch(() => showMe.value, newVal => {
-      if(!newVal) context.emit('dialogClose', newVal)
+      if(!newVal) context.emit('closeDialog', newVal)
     })
 
     const closeDialog = () => {
       // console.debug('closeDialog()')
       showMe.value = false
-      context.emit('dialogClose', false)
+      context.emit('closeDialog', false)
     }
 
     const getEvent = () => {
@@ -115,6 +118,7 @@ export default defineComponent({
     } 
   
     return {
+      theme,
       shortStash,
       toCoin,
       toProfileDate,

@@ -31,16 +31,16 @@
       </template>
 
     </v-data-table>
-    <transaction-dialog :transaction="transaction" :account="account" :showDialog="showDialog" @dialogClose="onDialogClosed"></transaction-dialog>
+    <transaction-dialog :transaction="transaction" :account="account" :showDialog="showDialog" @close-dialog="onDialogClosed"></transaction-dialog>
   </v-container>
 </template>
 
 <script lang="ts">
 import { defineComponent, computed, PropType, watch, ref } from 'vue'
 import { useStore } from 'vuex'
-import { IAccount, IAccountData, IAsset, ITransaction, IProfile } from './types'
-// import { shortStash } from './utils'
 import moment from 'moment'
+
+import { IAccount, IAsset, ITransaction, IProfile } from './types'
 import { useGlobalUtils } from './utils'
 import TransactionDialog from './TransactionDialog.vue'
 import ClickToCopy from './ClickToCopy.vue'
@@ -68,7 +68,6 @@ export default defineComponent({
     const account = computed<IAccount>(() => props.account || { address: '', Asset: {} } as IAccount)
     const list = computed<ITransaction[]>(() => props.list || [])
     watch(() => account, newVal => { console.debug('new account', newVal) })
-    const assets = computed<IAsset[]>(() => JSON.parse(JSON.stringify(store.state.asset.list)))
     const itemsPerPage = ref(profile.value.itemsPerPage)
     const { toCoin, shortStash, toProfileDate } = useGlobalUtils()
 
@@ -101,8 +100,7 @@ export default defineComponent({
     const items = computed(() => list.value.map( (m: ITransaction) => {
       // console.debug(m.Asset.id, BigInt(m.amount))
       return {
-        timestamp: m.timestamp, // moment.unix(m.timestamp/1000), // .format(profile.value.dateTimeFormat),
-        // timestamp: moment.unix(m.timestamp/1000), // .format(profile.value.dateTimeFormat),
+        timestamp: m.timestamp, // will be converted and formatted in the template
         extrinsicHash: m.extrinsicHash,
         height: m.blockNumber,
         id: m.id,

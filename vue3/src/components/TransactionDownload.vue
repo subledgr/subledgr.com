@@ -60,12 +60,12 @@
 <script lang="ts">
 import { defineComponent, computed, ref, watch, PropType } from 'vue'
 import { useStore } from 'vuex';
-import { useQuery } from '@vue/apollo-composable';
+import { useQuery, useApolloClient } from '@vue/apollo-composable';
 import moment from 'moment';
 import { QUERY_TRANSACTIONS, QUERY_ACCOUNTS_SELECT } from '@/graphql'
 import { ITransaction, IAccount, IProfile } from './types';
 import { useGlobalUtils } from './utils';
-import { apolloProvider } from '@/plugins/apollo/index';
+// import { apolloProvider } from '@/plugins/apollo/index';
 
 export default defineComponent({
   name: 'TransactionDownload',
@@ -97,6 +97,9 @@ export default defineComponent({
       isPositive: (value: any) => (Number(value) >= 0) || 'Must be positive',
       max10000: (value: any) => (Number(value) <= 10000) || 'Max 10000',
     })
+    // const apolloClient = apolloProvider.defaultClient
+    const { client: apolloClient } = useApolloClient()
+    console.debug(apolloClient.link)
 
     watch(() => props.showDialog, newVal => {
       // console.debug('watch.showDialog()', newVal)
@@ -123,21 +126,22 @@ export default defineComponent({
     async function startDownload() {
       console.debug('startDownload')
       loading.value = true
-      const apolloClient = apolloProvider.defaultClient
       const { data, error } = await apolloClient.query({
         query: QUERY_TRANSACTIONS, 
         variables: {
-        ids: [xAccount.value.id],
-        limit: Number(limit.value),
-        offset: Number(offset.value),
-      }})
+          ids: [xAccount.value.id],
+          limit: Number(limit.value),
+          offset: Number(offset.value),
+        },
+        fetchPolicy: 'network-only'
+      })
       loading.value = false
       if (error) {
         console.error('error', error)
         return
       } else {
         console.debug('data', data)
-        const csvData = convertJSONToCSV(data.Transactions);
+        const csvData = convertJSONToCSV(data.Transactions || []);
         downloadCSV(csvData, `transactions-${xAccount.value.Asset.code}-${xAccount.value.address}.csv`)
       }
     }
@@ -145,19 +149,25 @@ export default defineComponent({
     const convertJSONToCSV = (transactions: ITransaction[]) => {
       // Implement the conversion logic here
       // Convert the JSON data into a CSV string
-      let csvContent = `account,extrinsic,timestamp,from,to,amount,${xAccount.value.Asset.code},fee,success\n`;
+      let csvContent = `account,block,extrinsic,timestamp,from,to,amount,${xAccount.value.Asset.code},fee,section,method,success\n`;
       // Loop through your JSON data and format it as CSV
       transactions.forEach((t) => {
         // const values = Object.values(transaction);
         // const csvRow = values.map((value) => `"${value}"`).join(',');
-        const extrinsicId = t.extrinsicId.split('-').filter((x) => Number.isInteger(x)).join('-')
+        // const extrinsicId = (t.extrinsicId || '--').split('-').filter((x) => Number.isInteger(x)).join('-')
+        const parts = t.extrinsicId?.split('-') || ['','','']
+        const extrinsicId = `${Number(parts[0])}-${Number(parts[2])}`
         const csvRow = `"${xAccount.value.address}",`
-          + `"${t.extrinsicId}",`
+          + `${t.blockNumber},`
+          + `"${extrinsicId}",`
           + `${moment.unix(t.timestamp/1000).format(profile.value.dateTimeFormat)},`
           + `"${t.fromId}","${t.toId}",`
           + `${t.amount},`
           + `${toCoin(xAccount.value.Asset.id, t.amount)},`
-          + `${t.fee},${t.success}`
+          + `${t.fee},`
+          + `${t.section},`
+          + `${t.method},`
+          + `${t.success}`
         csvContent += `${csvRow}\n`;
       });
       return csvContent;

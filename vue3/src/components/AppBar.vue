@@ -13,7 +13,7 @@
         <!-- <v-img color="white" src="/logo.png" width="24px" height="24px"></v-img> -->
         <v-icon>mdi-alpha-s-circle-outline</v-icon>
       </v-avatar>
-      <span>Subledgr</span>
+      <span>subledgr</span>
     </v-app-bar-title>
 
     <v-spacer class="d-none d-md-inline"></v-spacer>
