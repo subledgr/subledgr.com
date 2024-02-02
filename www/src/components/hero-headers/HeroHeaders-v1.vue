@@ -7,7 +7,7 @@
     <template #image>
       <v-img
         cover
-        lazy-src="/heroheaders1-sm.png"
+        lazy-src="/images/heroheaders1-sm.png"
         src="/images/heroheaders1.webp"
       />
     </template>
