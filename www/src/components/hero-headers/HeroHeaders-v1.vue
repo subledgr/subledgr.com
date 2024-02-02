@@ -1,7 +1,7 @@
 <template>
   <v-card
     theme="dark"
-    image="@/assets/heroheaders/heroheaders1.webp"
+    image="/heroheaders1.webp"
     min-height="680"
     height="680"
   >
