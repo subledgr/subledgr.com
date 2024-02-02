@@ -1,9 +1,18 @@
 <template>
   <v-card elevation="0" style="background: none;">
-    <v-card-title>
+    <v-toolbar density="compact" style="background: none;">
+      <div variant="text" class="text-none font-weight-bold">History ({{ profile.defaultCurrency }})</div>
+      <v-spacer></v-spacer>
+      <v-btn icon size="small" @click="refetch" :loading="loading">
+        <v-icon>mdi-refresh</v-icon>
+      </v-btn>
+    </v-toolbar>
+
+    <!-- <v-card-title>
       History ({{ profile.defaultCurrency }})
       <v-btn flat icon @click="refetch" :loading="loading"><v-icon size="v-small">mdi-refresh</v-icon></v-btn>
-    </v-card-title>
+    </v-card-title> -->
+
     <v-card-text>
       <!-- <v-progress-linear indeterminate v-show="loading"></v-progress-linear> -->
       <Line id="price-history" :options="chartOptions" :data="chartData"></Line>

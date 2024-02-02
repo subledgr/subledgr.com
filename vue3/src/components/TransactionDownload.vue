@@ -1,6 +1,6 @@
 <template>
   <v-dialog v-model="showMe" max-width="600">
-    <v-card>
+    <v-card :style="`background: ${theme.current.value.colors.background}`">
       <v-card-title>Download Transactions</v-card-title>
 
       <v-card-text>
@@ -43,13 +43,13 @@
         </v-form>
         <v-row>
           <v-col cols="12">
-            <v-btn @click="startDownload()" :loading="loading" :disabled="!form">Download</v-btn>
           </v-col>
         </v-row>
       </v-card-text>
 
       <v-card-actions>
         <v-spacer></v-spacer>
+        <v-btn variant="outlined" color="primary" @click="startDownload()" :loading="loading" :disabled="!form">Download</v-btn>
         <v-btn @click="closeDialog">Close</v-btn>
       </v-card-actions>
 
@@ -60,6 +60,7 @@
 <script lang="ts">
 import { defineComponent, computed, ref, watch, PropType } from 'vue'
 import { useStore } from 'vuex';
+import { useTheme } from 'vuetify'
 import { useQuery, useApolloClient } from '@vue/apollo-composable';
 import moment from 'moment';
 import { QUERY_TRANSACTIONS, QUERY_ACCOUNTS_SELECT } from '@/graphql'
@@ -81,6 +82,7 @@ export default defineComponent({
   emits: ['dialogClose'],
   setup(props, context) {
 
+    const theme = useTheme()
     const store = useStore()
     const profile = computed<IProfile>(() => store.state.profile)
     const { shortStash, toCoin } = useGlobalUtils()
@@ -193,6 +195,7 @@ export default defineComponent({
     }
 
     return {
+      theme,
       showMe,
       xAccount,
       offset,

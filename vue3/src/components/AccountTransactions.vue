@@ -1,6 +1,16 @@
 <template>
   <v-card elevation="0" style="background: none;">
-    <v-card-title>
+
+    <v-toolbar density="compact" style="background: none;">
+      <div variant="text" class="text-none font-weight-bold">{{ title }}</div>
+      <v-spacer></v-spacer>
+      <v-btn icon size="small" @click="refetch" :loading="loading">
+        <v-icon>mdi-refresh</v-icon>
+      </v-btn>
+      <v-btn flat icon @click="showDownloadDialog = true"><v-icon size="v-small">mdi-file-download-outline</v-icon></v-btn>
+    </v-toolbar>
+
+    <!-- <v-card-title>
       {{ title }}
       <v-btn flat icon @click="refetch()"><v-icon size="v-small">mdi-refresh</v-icon></v-btn>
       <v-tooltip text="Click download to get more...">
@@ -9,7 +19,9 @@
         </template>
       </v-tooltip>
       <v-btn flat icon @click="showDownloadDialog = true"><v-icon size="v-small">mdi-file-download-outline</v-icon></v-btn>
-    </v-card-title>
+    </v-card-title> -->
+
+
     <v-card-text>
       <component :is="'TransactionTable2'" class="d-none d-sm-block"
         v-bind="{ list: account.transactions, account: account, loading: loading }"></component>

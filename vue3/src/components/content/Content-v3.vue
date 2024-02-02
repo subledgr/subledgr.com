@@ -2,6 +2,7 @@
   <v-card
     class="pa-4 pa-md-16"
     flat
+    style="background: none;"
   >
     <v-container>
       <v-row

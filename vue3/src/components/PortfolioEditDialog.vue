@@ -14,8 +14,8 @@
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn variant="tonal" color="red" @click="closeDialog()">Close</v-btn>
         <v-btn variant="outlined" :disabled="!valid" color="primary" @click="savePortfolio()">Save</v-btn>
+        <v-btn @click="closeDialog()">Close</v-btn>
       </v-card-actions>
     </v-card>  
   </v-dialog>
@@ -24,7 +24,7 @@
 <script lang="ts">
 import { defineComponent, watch, ref, PropType } from 'vue'
 import { useMutation } from '@vue/apollo-composable'
-import { ThemeDefinition, useTheme } from 'vuetify'
+import { useTheme } from 'vuetify'
 
 import { ICurrency, IPortfolio } from './types'
 import { MUT_PORTFOLIO_EDIT } from '@/graphql'

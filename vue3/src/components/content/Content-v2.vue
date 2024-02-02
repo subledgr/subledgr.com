@@ -3,7 +3,7 @@
     class="pa-4 pa-md-16"
     color="primary"
     flat
-    theme="dark"
+    style="background: none;"
   >
     <v-container>
       <v-row

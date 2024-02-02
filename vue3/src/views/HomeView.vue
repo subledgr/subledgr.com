@@ -7,6 +7,7 @@
     </v-toolbar> -->
 
     <HeroHeadersv1></HeroHeadersv1>
+    
     <v-container>
       <!-- sync with www/src/components/Content... -->
       <v-carousel>
@@ -34,7 +35,7 @@
       </v-row>
       <v-row>
         <v-col v-for="asset in activeAssets" v-bind:key="asset.id">
-          <v-card elevation="0" to="/asset">
+          <v-card elevation="0" style="background: none;" to="/asset">
             <v-card-title>
               <v-avatar size="48">
                 <!-- <v-img :src="asset.logo" style="grayscale(100%)"></v-img> -->
@@ -62,28 +63,46 @@
       </v-row>
       <v-row>
         <v-col v-for="asset in inactiveAssets" v-bind:key="asset.id">
-          <v-card elevation="0">
-            <v-card-title>
+          <v-btn variant="text" class="text-none" @click="showUnsupportedAssetDialog(asset)">
+            <template v-slot:prepend>
+              <v-avatar size="22">
+                <v-img :src="asset.logo" class="image-inactive"></v-img>
+              </v-avatar>
+            </template>
+            {{ asset.name }}
+          </v-btn>
+          <!-- <v-container fluid style="background: none;" elevation="0">
               <v-avatar size="22">
               <v-img :src="asset.logo" class="image-inactive"></v-img>
             </v-avatar>
               {{ asset.name }}
-            </v-card-title>
-            <!-- <v-card-text>
-            </v-card-text> -->
-          </v-card>
+          </v-container> -->
         </v-col>
       </v-row>
     </v-container>
 
-
-    <!-- <crypto-market :options="{ width:'100%', height: '800'}"></crypto-market> -->
+    <v-dialog v-model="showUnsupportedAsset" max-width="500">
+      <v-card :style="`background: ${theme.current.value.colors.background}`">
+        <v-card-title>
+          <v-avatar size="22">
+            <v-img :src="unsupportedAsset?.logo" class="image-inactive"></v-img>
+          </v-avatar>
+          {{ unsupportedAsset?.name }}
+        </v-card-title>
+        <v-card-text>
+          <p>
+            This asset is not yet supported on subledgr. Please raise a ticket on github to request support.
+          </p>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
+import { defineComponent, computed, ref } from 'vue'
 import { useStore } from 'vuex'
+import { useTheme } from 'vuetify'
 
 import { IAsset } from '@/components/types'
 import HeroHeadersv1 from '@/components/content/HeroHeaders-v1.vue'
@@ -103,6 +122,7 @@ export default defineComponent({
     Contentv3,
   },
   setup() {
+    const theme = useTheme()
     const store = useStore()
     const assets = computed<IAsset[]>(() => store.state.asset.list)
     const activeAssets = computed(() => {
@@ -111,10 +131,22 @@ export default defineComponent({
     const inactiveAssets = computed(() => {
       return assets.value.filter((f: IAsset) => !f.active)
     })
+    const showUnsupportedAsset = ref(false)
+    const unsupportedAsset = ref<IAsset | null>(null)
+    const showUnsupportedAssetDialog = (asset: IAsset) => {
+      // console.debug('showUnsupportedAssetDialog', asset)
+      unsupportedAsset.value = asset
+      showUnsupportedAsset.value = true
+    }
+
     return {
+      theme,
       assets,
       activeAssets,
-      inactiveAssets
+      inactiveAssets,
+      unsupportedAsset,
+      showUnsupportedAsset,
+      showUnsupportedAssetDialog
     }
   }
 })

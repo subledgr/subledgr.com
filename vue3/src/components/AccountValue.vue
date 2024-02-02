@@ -1,6 +1,19 @@
 <template>
   <v-card elevation="0" style="background: none;">
-    <v-card-title>
+    
+    <v-toolbar density="compact" style="background: none;">
+      <div variant="text" class="text-none font-weight-bold">{{ title }}</div>
+      <v-spacer></v-spacer>
+      <div class="text-normal">
+        {{ calcValue.toLocaleString('en-gb', { minimumFractionDigits: profile.defaultDecimals, maximumFractionDigits: profile.defaultDecimals }) }}
+        {{ profile.defaultCurrency }}
+      </div>
+      <v-btn icon size="small" @click="refetch" :loading="loading">
+        <v-icon>mdi-refresh</v-icon>
+      </v-btn>
+    </v-toolbar>
+
+    <!-- <v-card-title>
       <v-row>
         <v-col>{{ title }}</v-col>
         <v-col>
@@ -13,7 +26,7 @@
           </small>
         </v-col>
       </v-row>      
-    </v-card-title>
+    </v-card-title> -->
   </v-card>
 </template>
 

@@ -43,7 +43,7 @@
       <!-- {{ transaction }} -->
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn @click="closeDialog()">Close</v-btn>
+        <v-btn variant="outlined" color="primary" @click="closeDialog()">Close</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
