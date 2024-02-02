@@ -1,10 +1,15 @@
 <template>
   <v-card
     theme="dark"
-    image="/heroheaders1.webp"
     min-height="680"
     height="680"
   >
+    <template #image>
+      <v-img
+        lazy-src="/heroheaders1-sm.png"
+        src="/heroheaders1.webp"
+      />
+    </template>
     <v-layout class="h-100">
       <v-app-bar
         class="px-4"
