@@ -59,13 +59,9 @@ import { IAsset } from './types'
 const MUT_ACCOUNT_ADD = gql`
   mutation CreateAccount($name: String!, $assetId: String!, $address: String!) {
     createAccount(name: $name, assetId: $assetId, address: $address) {
-      success
-      message
-      account {
-        id
-        name
-        address
-      }
+      id
+      name
+      address
     }
   }
 `
@@ -166,12 +162,10 @@ export default defineComponent({
       const input = { name: name.value, assetId: asset?.value.id, address: address.value };
       const res: any = await mutate(input);
       console.debug(res)
-      if (res.data) {
-        const { success, message, account } = res.data.createAccount
-        if(success) {
-          context.emit('accountAdded', account)
-          closeDialog()
-        }
+      if (res) {
+        const account = res
+        context.emit('accountAdded', account)
+        closeDialog()
       }
     }
 

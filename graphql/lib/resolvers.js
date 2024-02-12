@@ -1001,7 +1001,20 @@ const resolvers = {
       // check account exists?
       // create a UUID
       const uuid = uuidv4()
-      var [account, created] = await db.Account.findOrCreate({ where: { id: uuid.toString(), name, assetId, address, userId: user.id } })
+      var [account, created] = await db.Account.findOrCreate({
+        where: {
+          assetId,
+          address,
+          userId: user.id
+        },
+        defaults: {
+          id: uuid.toString(),
+          name,
+          assetId,
+          address,
+          userId: user.id
+        }
+      })
       // const account = await db.Account.create({ name, currencyId: curr.id, address, userId: user.id })
       // trigger the getAccountHistory worker
       const q_getAccountHistory = new Queue('getAccountHistory', { connection: cfg.redis })
