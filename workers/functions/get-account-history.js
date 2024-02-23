@@ -19,36 +19,8 @@ const DOTSAMA_REST_API_BASE_URL = 'https://api.metaspan.io/api'
 const JOB_NAME = 'getAccountHistory'
 const rpcUrlBase = process.env.DOTSAMA_RPC_URL_BASE || 'wss://rpc.ibp.network'
 
-const apiPool = {}
-
-async function getApi(chainId, job) {
-  console.log(`getApi: ${chainId}`)
-  job.log(`getApi: ${chainId}`)
-  var api
-  try {
-    if (!apiPool[chainId]) {
-      var rpcUrl = `${rpcUrlBase}/${chainId}`
-      if (chainId === 'acala') rpcUrl = `wss://acala-rpc.dwellir.com`
-      // if (chainId === 'dock') rpcUrl = 'wss://mainnet-node.dock.io'
-      console.debug('rpcUrl', rpcUrl)
-      job.log(`rpcUrl: ${rpcUrl}`)
-      const provider = new WsProvider(rpcUrl, 10_000, null, 10_000)
-      provider.on('error', (error) => {
-        console.error('ws provider error', error)
-      })
-      api = ApiPromise.create({ provider, throwOnConnect: true })
-      apiPool[chainId] = api
-    } else { 
-      job.log(`reusing api for ${chainId}`)
-      api = apiPool[chainId]
-    }
-    await api.isReady
-    return api
-  } catch (err) {
-    console.error(err)
-    throw err
-  }
-}
+import { ApiConnectionPool } from './api-connection-pool.js';
+const apiPool = new ApiConnectionPool(rpcUrlBase)
 
 /*
  * for each block where an account has events, calculate the balance
@@ -88,32 +60,7 @@ export async function getAccountHistory(job) {
     if (!account) throw new Error(`account not found: ${accountId}`)
     const address = account.address
 
-    var rpcUrl = `${rpcUrlBase}/${chainId}`
-    if (chainId === 'acala') rpcUrl = `wss://acala-rpc.dwellir.com`
-    // if (chainId === 'dock') rpcUrl = 'wss://mainnet-node.dock.io'
-    console.debug('rpcUrl', rpcUrl)
-    // connect to ws rpc
-    job.log(`Creating provider for ${rpcUrl}`)
-    // reconnect each 1 sec, connection timeout 10 seconds
-    const provider = new WsProvider(rpcUrl, 10_000, null, 10_000)
-    provider.on('error', (error) => {
-      console.error('ws provider error', error)
-      job.log('Provider ERROR', JSON.stringify(error, Object.getOwnPropertyNames(error)))
-    })
-    let api = await getApi(chainId, job)
-    // if (chainId === 'dock') {
-    //   api = await DockAPI.init({ provider })
-    // } else {
-    // job.log(`Creating api for ${rpcUrl}`)
-    // api = await ApiPromise.create({ provider, throwOnConnect: true })
-    // // }
-    // api.on('error', (error) => {
-    //   console.error('api error', error)
-    //   job.log('API ERROR', JSON.stringify(error, Object.getOwnPropertyNames(error)))
-    // })
-    // job.log('got api... waiting for ready')
-    // await api.isReady
-    // job.log('api ready!')
+    let api = await apiPool.get(chainId)
 
     job.log(`Getting currentBlock`)
     var currentBlock = (await api.rpc.chain.getBlock()).toJSON()
@@ -165,10 +112,6 @@ export async function getAccountHistory(job) {
     var ret = { free: 0, reserved: 0, frozen: 0, pooled: 0, locked: 0 }
     for (let i = 0; i < blockNumbers.length; i++) {
       const blockNumber = blockNumbers[i] //.dataValues.block_number
-
-      // // FIXME REMOVE THIS
-      // if (blockNumber < 19145986) continue
-      // // if( i > 10 ) break
 
       console.log('block', blockNumber)
       job.log(`processing block: ${blockNumber}`)
