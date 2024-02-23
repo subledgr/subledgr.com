@@ -22,6 +22,9 @@ const rpcUrlBase = process.env.DOTSAMA_RPC_URL_BASE || 'wss://rpc.ibp.network'
 import { ApiConnectionPool } from './api-connection-pool.js';
 const apiPool = new ApiConnectionPool(rpcUrlBase)
 
+import { DbConnectionPool } from './db-connection-pool.js';
+const dbPool = new DbConnectionPool(cfg)
+
 /*
  * for each block where an account has events, calculate the balance
  */
@@ -33,19 +36,20 @@ export async function getAccountHistory(job) {
 
   var result = []
 
-  const db = new Sequelize(
-    cfg.db.database,
-    cfg.db.username,
-    cfg.db.password,
-    cfg.db.options
-  )
-  // const indexDB = new DataStore(cfg.indexDb)
-  const indexDB = new Sequelize(
-    cfg.indexDb.database,
-    cfg.indexDb.username,
-    cfg.indexDb.password,
-    cfg.indexDb.options
-  )
+  // const db = new Sequelize(
+  //   cfg.db.database,
+  //   cfg.db.username,
+  //   cfg.db.password,
+  //   cfg.db.options
+  // )
+  const db = await dbPool.get('db')
+  // const indexDB = new Sequelize(
+  //   cfg.indexDb.database,
+  //   cfg.indexDb.username,
+  //   cfg.indexDb.password,
+  //   cfg.indexDb.options
+  // )
+  const indexDB = await dbPool.get('indexDb')
 
   const Account = db.define('account', accountModel.definition, accountModel.options)
   const Transaction = indexDB.define('transaction', transactionModel.definition, transactionModel.options)

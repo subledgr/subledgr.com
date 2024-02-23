@@ -9,11 +9,26 @@ export class ApiConnectionPool {
     this.rpcUrlBase = rpcUrlBase
     this.rpcOverride = rpcOverride
     this.pool = {}
+    this.timestamps = {}
 
-    // every 30 seconds, log the pool
-    setTimeout(() => {
+    // every 20 seconds, log the pool
+    setInterval(() => {
       console.log('api pool', Object.keys(this.pool))
-    }, 30_000)
+    }, 20_000)
+
+    // every 20 seconds, close unused connections
+    setInterval(() => {
+      for (var chainId in this.pool) {
+        if (this.timestamps.hasOwnProperty(chainId) && this.timestamps[chainId] < Date.now() - 60_000) {
+          console.log(`api: closing connection for ${chainId}`)
+          this.pool[chainId].disconnect()
+          delete this.pool[chainId]
+          delete this.timestamps[chainId]
+        } else {
+          console.log(`api: keeping connection for ${chainId}`)
+        }
+      }
+    }, 20_000)
   }
 
   async get(chainId) {
@@ -35,6 +50,7 @@ export class ApiConnectionPool {
       console.debug(`reusing api for ${chainId}`)
     }
     api = this.pool[chainId]
+    this.timestamps[chainId] = Date.now()
     await api.isReady
     return api
   }
