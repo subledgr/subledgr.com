@@ -17,6 +17,38 @@ import { accountBalanceModel } from '../../graphql/models/account-balance.js';
 // FIXME: get this from config
 const DOTSAMA_REST_API_BASE_URL = 'https://api.metaspan.io/api'
 const JOB_NAME = 'getAccountHistory'
+const rpcUrlBase = process.env.DOTSAMA_RPC_URL_BASE || 'wss://rpc.ibp.network'
+
+const apiPool = {}
+
+async function getApi(chainId, job) {
+  console.log(`getApi: ${chainId}`)
+  job.log(`getApi: ${chainId}`)
+  var api
+  try {
+    if (!apiPool[chainId]) {
+      var rpcUrl = `${rpcUrlBase}/${chainId}`
+      if (chainId === 'acala') rpcUrl = `wss://acala-rpc.dwellir.com`
+      // if (chainId === 'dock') rpcUrl = 'wss://mainnet-node.dock.io'
+      console.debug('rpcUrl', rpcUrl)
+      job.log(`rpcUrl: ${rpcUrl}`)
+      const provider = new WsProvider(rpcUrl, 10_000, null, 10_000)
+      provider.on('error', (error) => {
+        console.error('ws provider error', error)
+      })
+      api = ApiPromise.create({ provider, throwOnConnect: true })
+      apiPool[chainId] = api
+    } else { 
+      job.log(`reusing api for ${chainId}`)
+      api = apiPool[chainId]
+    }
+    await api.isReady
+    return api
+  } catch (err) {
+    console.error(err)
+    throw err
+  }
+}
 
 /*
  * for each block where an account has events, calculate the balance
@@ -56,32 +88,32 @@ export async function getAccountHistory(job) {
     if (!account) throw new Error(`account not found: ${accountId}`)
     const address = account.address
 
-    var rpcUrl = `wss://rpc.metaspan.io/${chainId}`
+    var rpcUrl = `${rpcUrlBase}/${chainId}`
     if (chainId === 'acala') rpcUrl = `wss://acala-rpc.dwellir.com`
-    if (chainId === 'dock') rpcUrl = 'wss://mainnet-node.dock.io'
+    // if (chainId === 'dock') rpcUrl = 'wss://mainnet-node.dock.io'
     console.debug('rpcUrl', rpcUrl)
     // connect to ws rpc
     job.log(`Creating provider for ${rpcUrl}`)
-    // connection timeout 10 seconds
-    const provider = new WsProvider(rpcUrl, false, null, 10_000)
+    // reconnect each 1 sec, connection timeout 10 seconds
+    const provider = new WsProvider(rpcUrl, 10_000, null, 10_000)
     provider.on('error', (error) => {
       console.error('ws provider error', error)
       job.log('Provider ERROR', JSON.stringify(error, Object.getOwnPropertyNames(error)))
     })
-    let api
+    let api = await getApi(chainId, job)
     // if (chainId === 'dock') {
     //   api = await DockAPI.init({ provider })
     // } else {
-    job.log(`Creating api for ${rpcUrl}`)
-    api = await ApiPromise.create({ provider, throwOnConnect: true })
-    // }
-    api.on('error', (error) => {
-      console.error('api error', error)
-      job.log('API ERROR', JSON.stringify(error, Object.getOwnPropertyNames(error)))
-    })
-    job.log('got api... waiting for ready')
-    await api.isReady
-    job.log('api ready!')
+    // job.log(`Creating api for ${rpcUrl}`)
+    // api = await ApiPromise.create({ provider, throwOnConnect: true })
+    // // }
+    // api.on('error', (error) => {
+    //   console.error('api error', error)
+    //   job.log('API ERROR', JSON.stringify(error, Object.getOwnPropertyNames(error)))
+    // })
+    // job.log('got api... waiting for ready')
+    // await api.isReady
+    // job.log('api ready!')
 
     job.log(`Getting currentBlock`)
     var currentBlock = (await api.rpc.chain.getBlock()).toJSON()
@@ -168,8 +200,20 @@ export async function getAccountHistory(job) {
       // if (rest.data) ret.pooled = rest.data.poolMembers?.points || 0
       // pools were added later, so check if the query exists
       res = await apiAt.query.nominationPools?.poolMembers(address) // || { toJSON: () => ({ points: 0 }) }
-      var { points } = res?.toJSON() || { points: 0 }
+      var { points, unbondingEras } = res?.toJSON() || { points: 0 }
       ret.pooled = BigInt(points) || 0n
+      if (unbondingEras) {
+        console.debug('unbondingEras...', unbondingEras)
+        const eras = Object.keys(unbondingEras)
+        for (let i = 0; i < eras.length; i++) {
+          const era = eras[i]
+          const unbonding = unbondingEras[era]
+          if (unbonding) {
+            ret.pooled += BigInt(unbonding)
+          }
+        }
+        console.debug('pooled...', ret.pooled)
+      }
 
       // pending pool rewards
       // url = `${DOTSAMA_REST_API_BASE_URL}/${chainId}/api/call/nominationPoolsApi/pendingRewards`
@@ -220,9 +264,6 @@ export async function getAccountHistory(job) {
       }
     }
 
-    console.debug('provider disconnecting...')
-    await provider.disconnect()
-
     if (result.length > 0) {
       await AccountBalance.bulkCreate(result, {
         updateOnDuplicate: ['timestamp', 'free', 'reserved', 'frozen', 'pooled', 'claimable', 'locked', 'balance', 'updatedAt']
@@ -238,15 +279,5 @@ export async function getAccountHistory(job) {
     console.error(err)
     return Promise.reject(err)
 
-  // } finally {
-  //   // commit the last batch
-  //   if (result.length > 0) {
-  //     await AccountBalance.bulkCreate(result, {
-  //       updateOnDuplicate: ['timestamp', 'free', 'reserved', 'frozen', 'pooled', 'claimable', 'locked', 'balance', 'updatedAt']
-  //     })
-  //   }
-  //   console.log(`[worker] ${JOB_NAME} done...`)
-  //   job.log(`${JOB_NAME} done...`)
-  //   // return result
   }
 }

@@ -15,7 +15,7 @@
 
     <v-card-text>
       <!-- <v-progress-linear indeterminate v-show="loading"></v-progress-linear> -->
-      <Line id="price-history" :options="chartOptions" :data="chartData"></Line>
+      <Line id="account-history" :options="chartOptions" :data="chartData"></Line>
     </v-card-text>
   </v-card>
 </template>

@@ -1,5 +1,6 @@
 # subledgr.com
 
+
 ## components
 
 - documentation - [docusaurus](./docs/)
@@ -38,3 +39,8 @@ For production all services run in docker, see [docker-compose.yml](./docker/doc
 
 For development we run the services locally.
 See [DEVELOPMENT.md](./DEVELOPMENT.md) for production.
+
+# References
+
+Shoutouts to the following projects:
+- https://github.com/loanMaster/polkatax

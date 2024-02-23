@@ -45,7 +45,20 @@ export async function getAccountBalance(job) {
       url = `${dotsamaRestApiBaseUrl}/${account.assetId}/query/nominationPools/poolMembersForAccount?accountId=${account.address}`
       console.debug('url', url)
       var rest = await axios.get(url)
+      console.debug('nominationPools...', rest.data)
       if (rest.data) ret.pooled = rest.data.poolMembers?.points || 0
+      if (rest.data.poolMembers?.unbondingEras) {
+        console.debug('unbondingEras...', rest.data.poolMembers.unbondingEras)
+        const eras = Object.keys(rest.data.poolMembers.unbondingEras)
+        for (let i = 0; i < eras.length; i++) {
+          const era = eras[i]
+          const unbonding = rest.data.poolMembers.unbondingEras[era]
+          if (unbonding) {
+            ret.pooled += unbonding
+          }
+        }
+        console.debug('pooled...', ret.pooled)
+      }
       // locks
       url = `${dotsamaRestApiBaseUrl}/${account.assetId}/query/balances/locks?accountId=${account.address}`
       console.debug('url', url)

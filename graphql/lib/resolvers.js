@@ -342,146 +342,6 @@ const resolvers = {
     },
   },
 
-  Portfolio: {
-    User: async (portfolio, args, context) => {
-      const { user, db } = context
-      const _user = await db.User.findByPk(portfolio.userId)
-      return _user
-    },
-    Currency: async (portfolio, args, context) => {
-      console.debug('Portfolio.Currency()', portfolio.currencyCode)
-      const { user, db } = context
-      const _curr = await db.Currency.findByPk(portfolio.currencyCode)
-      return _curr
-    },
-    Accounts: async (portfolio, args, context) => {
-      console.debug('Portfolio.Accounts()', portfolio)
-      const { user, db } = context
-      const model = await db.Portfolio.findByPk(portfolio.id, { include: 'accounts' })
-      // console.debug('Portfolio.Accounts', portfolio.id, model)
-      return model.accounts
-    },
-    // balanceHistory: async (portfolio, args, context) => {
-    //   console.debug('Portfolio.balanceHistory()', portfolio)
-    //   const { user, db } = context
-    //   const { ids=[], period=90, granulatity='DAY' } = args
-    //   const model = await db.Portfolio.findByPk(portfolio.id, { include: 'accounts' })
-    //   const accounts = model.accounts
-
-    //   // unique asset ids
-    //   const assetIds = accounts.map(account => account.assetId).filter((v, i, a) => a.indexOf(v) === i)
-
-    //   const sqlQuery = `
-    //     WITH RECURSIVE DateSeries AS (
-    //       SELECT CURDATE() - INTERVAL ${period} ${granulatity} as date
-    //       UNION ALL
-    //       SELECT DATE_ADD(date, INTERVAL 1 ${granulatity}) FROM DateSeries
-    //       WHERE date < CURDATE()
-    //     )
-    //     SELECT 
-    //       ds.date as interval_date,
-    //       COALESCE(
-    //         (SELECT SUM(wb.balance)
-    //         FROM account_balance wb
-    //         WHERE DATE(wb.timestamp) <= ds.date
-    //         AND wb.id IN (${ids.join(',')})),
-    //         ORDER BY wb.timestamp DESC LIMIT 1),
-    //         0
-    //       ) as balance
-    //     FROM DateSeries ds
-    //     ORDER BY interval_date;
-    //   `;
-
-    //   const ret = await db.Portfolio.query({ where, order: [['timestamp', 'DESC']], limit })
-    //   return ret
-    // },
-  },
-
-  Transaction: {
-    Asset: async (transaction, args, context) => {
-      const { db } = context
-      // console.debug('', transaction)
-      // const assetId = assetMap.getByValue(transaction.chainId)
-      const asset = await db.Asset.findByPk(transaction.chainId)
-      return asset
-    }
-  },
-
-  User: {
-    __resolveReference: async (user, args, context) => {
-      const { fetchUserById } = context
-      return fetchUserById(user.id)
-    },
-    Accounts: async (user, args, context) => {
-      const { offset = 0, limit = 100 } = args
-      const { db } = context
-      // const model = db.User.findByPk(user.id, { include: ['accounts']})
-      const list = await db.Account.findAll({ where: { userId: user.id} }, { offset, limit })
-      return list
-    },
-    assets: async (user, args, context) => {
-      const { offset = 0, limit = 100 } = args
-      const { db } = context
-      // console.debug('User.assets()', user)
-      // const model = db.User.findByPk(user.id, { include: ['accounts']})
-      const model = await db.User.findByPk(user.id, { include: ['assets', 'accounts'] })
-      // console.debug('model', model)
-      // get holdings for each asset
-      // console.debug('accounts', model.accounts)
-      const balancesP = model.accounts.map(account => {
-        return resolvers.Account.balance(account, {}, context)
-      })
-      var balances = await Promise.all(balancesP)
-      console.debug('balances', balances)
-      const accounts = balances.map((balance, idx) => { return { currencyCode: model.accounts[idx].currencyCode, balance } })
-      console.debug('accounts items', accounts.length)
-      var assetBals = accounts.reduce((acc, account, aidx) => {
-        console.debug('reduce...', aidx, account.currencyCode, typeof acc)
-        if (Array.isArray(acc)) {
-          const idx = acc.findIndex(x => x.currencyCode === account.currencyCode)
-          if (idx === -1) {
-            account.balance.free       = BigInt(account.balance?.free || 0) || 0n
-            account.balance.reserved   = BigInt(account.balance?.reserved || 0) || 0n
-            account.balance.miscFrozen = BigInt(account.balance?.miscFrozen || 0) || 0n
-            account.balance.feeFrozen  = BigInt(account.balance?.feeFrozen || 0) || 0n
-            account.balance.pooled     = BigInt(account.balance?.pooled || 0) || 0n
-            acc.push(account)
-          } else {
-            acc[idx].balance.free       += BigInt(account.balance?.free || 0) || 0n
-            acc[idx].balance.reserved   += BigInt(account.balance?.reserved || 0) || 0n
-            acc[idx].balance.miscFrozen += BigInt(account.balance?.miscFrozen || 0) || 0n
-            acc[idx].balance.feeFrozen  += BigInt(account.balance?.feeFrozen || 0) || 0n
-            acc[idx].balance.pooled     += BigInt(account.balance?.pooled || 0) || 0n
-          }
-        } else {
-          console.debug('acc is not an array', acc)
-        }
-        return acc
-      }, [])
-
-      console.debug('assetBals', assetBals)
-
-      return assetBals
-    },
-    // Profile: async (user, args, context) => {
-    // }
-  },
-
-  // Currency: {
-  //   // price: async (currency, args, context) => {
-  //   //   const { user, db } = context
-  //   //   const {t_curr } = args
-  //   //   console.debug('Currency.price', currency)
-  //   //   const prices = await db.Price.findAll({ where: { f_curr: currency.code, t_curr }, order: [['datetime', 'DESC']], limit: 1 })
-  //   //   return prices[0]
-  //   // },
-  // },
-
-  // Price: {
-  //   data: async (price, args, context) => {
-  //   }
-  // },
-
   Account: {
     balance: async (account, args, context) => {
       console.debug('Account.balance', account.assetId, account.id, account.address)
@@ -798,6 +658,214 @@ const resolvers = {
     },
     // Transactions: a
   },
+
+  Portfolio: {
+    User: async (portfolio, args, context) => {
+      const { user, db } = context
+      const _user = await db.User.findByPk(portfolio.userId)
+      return _user
+    },
+    Currency: async (portfolio, args, context) => {
+      console.debug('Portfolio.Currency()', portfolio.currencyCode)
+      const { user, db } = context
+      const _curr = await db.Currency.findByPk(portfolio.currencyCode)
+      return _curr
+    },
+    Accounts: async (portfolio, args, context) => {
+      console.debug('Portfolio.Accounts()', portfolio)
+      const { user, db } = context
+      const model = await db.Portfolio.findByPk(portfolio.id, { include: 'accounts' })
+      // console.debug('Portfolio.Accounts', portfolio.id, model)
+      return model.accounts
+    },
+    balanceHistory: async (portfolio, args, context) => {
+      console.debug('Portfolio.balanceHistory()', portfolio)
+      const { user, db } = context
+      const { ids=[], periods=90, granulatity='DAY' } = args
+      const profile = await db.Profile.findByPk(user.id)
+      const model = await db.Portfolio.findByPk(portfolio.id, { include: 'accounts' })
+      const accounts = model.accounts
+      const balanceHistory = await Promise.all(accounts.map(async account => {
+        const asset = await db.Asset.findByPk(account.assetId)
+        const sqlQuery = `
+          WITH RECURSIVE DateSeries AS (
+            SELECT CURDATE() - INTERVAL ${periods} ${granulatity} as 'datetime'
+            UNION ALL
+            SELECT DATE_ADD(datetime, INTERVAL 1 ${granulatity}) FROM DateSeries
+            WHERE datetime < CURDATE()
+          )
+          SELECT 
+            ds.datetime as 'datetime',
+            COALESCE(
+              (SELECT wb.balance
+              FROM account_balance wb
+              WHERE DATE(wb.timestamp) <= ds.datetime
+              AND wb.id = "${account.id}"
+              ORDER BY wb.timestamp DESC LIMIT 1),
+              0
+            ) as closing_balance
+          FROM DateSeries ds
+          ORDER BY 'datetime'`;
+        const ret = await db.sequelize.query(sqlQuery)
+        return { accountId: account.id, assetId: asset.id, balanceHistory: ret[0] }
+      }))
+
+      console.debug('Portfolio.balanceHistory() balanceHistory', balanceHistory)
+
+      // unique asset ids
+      var assetIds = accounts.map(account => account.assetId).filter((v, i, a) => a.indexOf(v) === i)
+      // var assetIds = new Set(accounts.map(account => account.assetId));
+      // assetIds = [...assetIds]
+      console.debug('Portfolio.balanceHistory() assetIds', assetIds)
+      
+      const priceHistory = []
+      // const priceHistory = await Promise.all(assetIds.map(async assetId => {
+      //   const asset = await db.Asset.findByPk(assetId)
+      //   const sqlQuery = `
+      //     WITH RECURSIVE DateSeries AS (
+      //       SELECT CURDATE() - INTERVAL ${periods} ${granulatity} as 'datetime'
+      //       UNION ALL
+      //       SELECT DATE_ADD(datetime, INTERVAL 1 ${granulatity}) FROM DateSeries
+      //       WHERE datetime < CURDATE()
+      //     )
+      //     SELECT 
+      //       ds.datetime as 'datetime',
+      //       COALESCE(
+      //         (SELECT p.value
+      //         FROM price p
+      //         WHERE DATE(p.datetime) <= ds.datetime
+      //         AND p.f_curr = '${asset.code}'
+      //         AND p.t_curr = '${profile.defaultCurrency}'
+      //         ORDER BY p.datetime DESC LIMIT 1),
+      //         0
+      //       ) as closing_price
+      //     FROM DateSeries ds
+      //     ORDER BY 'datetime'`;
+      //   const ret = await db.sequelize.query(sqlQuery)
+      //   console.debug('priceHistory', assetId, ret)
+      //   return { assetId, ret }
+      // }))
+      for( let i = 0; i < assetIds.length; i++) {
+        let assetId = assetIds[i]
+        const asset = await db.Asset.findByPk(assetId)
+        const sqlQuery = `
+          WITH RECURSIVE DateSeries AS (
+            SELECT CURDATE() - INTERVAL ${periods} ${granulatity} as 'datetime'
+            UNION ALL
+            SELECT DATE_ADD(datetime, INTERVAL 1 ${granulatity}) FROM DateSeries
+            WHERE datetime < CURDATE()
+          )
+          SELECT 
+            ds.datetime as 'datetime',
+            COALESCE(
+              (SELECT p.value
+              FROM price p
+              WHERE DATE(p.datetime) <= ds.datetime
+              AND p.f_curr = '${asset.code}'
+              AND p.t_curr = '${profile.defaultCurrency}'
+              ORDER BY p.datetime DESC LIMIT 1),
+              0
+            ) as closing_price
+          FROM DateSeries ds
+          ORDER BY 'datetime'`;
+        const ret = await db.sequelize.query(sqlQuery)
+        // console.debug('priceHistory', assetId, ret)
+        priceHistory.push({ assetId, f_curr: asset.code, t_curr: profile.defaultCurrency, priceHistory: ret[0] })
+      }
+
+      priceHistory.forEach((price, idx) => {
+        console.log('price', price)
+      })
+
+      // console.debug('Portfolio.balanceHistory() priceHistory', priceHistory)
+      return { priceHistory, balanceHistory }
+    },
+  },
+
+  Transaction: {
+    Asset: async (transaction, args, context) => {
+      const { db } = context
+      // console.debug('', transaction)
+      // const assetId = assetMap.getByValue(transaction.chainId)
+      const asset = await db.Asset.findByPk(transaction.chainId)
+      return asset
+    }
+  },
+
+  User: {
+    __resolveReference: async (user, args, context) => {
+      const { fetchUserById } = context
+      return fetchUserById(user.id)
+    },
+    Accounts: async (user, args, context) => {
+      const { offset = 0, limit = 100 } = args
+      const { db } = context
+      // const model = db.User.findByPk(user.id, { include: ['accounts']})
+      const list = await db.Account.findAll({ where: { userId: user.id} }, { offset, limit })
+      return list
+    },
+    assets: async (user, args, context) => {
+      const { offset = 0, limit = 100 } = args
+      const { db } = context
+      // console.debug('User.assets()', user)
+      // const model = db.User.findByPk(user.id, { include: ['accounts']})
+      const model = await db.User.findByPk(user.id, { include: ['assets', 'accounts'] })
+      // console.debug('model', model)
+      // get holdings for each asset
+      // console.debug('accounts', model.accounts)
+      const balancesP = model.accounts.map(account => {
+        return resolvers.Account.balance(account, {}, context)
+      })
+      var balances = await Promise.all(balancesP)
+      console.debug('balances', balances)
+      const accounts = balances.map((balance, idx) => { return { currencyCode: model.accounts[idx].currencyCode, balance } })
+      console.debug('accounts items', accounts.length)
+      var assetBals = accounts.reduce((acc, account, aidx) => {
+        console.debug('reduce...', aidx, account.currencyCode, typeof acc)
+        if (Array.isArray(acc)) {
+          const idx = acc.findIndex(x => x.currencyCode === account.currencyCode)
+          if (idx === -1) {
+            account.balance.free       = BigInt(account.balance?.free || 0) || 0n
+            account.balance.reserved   = BigInt(account.balance?.reserved || 0) || 0n
+            account.balance.miscFrozen = BigInt(account.balance?.miscFrozen || 0) || 0n
+            account.balance.feeFrozen  = BigInt(account.balance?.feeFrozen || 0) || 0n
+            account.balance.pooled     = BigInt(account.balance?.pooled || 0) || 0n
+            acc.push(account)
+          } else {
+            acc[idx].balance.free       += BigInt(account.balance?.free || 0) || 0n
+            acc[idx].balance.reserved   += BigInt(account.balance?.reserved || 0) || 0n
+            acc[idx].balance.miscFrozen += BigInt(account.balance?.miscFrozen || 0) || 0n
+            acc[idx].balance.feeFrozen  += BigInt(account.balance?.feeFrozen || 0) || 0n
+            acc[idx].balance.pooled     += BigInt(account.balance?.pooled || 0) || 0n
+          }
+        } else {
+          console.debug('acc is not an array', acc)
+        }
+        return acc
+      }, [])
+
+      console.debug('assetBals', assetBals)
+
+      return assetBals
+    },
+    // Profile: async (user, args, context) => {
+    // }
+  },
+
+  // Currency: {
+  //   // price: async (currency, args, context) => {
+  //   //   const { user, db } = context
+  //   //   const {t_curr } = args
+  //   //   console.debug('Currency.price', currency)
+  //   //   const prices = await db.Price.findAll({ where: { f_curr: currency.code, t_curr }, order: [['datetime', 'DESC']], limit: 1 })
+  //   //   return prices[0]
+  //   // },
+  // },
+
+  // Price: {
+  //   data: async (price, args, context) => {
+  //   }
+  // },
 
   Mutation: {
     register: async (_, { email, password }, { db }) => {

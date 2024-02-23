@@ -44,15 +44,16 @@ export async function getPricesCMC(job) {
         const price = ret.data.data[i]
         for (const [t_curr, data] of Object.entries(price.quote)) {
           job.log(`Create price for ${price.last_updated}, ${price.symbol}, ${t_curr}, ${data.price}`)
+          // turn this into upsert
           const res = await ds.Price.create({
-            datetime: price.last_updated,
+            datetime: price.last_updated || new Date(),
             f_curr: price.symbol,
             t_curr,
             value: data.price,
             source: 'coinmarketcap.com'
-          // }, {
-          //   fields: ['value'],
-          //   conflictFields: ['datetime', 'f_curr', 't_curr']
+          }, {
+            fields: ['value'],
+            conflictFields: ['datetime', 'f_curr', 't_curr']
           })
           if (res) {
             // console.log(res)

@@ -304,13 +304,35 @@ type Portfolio
   # Currency: Currency # reporting currency
   Accounts: [Account]
 #  value: Float
+  balanceHistory(periods: Int, granulatity: String): PortfolioBalanceHistory
 }
 
-type PriceHistoryItem {
+type PortfolioBalanceHistory {
+  periods: Int
+  granulatity: String
+  balanceHistory: [BalanceHistoryResponse]
+  priceHistory: [PriceHistoryResponse]
+}
+
+type BalanceHistoryResponse {
+  accountId: String
+  assetId: String
+  balanceHistory: [BalanceHistoryItem]
+}
+type BalanceHistoryItem {
+  datetime: String
+  closing_balance: Float
+}
+
+type PriceHistoryResponse {
+  assetId: String
   f_curr: String
   t_curr: String
-  key: String
-  price: Float
+  priceHistory: [PriceHistoryItem]
+}
+type PriceHistoryItem {
+  datetime: String
+  closing_price: Float
 }
 
 # this comes from indexDb
