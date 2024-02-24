@@ -1,38 +1,26 @@
 <template>
-  <v-card elevation="0" style="background: none;">
+  <v-container style="background: none;" class="pa-2 ma-0">
+    <v-card elevation="0" style="background: none;">
 
-    <v-card-text id="my-container" :style="`min-height: ${chartHeight}px;`">
-      <v-row>
-        <!-- <v-col>
-          sm:{{ display.sm }}
-          md:{{ display.md }}
-          lg:{{ display.lg }}
-          xl:{{ display.xl }}
-        </v-col> -->
+      <v-row :style="`min-height: ${chartHeight}px;`">
         <v-col align="center">
           <v-btn-toggle
             v-model="granularity"
-            divided
-          >
+            divided>
             <!-- <v-btn value="day">24h</v-btn> -->
             <v-btn style="background: none;" size="small" value="week">7d</v-btn>
             <v-btn style="background: none;" size="small" value="month">30d</v-btn>
             <v-btn style="background: none;" size="small" value="quarter">13w</v-btn>
             <v-btn style="background: none;" size="small" value="year">12m</v-btn>
           </v-btn-toggle>
+          <!-- <v-progress-linear indeterminate v-show="!renderChart"></v-progress-linear> -->
+          <Line ref="chart" v-if="renderChart" id="value-history" :options="chartOptions" :data="chartData"></Line>
         </v-col>
       </v-row>
-      <!-- <v-progress-linear indeterminate v-show="loading"></v-progress-linear> -->
-      <!-- <v-skeleton-loader type="text" :loading="!renderChart" :style="renderChart ? 'background: none;' : ''"> -->
-        <Line ref="chart" v-if="renderChart" id="value-history" :options="chartOptions" :data="chartData"></Line>
-      <!-- </v-skeleton-loader> -->
       <Loading :loading="!renderChart" :contained="true"></Loading>
-    </v-card-text>
-    <!-- {{ chartOptions }} -->
-    <!-- {{ chartData }} -->
-    <!-- {{ isDarkMode }} -->
 
-  </v-card>  
+    </v-card>
+  </v-container>  
 </template>
 
 <script lang="ts">
@@ -79,7 +67,7 @@ export default defineComponent(
     const profile = computed(() => store.state.profile)
     const portfolioId = computed(() => props.portfolioId)
     // const granularity = ref(() => props.granularity)
-    const granularity = ref('week')
+    const granularity = ref('month')
     const periods = computed(() => props.periods)
     const display = useDisplay()
     const isDarkMode = computed(() => store.state.isDarkMode)
@@ -351,6 +339,8 @@ export default defineComponent(
         scales: {
           x: {
             type: 'timeseries',
+            // do not display the x axis labels
+            display: false,
             adapters: {
               date: {
                 // locale: 'en' // FIXME, use profile.value.locale

@@ -31,12 +31,13 @@
       <v-list-item v-for="item in list" v-bind:key="item.assetId" @click="onSelectAsset(item.assetId)">
         <v-divider></v-divider>
         <template v-slot:prepend>
-          <AssetLogo :size="24" :asset-id="item.assetId"></AssetLogo><br>
+          <AssetLogo :size="24" :asset-id="item.assetId" class="d-none d-sm-inline"></AssetLogo><br>
         </template>
 
         <v-list-item-title style="font-weight: 600;">
           <v-row>
             <v-col>
+              <AssetLogo :size="16" :asset-id="item.assetId" class="d-sm-none d-relative"></AssetLogo>
               {{ item.assetId.toLocaleUpperCase() }}
             </v-col>
             <v-col class="text-right">
