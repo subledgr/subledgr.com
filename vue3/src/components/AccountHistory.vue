@@ -85,7 +85,7 @@ export default defineComponent({
             tension: 0.2,
             backgroundColor: isDarkMode.value ? 'white' : 'rgba(0,0,0,0)',
             borderColor: isDarkMode.value ? 'grey' : 'rgba(0,0,0,0.5)',
-            borderWidth: 1,
+            borderWidth: 2,
           },
           point: {
             radius: 1.5,
@@ -120,7 +120,9 @@ export default defineComponent({
               color: 'red'
             },
             ticks: {
-              color: 'red'
+              color: 'red',
+              mirror: true,
+              padding: -3
             },
             title: {
               display: true,
@@ -133,7 +135,9 @@ export default defineComponent({
               color: 'purple'
             },
             ticks: {
-              color: 'purple'
+              color: 'purple',
+              mirror: true,
+              padding: 3
             },
             title: {
               display: true,

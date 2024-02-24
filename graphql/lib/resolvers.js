@@ -502,21 +502,21 @@ const resolvers = {
     },
     /**
      * @param {*} account 
-     * @param {*} args { t_curr: String, period: String, granulatity: String }
+     * @param {*} args { t_curr: String, period: String, granularity: String }
      * @returns array of { date, closing_balance, closing_price }
      */
     valueHistory: async (account, args, context) => {
       console.debug('Account.valueHistory()', account.id)
       const { user, db } = context
-      const { t_curr='GBP', periods=30, granulatity='DAY' } = args
+      const { t_curr='GBP', periods=30, granularity='DAY' } = args
 
       const asset = await db.Asset.findByPk(account.assetId)
 
       const sqlQuery = `
         WITH RECURSIVE DateSeries AS (
-          SELECT CURDATE() - INTERVAL ${periods} ${granulatity} as 'datetime'
+          SELECT CURDATE() - INTERVAL ${periods} ${granularity} as 'datetime'
           UNION ALL
-          SELECT DATE_ADD(datetime, INTERVAL 1 ${granulatity}) FROM DateSeries
+          SELECT DATE_ADD(datetime, INTERVAL 1 ${granularity}) FROM DateSeries
           WHERE datetime < CURDATE()
         )
         SELECT 
@@ -679,9 +679,9 @@ const resolvers = {
       return model.accounts
     },
     balanceHistory: async (portfolio, args, context) => {
-      console.debug('Portfolio.balanceHistory()', portfolio)
+      console.debug('Portfolio.balanceHistory()', portfolio, args)
       const { user, db } = context
-      const { ids=[], periods=90, granulatity='DAY' } = args
+      const { ids=[], periods=90, granularity='DAY' } = args
       const profile = await db.Profile.findByPk(user.id)
       const model = await db.Portfolio.findByPk(portfolio.id, { include: 'accounts' })
       const accounts = model.accounts
@@ -689,9 +689,9 @@ const resolvers = {
         const asset = await db.Asset.findByPk(account.assetId)
         const sqlQuery = `
           WITH RECURSIVE DateSeries AS (
-            SELECT CURDATE() - INTERVAL ${periods} ${granulatity} as 'datetime'
+            SELECT CURDATE() - INTERVAL ${periods} ${granularity} as 'datetime'
             UNION ALL
-            SELECT DATE_ADD(datetime, INTERVAL 1 ${granulatity}) FROM DateSeries
+            SELECT DATE_ADD(datetime, INTERVAL 1 ${granularity}) FROM DateSeries
             WHERE datetime < CURDATE()
           )
           SELECT 
@@ -723,9 +723,9 @@ const resolvers = {
       //   const asset = await db.Asset.findByPk(assetId)
       //   const sqlQuery = `
       //     WITH RECURSIVE DateSeries AS (
-      //       SELECT CURDATE() - INTERVAL ${periods} ${granulatity} as 'datetime'
+      //       SELECT CURDATE() - INTERVAL ${periods} ${granularity} as 'datetime'
       //       UNION ALL
-      //       SELECT DATE_ADD(datetime, INTERVAL 1 ${granulatity}) FROM DateSeries
+      //       SELECT DATE_ADD(datetime, INTERVAL 1 ${granularity}) FROM DateSeries
       //       WHERE datetime < CURDATE()
       //     )
       //     SELECT 
@@ -750,9 +750,9 @@ const resolvers = {
         const asset = await db.Asset.findByPk(assetId)
         const sqlQuery = `
           WITH RECURSIVE DateSeries AS (
-            SELECT CURDATE() - INTERVAL ${periods} ${granulatity} as 'datetime'
+            SELECT CURDATE() - INTERVAL ${periods} ${granularity} as 'datetime'
             UNION ALL
-            SELECT DATE_ADD(datetime, INTERVAL 1 ${granulatity}) FROM DateSeries
+            SELECT DATE_ADD(datetime, INTERVAL 1 ${granularity}) FROM DateSeries
             WHERE datetime < CURDATE()
           )
           SELECT 

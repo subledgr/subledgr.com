@@ -304,7 +304,7 @@ type Portfolio
   # Currency: Currency # reporting currency
   Accounts: [Account]
 #  value: Float
-  balanceHistory(periods: Int, granulatity: String): PortfolioBalanceHistory
+  balanceHistory(periods: Int, granularity: String): PortfolioBalanceHistory
 }
 
 type PortfolioBalanceHistory {

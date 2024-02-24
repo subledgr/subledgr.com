@@ -113,6 +113,10 @@ export default defineComponent({
               display: true,
               text: 'Price'
             },
+            ticks: {
+              mirror: true,
+              padding: -3,
+            }
           },
           x: {
             type: 'timeseries',

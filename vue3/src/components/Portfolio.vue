@@ -4,13 +4,14 @@
       <v-btn icon to="/portfolio">
         <v-icon>mdi-chevron-left</v-icon>
       </v-btn>
-      <v-toolbar-title>
+      <v-toolbar-title class="d-none d-sm-inline">
         <v-icon size="small">mdi-folder-pound-outline</v-icon>
         {{ result?.Portfolio?.name || portfolioId }}
         <v-btn icon size="small" @click="doShowPortfolioEditDialog()">
           <v-icon size="small">mdi-pencil-outline</v-icon>
         </v-btn>
       </v-toolbar-title>
+      <v-spacer></v-spacer>
       <v-toolbar-items>
         <!-- <v-btn flat class="text-none">{{ result?.Portfolio?.Currency?.code }} {{ portfolioValue?.toLocaleString('en-GB', { currency: result?.portfolio?.Currency.code, maximumFractionDigits: profile.defaultDecimals }) }}</v-btn> -->
         <v-btn flat class="text-none">{{ currency?.symbol }} {{ portfolioValue?.toLocaleString('en-GB', { currency: currency?.code, maximumFractionDigits: profile.defaultDecimals }) }}</v-btn>
@@ -38,7 +39,7 @@
     </v-toolbar>
 
     <!-- Show the Portfolio Name on mobile -->
-    <v-card elevation="0" class="d-sm-none d-block">
+    <v-card elevation="0" class="d-sm-none d-block" style="background: none;">
       <v-card-title>
         <v-icon size="small">mdi-folder-pound-outline</v-icon>
         {{ result?.Portfolio?.name }}</v-card-title>

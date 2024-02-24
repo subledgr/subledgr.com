@@ -79,38 +79,32 @@ query PortfolioAccounts($portfolioId: String!, $ids: [String!], $tCurr: String!)
 `
 
 export const QUERY_PORTFOLIO_HISTORY = gql`
-query PortfolioHistory($portfolioId: String, $ids: [String!], $tCurr: String!) {
-  Prices(ids: $ids, t_curr: $tCurr) {
-    datetime
-    f_curr
-    t_curr
-    value
+query PortFolioHistoryQuery($portfolioId: String!, $periods: Int, $granularity: String) {
+  Assets {
+    id
+    code
+    decimals
   }
   Portfolio(id: $portfolioId) {
     id
     name
-    # Currency {
-    #   code
-    # }
-    Accounts {
-      id
-      name
-      address
-      balance {
-        id
-        timestamp
-        blockNumber
-        free
-        reserved
-        locked
-        # miscFrozen
-        # feeFrozen
-        pooled
-        claimable
+    balanceHistory(periods: $periods, granularity: $granularity) {
+      balanceHistory {
+        accountId
+        assetId
+        balanceHistory {
+          datetime
+          closing_balance
+        }
       }
-      Asset {
-        id
-        code
+      priceHistory {
+        assetId
+        f_curr
+        t_curr
+        priceHistory {
+          datetime
+          closing_price
+        }
       }
     }
   }
