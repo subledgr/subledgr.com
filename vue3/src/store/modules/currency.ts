@@ -14,6 +14,7 @@ interface IState {
 const currencies: ICurrency[] = [
   { code: 'EUR', name: 'Euro', symbol: '€', decimals: 2, logo: ''},
   { code: 'GBP', name: 'British Pound', symbol: '£', decimals: 2, logo: '' },
+  { code: 'CHF', name: 'Swiss Franc', symbol: 'CHF', decimals: 2, logo: '' },
   { code: 'USD', name: 'US Dollar', symbol: '$', decimals: 2, logo: '' },
 ]
 

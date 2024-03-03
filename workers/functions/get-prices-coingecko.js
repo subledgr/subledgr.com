@@ -37,7 +37,7 @@ export async function getPricesCG(job) {
     const params = {
       ids: Object.keys(currencies).join(','),
       // ids: ['polkadot','kusama', 'dock'],
-      vs_currencies: 'GBP,USD,EUR',
+      vs_currencies: 'GBP,USD,EUR,CHF',
       precision: 6
     }
     console.debug('params', params)

@@ -430,7 +430,7 @@ const initialState = {
   initial: true,
   dateTimeFormat: 'YYYY.MM.DD HH:mm:sss',
   itemsPerPage: 10,
-  defaultCurrency: 'USD', // 'GBP', // 'EUR',
+  defaultCurrency: 'USD', // 'GBP', // 'EUR', // 'CHF'
   defaultDecimals: 3,
   locales,
   locale: 'en-US',

@@ -35,7 +35,7 @@
             label="Reporting Currency"
             @change="isDirty=true"
             @select="isDirty=true"
-            :items="['GBP','EUR','USD']"></v-select>
+            :items="['GBP','EUR','CHF','USD']"></v-select>
 
           <v-select
             v-model="profile.defaultDecimals"
