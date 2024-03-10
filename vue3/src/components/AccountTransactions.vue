@@ -46,7 +46,7 @@ import Loading from './Loading.vue';
 import TransactionDownload from './TransactionDownload.vue';
 import { IProfile, ITransaction, IAccount } from './types';
 
-import { QUERY_ACCOUNT_TRANSACTIONS } from '@/graphql';
+import { QUERY_ACCOUNT_IDX_TRANSACTIONS } from '@/graphql';
 
 export default defineComponent({
   components: {
@@ -73,7 +73,7 @@ export default defineComponent({
     const account = ref<IAccount>({} as IAccount)
     const showDownloadDialog = ref(false)
 
-    const { result, loading, error, onResult, refetch } = useQuery(QUERY_ACCOUNT_TRANSACTIONS, {
+    const { result, loading, error, onResult, refetch } = useQuery(QUERY_ACCOUNT_IDX_TRANSACTIONS, {
       accountId: props.accountId,
       limit: 50,
     }, {

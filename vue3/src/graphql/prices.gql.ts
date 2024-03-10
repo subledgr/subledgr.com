@@ -23,12 +23,12 @@ export const QUERY_PRICES = gql`
 `
 
 export const QUERY_PRICE_HISTORY = gql`
-query PriceHistoryQuery($fCurr: String, $tCurr: String) {
-  PriceHistory(f_curr: $fCurr, t_curr: $tCurr) {
-    key
-    price
+query PriceHistoryQuery($fCurr: String, $tCurr: String, $period: String, $limit: Int) {
+  PriceHistory(f_curr: $fCurr, t_curr: $tCurr, period: $period, limit: $limit) {
+    datetime
     f_curr
     t_curr
+    price
   }
 }
 `

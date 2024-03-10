@@ -21,7 +21,7 @@ type Query {
   Portfolio(id: String!): Portfolio
   Price(f_curr: String, t_curr: String): Price
   Prices(ids: [String], t_curr: String): [Price]
-  PriceHistory(f_curr: String, t_curr: String): [PriceHistoryItem]
+  PriceHistory(f_curr: String, t_curr: String, period: String, limit: Int): [PriceHistoryItem]
   Profile: UserProfile
   SymbolPriceTicker(symbol: String): SymbolPriceTicker
   Transactions(chainId: String, accountId: String, address: String, ids: [String], offset: Int, limit: Int): [Transaction]
@@ -331,8 +331,12 @@ type PriceHistoryResponse {
   priceHistory: [PriceHistoryItem]
 }
 type PriceHistoryItem {
+  # datetime: String
+  # closing_price: Float
   datetime: String
-  closing_price: Float
+  f_curr: String
+  t_curr: String
+  price: Float
 }
 
 # this comes from indexDb

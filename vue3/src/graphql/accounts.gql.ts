@@ -175,7 +175,7 @@ query AccountView($accountId: String!) {
 }
 `
 
-export const QUERY_ACCOUNT_TRANSACTIONS = gql`
+export const QUERY_ACCOUNT_IDX_TRANSACTIONS = gql`
   query AccountView($accountId: String!, $offset: Int, $limit: Int) {
     Account(id: $accountId) {
       # account {

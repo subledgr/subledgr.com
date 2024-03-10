@@ -260,27 +260,30 @@ const resolvers = {
       console.debug('PriceHistory', f_curr, t_curr)
       if (!user) throw new Error('AuthenticationError: You must be logged in');
       const prices = await db.Price.findAll({ where: { f_curr, t_curr }, order: [['datetime', 'DESC']], limit: limit })
+      // console.debug('prices', prices)
       const periodPrices = {}
       // group prices by period
       prices.forEach(price => {
         const date = new Date(price.datetime);
-        // Create a key for grouping (year-month-day-hour)
-        var key = date.getFullYear() + '-' +                                // 2023-
-          String(date.getMonth() + 1).padStart(2, '0') + '-' +              // 01-
-          String(date.getDate()).padStart(2, '0')                           // 31
-          if(['h'].includes(period)) key += 'T' +String(date.getHours()).padStart(2, '0') + ':00Z'; // T23:00Z UTC
-        if (!periodPrices[key]) {
-          periodPrices[key] = [];
+        // Create a datetime key for grouping (year-month-day-hour)
+        var datetime = date.getFullYear()                                   // 2023 = YYYY
+        if(['m','w','d','h'].includes(period)) datetime += '-' + String(date.getMonth() + 1).padStart(2, '0') // -MM // 12
+        if(['d','h'].includes(period)) datetime += '-' + String(date.getDate()).padStart(2, '0')      // -DD // 31
+        if(['h'].includes(period)) datetime += 'T' +String(date.getHours()).padStart(2, '0') + ':00Z'; // T23:00Z UTC
+        if (!periodPrices[datetime]) {
+          periodPrices[datetime] = [];
         }
-        periodPrices[key].push(price.value);
+        periodPrices[datetime].push(price.value);
       })
+      console.debug('periodPrices', periodPrices)
       // calculate the averate price for each period
       const result = []
-      for (const [key, values] of Object.entries(periodPrices)) {
+      for (const [datetime, values] of Object.entries(periodPrices)) {
         const sum = values.reduce((a, b) => a + b, 0);
         const avg = sum / values.length;
-        result.push({ f_curr, t_curr, key, price: avg });
+        result.push({ f_curr, t_curr, datetime, price: avg });
       }
+      console.debug('result', result)
       return result
     },
     Profile: async (_, args, context) => {
