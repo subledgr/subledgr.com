@@ -207,12 +207,13 @@ export default defineComponent(
         const prices = result.data.Portfolio.balanceHistory.priceHistory.find((p: any) => p.assetId === assetId)
         // console.debug('asset', assetId, asset, prices)
         
-        if (display.lgAndUp) {
+        // if (display.lgAndUp) {
           // we summarist by asset
           if (asset) {
             consolidatedValues[assetId] = consolidatedBalances[assetId].map((m: IConsolidatedBalanceItem, idx: number) => {
               const to_coin = Number(m.closing_balance) / Math.pow( 10, asset.decimals )
               const price = prices.priceHistory[idx].closing_price
+              console.log('price', price)
               return {
                 datetime: m.datetime,
                 closing_balance: m.closing_balance,
@@ -223,28 +224,28 @@ export default defineComponent(
             })
           }
         
-        } else {
-          // show the totals, don't summarise by asset
-          const summ = consolidatedBalances[assetId].map((m: IConsolidatedBalanceItem, idx: number) => {
-            const to_coin = Number(m.closing_balance) / Math.pow( 10, asset.decimals )
-            const price = prices.priceHistory[idx].closing_price
-            return {
-              datetime: m.datetime,
-              closing_balance: m.closing_balance,
-              to_coin,
-              closing_price: price,
-              closing_value: to_coin * price
-            }
-          })
-          // if (consolidatedValues[profile.value.defaultCurrency]) {
-          //   consolidatedValues[profile.value.defaultCurrency] = consolidatedValues[profile.value.defaultCurrency].map((m: IConsolidatedBalanceItem, idx: number) => {
-          //     m.closing_value += summ[idx].closing_value
-          //     return m
-          //   })
-          // } else {
-          //   consolidatedValues[profile.value.defaultCurrency] = summ       
-          // }
-        }
+        // } else {
+        //   // show the totals, don't summarise by asset
+        //   const summ = consolidatedBalances[assetId].map((m: IConsolidatedBalanceItem, idx: number) => {
+        //     const to_coin = Number(m.closing_balance) / Math.pow( 10, asset.decimals )
+        //     const price = prices.priceHistory[idx].value
+        //     return {
+        //       datetime: m.datetime,
+        //       closing_balance: m.closing_balance,
+        //       to_coin,
+        //       closing_price: price,
+        //       closing_value: to_coin * price
+        //     }
+        //   })
+        //   // if (consolidatedValues[profile.value.defaultCurrency]) {
+        //   //   consolidatedValues[profile.value.defaultCurrency] = consolidatedValues[profile.value.defaultCurrency].map((m: IConsolidatedBalanceItem, idx: number) => {
+        //   //     m.closing_value += summ[idx].closing_value
+        //   //     return m
+        //   //   })
+        //   // } else {
+        //   //   consolidatedValues[profile.value.defaultCurrency] = summ       
+        //   // }
+        // }
       }
       console.debug('consolidatedValues', consolidatedValues)
       // data.Portfolio.balanceHistory.priceHistory assetId, f_curr, t_curr, priceHistoryItems

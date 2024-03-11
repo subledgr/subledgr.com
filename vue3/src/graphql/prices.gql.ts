@@ -28,7 +28,7 @@ query PriceHistoryQuery($fCurr: String, $tCurr: String, $period: String, $limit:
     datetime
     f_curr
     t_curr
-    price
+    closing_price
   }
 }
 `

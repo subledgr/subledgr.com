@@ -136,7 +136,7 @@ export default defineComponent({
         labels: result.value?.PriceHistory?.slice(0, periods.value).map((m: any) => m.datetime) || [],
         datasets: [ {
           // data: [40, 20, 12]
-          data: result.value?.PriceHistory?.slice(0, periods.value).map((m: any) => m.price) || []
+          data: result.value?.PriceHistory?.slice(0, periods.value).map((m: any) => m.closing_price) || []
         } ]
       }
     })

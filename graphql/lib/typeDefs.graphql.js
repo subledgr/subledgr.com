@@ -336,7 +336,7 @@ type PriceHistoryItem {
   datetime: String
   f_curr: String
   t_curr: String
-  price: Float
+  closing_price: Float
 }
 
 # this comes from indexDb

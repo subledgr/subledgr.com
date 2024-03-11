@@ -281,9 +281,9 @@ const resolvers = {
       for (const [datetime, values] of Object.entries(periodPrices)) {
         const sum = values.reduce((a, b) => a + b, 0);
         const avg = sum / values.length;
-        result.push({ f_curr, t_curr, datetime, price: avg });
+        result.push({ f_curr, t_curr, datetime, closing_price: avg });
       }
-      console.debug('result', result)
+      // console.debug('result', result)
       return result
     },
     Profile: async (_, args, context) => {
