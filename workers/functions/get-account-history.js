@@ -1,4 +1,5 @@
 import { ApiPromise, WsProvider } from '@polkadot/api'
+import { isAddress } from '@polkadot/util-crypto'
 // Dock SDK
 // import { DockAPI } from '@docknetwork/sdk'
 
@@ -13,6 +14,12 @@ import cfg from '../../config/config.js'
 import { transactionModel } from '../../graphql/models/transaction.js'
 import { accountModel } from '../../graphql/models/account.js'
 import { accountBalanceModel } from '../../graphql/models/account-balance.js';
+
+const ss58Format = {
+  kusama: 2,
+  polkadot: 0,
+  dock: 21,
+}
 
 // FIXME: get this from config
 const DOTSAMA_REST_API_BASE_URL = 'https://api.metaspan.io/api'
@@ -63,6 +70,14 @@ export async function getAccountHistory(job) {
     const account = await Account.findOne({ where: { id: accountId } })
     if (!account) throw new Error(`account not found: ${accountId}`)
     const address = account.address
+
+    console.debug('account', account)
+    if (!isAddress(address)) {
+      // throw new Error(`invalid address: ${address}`)
+      console.warn(`invalid address: ${address}`)
+      job.log(`invalid address: ${address} ... aborting...`)
+      return Promise.resolve()
+    }
 
     let api = await apiPool.get(chainId)
 
@@ -132,6 +147,16 @@ export async function getAccountHistory(job) {
       // free, reserved, frozen
       // var url = `${DOTSAMA_REST_API_BASE_URL}/${chainId}/query/system/account/${address}`
       // var rest = await axios.get(url, { params })
+      console.debug('HELLO ====================', address)
+      try {
+
+      } catch (err) {
+        console.error('error', err)
+        // process.exit(0)
+        return {
+
+        }
+      }
       var res = await apiAt.query.system.account(address)
       var { nonce, consumers, providers, sufficients, data } = res.toJSON()
       console.debug('res', data)
