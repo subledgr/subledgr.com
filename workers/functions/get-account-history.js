@@ -198,7 +198,10 @@ export async function getAccountHistory(job) {
         blockNumber,
         timestamp: 0,
         ...ret,
-        balance: ret.free + ret.reserved + ret.pooled + ret.claimable,
+        balance: ret.free 
+          + ret.reserved 
+          // + ret.pooled // from Mar 2025 this is now included in reserved
+          + ret.claimable,
         free: ret.free - ret.locked,
       })
 
