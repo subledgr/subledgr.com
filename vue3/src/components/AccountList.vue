@@ -135,7 +135,7 @@ export default defineComponent({
         // + balance.miscFrozen || 0
         // + balance.feeFrozen || 0
         + BigInt(balance?.locked || 0)
-        + BigInt(balance?.pooled || 0)
+        // + BigInt(balance?.pooled || 0) // 2025.03 now included in locked
         + BigInt(balance?.claimable || 0)
       // console.debug('sumBalance()', bal)
       return bal
