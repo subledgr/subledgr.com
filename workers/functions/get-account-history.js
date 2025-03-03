@@ -31,7 +31,7 @@ const dbPool = new DbConnectionPool(cfg)
 export async function getAccountHistory(job) {
 
   console.debug(`[worker] ${JOB_NAME}`, job.data)
-  job.log(`${JOB_NAME} starting...`)
+  job.log(`${JOB_NAME} starting... base: ${rpcUrlBase}`)
   var { chainId='', accountId='', fromBlock=0 } = job.data
 
   var result = []
@@ -43,6 +43,8 @@ export async function getAccountHistory(job) {
   //   cfg.db.options
   // )
   const db = await dbPool.get('db')
+  // console.debug('db', db)
+  if (!db) throw new Error('db not available')
   // const indexDB = new Sequelize(
   //   cfg.indexDb.database,
   //   cfg.indexDb.username,
@@ -50,6 +52,8 @@ export async function getAccountHistory(job) {
   //   cfg.indexDb.options
   // )
   const indexDB = await dbPool.get('indexDb')
+  // console.debug('indexDB', indexDB)
+  if (!indexDB) throw new Error('indexDB not available')
 
   const Account = db.define('account', accountModel.definition, accountModel.options)
   const Transaction = indexDB.define('transaction', transactionModel.definition, transactionModel.options)
@@ -67,6 +71,7 @@ export async function getAccountHistory(job) {
     let api = await apiPool.get(chainId)
 
     job.log(`Getting currentBlock`)
+    console.log('Getting currentBlock')
     var currentBlock = (await api.rpc.chain.getBlock()).toJSON()
     job.log(`...${currentBlock.block.header.number}`)
     console.debug('currentBlock', currentBlock.block.header.number)
@@ -108,6 +113,7 @@ export async function getAccountHistory(job) {
         [Sequelize.fn('DISTINCT', Sequelize.col('block_number')) ,'block_number'],
       ],
       // group: ['blockNumber']
+      // limit: 1000
     })
     console.log('found blocks', blockNumbers.length)
     job.log(`[worker] ${JOB_NAME} found blocks ${blockNumbers.length}`)
@@ -117,7 +123,7 @@ export async function getAccountHistory(job) {
     for (let i = 0; i < blockNumbers.length; i++) {
       const blockNumber = blockNumbers[i] //.dataValues.block_number
 
-      console.log('block', blockNumber)
+      console.log(account.address, 'block', blockNumber)
       job.log(`processing block: ${blockNumber}`)
       const params = { at: blockNumber }
       const atHash = await api.rpc.chain.getBlockHash(blockNumber)
@@ -134,9 +140,9 @@ export async function getAccountHistory(job) {
       // var rest = await axios.get(url, { params })
       var res = await apiAt.query.system.account(address)
       var { nonce, consumers, providers, sufficients, data } = res.toJSON()
-      console.debug('res', data)
+      // console.debug('res', data)
 
-      ret.free = BigInt(data.free  || 0)
+      ret.free = BigInt(data.free || 0)
       ret.reserved = BigInt(data.reserved || 0)
       ret.frozen = BigInt(data.frozen || 0)
 
