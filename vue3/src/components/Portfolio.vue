@@ -14,7 +14,8 @@
       <v-spacer></v-spacer>
       <v-toolbar-items>
         <!-- <v-btn flat class="text-none">{{ result?.Portfolio?.Currency?.code }} {{ portfolioValue?.toLocaleString('en-GB', { currency: result?.portfolio?.Currency.code, maximumFractionDigits: profile.defaultDecimals }) }}</v-btn> -->
-        <v-btn flat class="text-none">{{ currency?.symbol }} {{ portfolioValue?.toLocaleString('en-GB', { currency: currency?.code, maximumFractionDigits: profile.defaultDecimals }) }}</v-btn>
+        <v-btn flat class="text-none">{{ currency?.symbol }} 
+          {{ portfolioValue?.toLocaleString('en-GB', { currency: currency?.code, maximumFractionDigits: profile.defaultDecimals }) }}</v-btn>
 
         <v-btn :loading="loading" @click="reload()">
           <v-icon>mdi-refresh</v-icon>
@@ -115,7 +116,7 @@ export default defineComponent({
     const route = useRoute()
     const router = useRouter()
     const store = useStore()
-    const profile = computed(() => store.state.profile )
+    const profile = computed(() => store.state.profile)
     const tab = ref('assets')
     const currencies = computed<ICurrency[]>(() => store.state.currency.list)
     const currency = currencies.value.find(c => c.code === profile.value.defaultCurrency)

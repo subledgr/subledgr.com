@@ -213,7 +213,7 @@ export default defineComponent(
             consolidatedValues[assetId] = consolidatedBalances[assetId].map((m: IConsolidatedBalanceItem, idx: number) => {
               const to_coin = Number(m.closing_balance) / Math.pow( 10, asset.decimals )
               const price = prices.priceHistory[idx].closing_price
-              console.log('price', price)
+              // console.log('price', price)
               return {
                 datetime: m.datetime,
                 closing_balance: m.closing_balance,

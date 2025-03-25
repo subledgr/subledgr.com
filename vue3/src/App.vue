@@ -38,7 +38,7 @@ export default defineComponent({
   setup () {
     const theme = useTheme()
     const store = useStore()
-    const profile = store.state.profile
+    const profile = computed(() => store.state.profile)
     const isDarkMode = computed(() => store.state.isDarkMode)
     const loggedIn = computed(() => store.getters.loggedIn)
     const route = useRoute()
@@ -52,7 +52,7 @@ export default defineComponent({
       // handleError(error)
     })
 
-    if (profile.initial && loggedIn.value) {
+    if (profile.value.initial && loggedIn.value) {
       refetch()
     }
     onResult((result) => {

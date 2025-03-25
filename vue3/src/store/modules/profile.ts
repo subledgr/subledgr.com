@@ -445,8 +445,9 @@ const profile = {
       state.dateTimeFormat = profile.dateTimeFormat || state.dateTimeFormat
       state.itemsPerPage = profile.itemsPerPage || state.itemsPerPage
       state.defaultCurrency = profile.defaultCurrency || state.defaultCurrency
-      state.defaultDecimals = profile.defaultDecimals || state.defaultDecimals
+      state.defaultDecimals = profile.defaultDecimals ?? state.defaultDecimals
       state.locale = profile.locale || state.locale
+      state.initial = false
     }
   },
   actions: {
