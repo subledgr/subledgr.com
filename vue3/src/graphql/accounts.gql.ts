@@ -141,7 +141,7 @@ query AccountBalance($accountId: String!) {
 `
 
 export const QUERY_ACCOUNT_DETAILS = gql`
-query AccountView($accountId: String!) {
+query AccountViewDetails($accountId: String!) {
   Account(id: $accountId) {
     # account {
       id
@@ -176,7 +176,7 @@ query AccountView($accountId: String!) {
 `
 
 export const QUERY_ACCOUNT_IDX_TRANSACTIONS = gql`
-  query AccountView($accountId: String!, $offset: Int, $limit: Int) {
+  query AccountViewTransactions($accountId: String!, $offset: Int, $limit: Int) {
     Account(id: $accountId) {
       # account {
         id
@@ -258,7 +258,7 @@ export const QUERY_ACCOUNT_CHART = gql`
 `
 
 export const QUERY_ACCOUNT_PORTFOLIOS = gql`
-  query AccountView($accountId: String!) {
+  query AccountViewPortfolios($accountId: String!) {
     Account(id: $accountId) {
       # account {
         id

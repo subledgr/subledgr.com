@@ -89,10 +89,11 @@ export default defineComponent({
     })
 
     onBeforeMount(() => {
-      refetch({
-        accountId: props.accountId,
-        limit: 100
-      })
+      if(!loading.value)
+        refetch({
+          accountId: props.accountId,
+          limit: 100
+        })
     })
 
     const onDownloadDialogClose = () => {
