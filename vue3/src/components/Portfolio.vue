@@ -46,16 +46,20 @@
         {{ result?.Portfolio?.name }}</v-card-title>
     </v-card>
 
-    <PortfolioHistory :portfolioId="portfolioId"></PortfolioHistory>
-
-    <v-tabs v-model="tab">
-      <v-tab value="assets">Assets</v-tab>
-      <v-tab value="accounts">Accounts</v-tab>
-    </v-tabs>
-
-    <!-- <PortfolioAssets :portfolioId="portfolioId" v-show="tab=='assets'"></PortfolioAssets> -->
-    <AssetValueList :accounts="portfolio?.Accounts || []" :prices="prices" @select-asset="onSelectAsset" v-show="tab=='assets'"></AssetValueList>
-    <PortfolioAccounts :portfolioId="portfolioId" v-show="tab=='accounts'"></PortfolioAccounts>
+    <v-row>
+      <v-col cols="12" lg="8">
+        <PortfolioHistory :portfolioId="portfolioId"></PortfolioHistory>
+      </v-col>
+      <v-col cols="12" lg="4">
+        <v-tabs v-model="tab">
+          <v-tab value="assets">Assets</v-tab>
+          <v-tab value="accounts">Accounts</v-tab>
+        </v-tabs>
+        <!-- <PortfolioAssets :portfolioId="portfolioId" v-show="tab=='assets'"></PortfolioAssets> -->
+        <AssetValueList :accounts="portfolio?.Accounts || []" :prices="prices" @select-asset="onSelectAsset" v-show="tab=='assets'"></AssetValueList>
+        <PortfolioAccounts :portfolioId="portfolioId" v-show="tab=='accounts'"></PortfolioAccounts>
+      </v-col>
+    </v-row>
 
     <PortfolioEditDialog
       :visible="showPortfolioEditDialog"

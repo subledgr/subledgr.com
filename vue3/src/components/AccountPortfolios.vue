@@ -15,7 +15,7 @@
     </v-card-title> -->
 
     <v-list max-height="200" :loading="loading" style="background: none;">
-      <v-list-item v-for="item in list" v-bind:key="item.id" :to="`/portfolio/${item.id}`">
+      <v-list-item v-for="item in list" v-bind:key="item.id" :to="`/portfolio/${item.id}?tab=accounts`">
         <template v-slot:prepend>
           <v-icon>mdi-folder-pound-outline</v-icon>
         </template>

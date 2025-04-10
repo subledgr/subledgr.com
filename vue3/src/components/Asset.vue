@@ -16,7 +16,18 @@
       </v-toolbar-items>
     </v-toolbar>
 
-    <AssetPriceHistory :asset-id="asset?.code || ''" :periods="100"></AssetPriceHistory>
+    <v-row>
+      <v-col :cols="12">
+        <AssetPriceHistory :asset-id="asset?.code || ''" :periods="100"></AssetPriceHistory>
+      </v-col>
+      <v-col cols="6">
+        <AssetPortfolios :list="list"></AssetPortfolios>
+      </v-col>
+      <v-col cols="6">
+        <AssetAccounts :list="list"></AssetAccounts>
+      </v-col>
+    </v-row>
+
     <v-card-title>Accounts</v-card-title>
     <v-list style="background: none;" :loading="loading">
       <v-list-item v-show="loading">
@@ -86,10 +97,13 @@
 import { defineComponent, ref, computed } from 'vue'
 import { useQuery } from '@vue/apollo-composable';
 import { useStore } from 'vuex';
+import { useTheme } from 'vuetify';
 import AssetLogo from './AssetLogo.vue'
 // import TransactionList from './TransactionList.vue'
 // import TransactionTable2 from './TransactionTable2.vue';
 import AssetPriceHistory from './AssetPriceHistory.vue';
+import AssetPortfolios from './AssetPortfolios.vue';
+import AssetAccounts from './AssetAccounts.vue';
 import { IAsset, IAccount, IAccountBalance } from './types';
 import { useRouter } from 'vue-router';
 import { useGlobalUtils } from './utils';
@@ -101,7 +115,9 @@ export default defineComponent({
     AssetLogo,
     // TransactionList,
     // TransactionTable2,
-    AssetPriceHistory
+    AssetPriceHistory,
+    AssetPortfolios,
+    AssetAccounts
   },
   props: {
     assetId: {
@@ -110,6 +126,7 @@ export default defineComponent({
     }
   },
   setup (props) {
+    const theme = useTheme()
     const store = useStore()
     const { shortStash, toCoin, handleError } = useGlobalUtils()
     const profile = computed(() => store.state.profile)
@@ -213,8 +230,8 @@ export default defineComponent({
     // refetch()
     summarise()
     calcTotalValue()
-
     return {
+      theme,
       profile,
       currency,
       loading,
