@@ -38,7 +38,7 @@
             </v-col>
             <v-col align="end">
               <v-btn @click="navTo('/')">Cancel</v-btn>&nbsp;
-              <v-btn type="submit" color="primary" :disabled="!valid">Login</v-btn>
+              <v-btn @click="loginUser" color="primary" :disabled="!valid">Login</v-btn>
             </v-col>
           </v-row>
         </v-form>
@@ -110,11 +110,15 @@ export default defineComponent({
     const snackbar = ref(false)
 
     const loginUser = async () => {
-      console.debug('registerUser()', email, password)
       const input = { email: email.value, password: password.value };
-      const res: any = await mutate(input);
+      let res: any = null;
+      try {
+        res = await mutate(input);
+      } catch (e) {
+        console.error('Error in loginUser:', e);
+        error = e;
+      }
       // handle success
-      console.debug(res.data.login)
       if (res.data.login) {
         const { id, email, success, message, token, profile } = res.data.login
         if (!success) {
@@ -141,23 +145,9 @@ export default defineComponent({
       snackbar
     };
   },
-  // data: () => {
-  //   return {
-  //     // valid: false,
-  //     password: '',
-  //     passRules: [
-  //       (v: string) => !!v || 'Password is required',
-  //       (v: string) => v.length > 8 || 'Name must be more than 8 characters'
-  //     ],
-  //     email: '',
-  //     emailRules: [
-  //       (value: string) => !!value || 'Email is required',
-  //       (value: string) => /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(value) || 'Email must be valid',
-  //     ],
-  //   }
-  // },
   methods: {
     navTo (route: any): void {
+      console.debug('navTo()', route)
       this.$router.push(route)
     }
   }
