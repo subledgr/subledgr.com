@@ -116,7 +116,6 @@ export default defineComponent({
         res = await mutate(input);
       } catch (e) {
         console.error('Error in loginUser:', e);
-        error = e;
       }
       // handle success
       if (res.data.login) {
