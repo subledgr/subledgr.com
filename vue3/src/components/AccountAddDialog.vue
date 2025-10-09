@@ -12,10 +12,29 @@
               <v-text-field v-model="name" label="Name" :rules="rules.name"></v-text-field>
             </v-row>
             <v-row>
+              <v-text-field readonly
+                :error="false"
+                :errorMessages="!blockchain?.name ? 'Blockchain is required' : undefined"
+                :placeholder="blockchain?.name ? '' : 'Select Blockchain'"
+                @click="showBlockchainPicker=true">
+                <template v-slot:append-inner>
+                  <v-avatar v-show="!!blockchain?.logo" density="compact">
+                    <v-img :src="blockchain?.logo"></v-img>
+                  </v-avatar>
+                </template>
+                {{ blockchain?.name }}
+              </v-text-field>
+              <blockchain-picker-dialog
+                :visible="showBlockchainPicker"
+                @selectBlockchain="onSelectBlockchain"
+                @closeDialog="onCloseBlockchainPicker"></blockchain-picker-dialog>
+            </v-row>
+            <v-row>
               <!-- <v-text-field readonly :rules="rules.asset"></v-text-field> -->
               <v-text-field readonly
                 :error="false"
                 :errorMessages="!asset?.name ? 'Asset is required' : undefined"
+                :placeholder="asset?.name ? '' : 'Select Asset'"
                 @click="showAssetPicker=true">
                 <template v-slot:append-inner>
                   <v-avatar v-show="!!asset?.logo" density="compact">
@@ -49,26 +68,36 @@
 <script lang="ts">
 import { defineComponent, watch, ref } from 'vue'
 import AssetPickerDialog from './AssetPickerDialog.vue'
+import BlockchainPickerDialog from './BlockchainPickerDialog.vue'
 import { useQuery, useMutation, useApolloClient } from '@vue/apollo-composable'
 import gql from 'graphql-tag'
 // import { SynchronousCachePersistor } from 'apollo3-cache-persist'
 // import { emit } from 'process'
 // import { useForm } from 'vuetify'
-import { IAsset } from './types'
+import { IAsset, IBlockchain } from './types'
 
 const MUT_ACCOUNT_ADD = gql`
-  mutation CreateAccount($name: String!, $assetId: String!, $address: String!) {
-    createAccount(name: $name, assetId: $assetId, address: $address) {
+  mutation CreateAccount($name: String!, $chainId: String!, $assetId: String!, $address: String!) {
+    createAccount(name: $name, chainId: $chainId, assetId: $assetId, address: $address) {
       id
       name
       address
+      Chain {
+        id
+        name
+      }
+      Asset {
+        id
+        code
+      }
     }
   }
 `
 
 export default defineComponent({
   components: {
-    AssetPickerDialog
+    AssetPickerDialog,
+    BlockchainPickerDialog
   },
   props: {
     visible: Boolean,
@@ -95,9 +124,12 @@ export default defineComponent({
     }
 
     const showMe = ref(false)
+    var showBlockchainPicker = ref(false)
+    var blockchain = ref<IBlockchain>({} as IBlockchain)
+    // var blockchainEl = ref<HTMLFormElement>()
     var showAssetPicker = ref(false)
     var asset = ref<IAsset>({} as IAsset)
-    var assetEl = ref<HTMLFormElement>()
+    // var assetEl = ref<HTMLFormElement>()
     var valid = ref(false)
 
     watch(() => props.visible, (newVal: boolean) => {
@@ -127,6 +159,20 @@ export default defineComponent({
       showMe.value = false
     }
 
+    const onCloseBlockchainPicker = () => {
+      console.debug('AccountAddDialog.vue: onCloseBlockchainPicker')
+      showBlockchainPicker.value = false
+    }
+
+    const onSelectBlockchain = (item: IBlockchain) => {
+      showBlockchainPicker.value = false
+      console.debug('AccountAddDialog.vue: onSelectBlockchain', item)
+      blockchain.value = item
+      console.log('checking validity')
+      form.value?.checkValidity()
+      form.value?.resetValidation()
+    }
+
     const onCloseAssetPicker = () => {
       console.debug('AccountAddDialog.vue: onCloseAssetPicker')
       showAssetPicker.value = false
@@ -144,6 +190,7 @@ export default defineComponent({
     var { mutate, loading, error, onDone, onError } = useMutation(MUT_ACCOUNT_ADD, () => ({
       variables: {
         name: name.value,
+        chainId: blockchain?.value.id || '',
         assetId: asset?.value.id || '',
         address: address.value
       }
@@ -159,7 +206,12 @@ export default defineComponent({
 
     const addAccount = async () => {
       console.debug('addAccount', name.value, {...asset.value}, address.value)
-      const input = { name: name.value, assetId: asset?.value.id, address: address.value };
+      const input = {
+        name: name.value,
+        chainId: blockchain?.value.id || '',
+        assetId: asset?.value.id,
+        address: address.value
+      };
       const res: any = await mutate(input);
       console.debug(res)
       if (res) {
@@ -172,13 +224,18 @@ export default defineComponent({
     return {
       showMe,
       asset,
-      assetEl,
+      // assetEl,
       showAssetPicker,
+      blockchain,
+      // blockchainEl,
+      showBlockchainPicker,
       name,
       address,
       valid,
       rules,
       onCloseAssetPicker,
+      onCloseBlockchainPicker,
+      onSelectBlockchain,
       onSelectAsset,
       addAccount,
       closeDialog,

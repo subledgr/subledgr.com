@@ -7,7 +7,8 @@
         Assets
       </v-toolbar-title>
       <v-toolbar-items>
-        <v-btn flat class="text-none">{{ currency?.symbol }} {{ totalValue.toLocaleString(profile.locale, { currency: profile.defaultCurrency, maximumFractionDigits: 2 }) }}</v-btn>
+        <v-btn flat class="text-none">{{ currency?.symbol }} 
+          {{ totalValue.toLocaleString(profile.locale, { currency: profile.defaultCurrency, maximumFractionDigits: profile.defaultDecimals }) }}</v-btn>
         <!-- <v-btn :loading="loading" icon @click="refresh()">
           <v-icon size="small">mdi-refresh</v-icon>
         </v-btn> -->

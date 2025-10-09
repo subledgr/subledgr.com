@@ -1,15 +1,12 @@
 <template>
   <div>
-
-    <span class="click-to-copy" @click.stop="copyToClipboard(text)">{{display || text}}</span>
-
+    <span class="click-to-copy" @click.stop="copyToClipboard()">{{display || text}}</span>
     <v-snackbar
       :absolute="false"
       bottom
       v-model="snackbar"
     >
       {{ snackText }}
-
       <template v-slot:actions>
         <v-btn
           color="pink"
@@ -19,31 +16,38 @@
         </v-btn>
       </template>
     </v-snackbar>
-
   </div>
-
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue'
+import { defineComponent, ref, watch } from 'vue'
 export default defineComponent({
   props: ['text', 'display'],
-  data () {
-    return {
-      snackbar: false,
-      snackText: ''
-    }
-  },
-  methods: {
-    async copyToClipboard (text: string) {
+  setup (props) {
+    const snackbar = ref(false)
+    const snackText = ref('')
+    // console.debug('ClickToCopy.vue: setup', props)
+
+    // watch(() => props.text, (newVal: string) => {
+    //   console.debug('watch.props.text', props.text, newVal)
+    //   // if (newVal) {
+    //   //   // showMe.value = newVal
+    //   //   snackText.value = newVal
+    //   //   snackbar.value = true
+    //   //   setTimeout(() => { snackbar.value = false }, 2000)
+    //   // }
+    // })
+
+    const copyToClipboard = async () => {
+      console.debug('ClickToCopy.vue: copyToClipboard', props.text)
       // navigator clipboard api needs a secure context (https)
       if (navigator.clipboard && window.isSecureContext) {
         // navigator clipboard api method'
-        navigator.clipboard.writeText(text)
+        navigator.clipboard.writeText(props.text)
       } else {
         // text area method
         const textArea = document.createElement('textarea')
-        textArea.value = text
+        textArea.value = props.text
         // make the textarea out of viewport
         textArea.style.position = 'fixed'
         textArea.style.left = '-999999px'
@@ -57,11 +61,15 @@ export default defineComponent({
           textArea.remove()
         })
       }
-      this.snackText = 'Copied to clipboard'
-      this.snackbar = true
-      setTimeout(() => { this.snackbar = false }, 2000)
+      snackText.value = 'Copied to clipboard'
+      snackbar.value = true
+      setTimeout(() => { snackbar.value = false }, 2000)
     }
-
+    return {
+      snackbar,
+      snackText,
+      copyToClipboard
+    }
   }
 })
 </script>

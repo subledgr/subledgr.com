@@ -64,6 +64,10 @@ export const QUERY_ACCOUNT = gql`
       id
       name
       address
+      Chain {
+        id
+        name
+      }
       Asset {
         id
       }

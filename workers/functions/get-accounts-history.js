@@ -23,6 +23,7 @@ export async function getAccountsHistory(job) {
     cfg.db.options
   )
 
+  console.log(`[worker] ${JOB_NAME} starting...`)
   const Account = db.define('account', accountModel.definition, accountModel.options)
 
   // same redis connection as the workers.js
@@ -34,7 +35,15 @@ export async function getAccountsHistory(job) {
   let count = 0
   try {
 
-    const accounts = await Account.findAll()
+    console.log(`[worker] ${JOB_NAME} processing accounts...`)
+    var accounts = []
+    try {
+      accounts = await Account.findAll({ where: { isValid: true } })
+    } catch (err) {
+      console.error(err)
+      job.log(err.toString())
+      job.log(JSON.stringify(err))
+    }
 
     for (let i = 0; i < accounts.length; i++) {
       let account = accounts[i]

@@ -41,7 +41,7 @@ export class ApiConnectionPool {
       provider.on('error', (error) => {
         console.error('ws provider error', error)
       })
-      api = await ApiPromise.create({ provider, throwOnConnect: true })
+      api = await ApiPromise.create({ provider, throwOnConnect: true, noInitWarn: true })
       api.on('error', (error) => {
         console.error('api error', error)
       })

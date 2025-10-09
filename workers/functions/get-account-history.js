@@ -144,11 +144,13 @@ export async function getAccountHistory(job) {
       const atHash = await api.rpc.chain.getBlockHash(blockNumber)
       const apiAt = await api.at(atHash)
 
-      // timestamp
-      const signedBlock = await api.rpc.chain.getBlock(atHash)
-      const timestamp = signedBlock.block.extrinsics[0].method.args[0].toNumber()
-      // console.log('timestamp', moment.unix(timestamp/1000))
-      ret.timestamp = moment.unix(timestamp/1000).format('YYYY-MM-DDTHH:mm:ssZ')
+      // // timestamp
+      // const signedBlock = await api.rpc.chain.getBlock(atHash)
+      // // job.log(`timestamp: ${JSON.stringify(signedBlock.block.extrinsics[0].method.args[0])}`)
+      // // const timestamp = signedBlock.block.extrinsics[0].method.args[0] //.toNumber()
+      // const timestamp = await apiAt.query.timestamp.now();
+      // // console.log('timestamp', moment.unix(timestamp/1000))
+      // ret.timestamp = moment.unix(timestamp/1000).format('YYYY-MM-DDTHH:mm:ssZ')
 
       // free, reserved, frozen
       // var url = `${DOTSAMA_REST_API_BASE_URL}/${chainId}/query/system/account/${address}`
@@ -233,6 +235,7 @@ export async function getAccountHistory(job) {
           + ret.reserved 
           // + ret.pooled // from Mar 2025 this is now included in reserved
           + ret.claimable,
+        locked: ret.locked,
         free: ret.free - ret.locked,
       })
 

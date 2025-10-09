@@ -18,6 +18,7 @@ import path from "path"
 const __dirname = path.resolve();
 import mustache from 'mustache'
 import nodemailer from 'nodemailer'
+import { decodeAddress, isAddress } from '@polkadot/util-crypto';
 
 import { ConfigReader }  from '../../config/config-reader.js'
 import { Queue } from 'bullmq';
@@ -44,17 +45,14 @@ const mailer = nodemailer.createTransport({
 // TODO where should this go? and what is it used for?
 const ccChain = {
   DOT: 'Polkadot',
-  KSM: 'Kusama',
-  DOCK: 'Dock'
+  KSM: 'Kusama'
 }
 // TODO: get this from the chain api
 const ccDenom = {
   DOT: 10000000000,
-  KSM: 1000000000000,
-  DOCK: 1000000
+  KSM: 1000000000000
 }
 const assetMap = new BiDirectionalMap({
-  'dock': 'Dock PoS Mainnet',
   'polkadot': 'Polkadot',
   'kusama': 'Kusama'
 })
@@ -80,7 +78,7 @@ const resolvers = {
       return me;
     },
     Accounts: async (_, args, context) => {
-      console.debug('Accounts', args)
+      console.debug('Query.Accounts()', args)
       const { ids, assetId, page = 1, offset = 0, search = '' } = args
       const { user, db } = context
       var list = []
@@ -129,6 +127,7 @@ const resolvers = {
     Asset: async (_, args, { db, user }) => {
       const { id } = args
       if (!user) throw new Error('AuthenticationError: You must be logged in');
+      console.debug('resolvers.Query.Asset', id)
       const asset = await db.Asset.findByPk(id);
       return asset;
     },
@@ -164,37 +163,37 @@ const resolvers = {
       // })
       return prices
     },
-    Users: async (parent, args, context, info) => {
-      // console.debug(context)
-      const { user, db } = context
-      if (!user) throw new Error('AuthenticationError: You must be logged in');
-      // FIXME we need admin role
-      throw new Error('who is calling this function?')
-      const result = await db.User.findAll();
-      return result;
-    },
-    UserById: async (parent, args, context, info) => {
-      // console.debug(context)
-      const { id } = args
-      console.debug('userById()', id)
-      const { token, user, db } = context
-      console.debug('userById: user', user)
-      const result = await db.User.findOne({ where: { id } });
-      result.token = token
-      // FIXME we need admin role
-      throw new Error('who is calling this function?')
-      return result;
-    },
-    UserByEmail: async (parent, args, context, info) => {
-      // console.debug(context)
-      const { email } = args
-      console.debug('userByEmail()', email)
-      const { user, db } = context
-      const result = await db.User.findOne({ where: { email } });
-      // FIXME we need admin role
-      throw new Error('who is calling this function?')
-      return result;
-    },
+    // Users: async (parent, args, context, info) => {
+    //   // console.debug(context)
+    //   const { user, db } = context
+    //   if (!user) throw new Error('AuthenticationError: You must be logged in');
+    //   // FIXME we need admin role
+    //   throw new Error('who is calling this function?')
+    //   const result = await db.User.findAll();
+    //   return result;
+    // },
+    // UserById: async (parent, args, context, info) => {
+    //   // console.debug(context)
+    //   const { id } = args
+    //   console.debug('userById()', id)
+    //   const { token, user, db } = context
+    //   console.debug('userById: user', user)
+    //   const result = await db.User.findOne({ where: { id } });
+    //   result.token = token
+    //   // FIXME we need admin role
+    //   throw new Error('who is calling this function?')
+    //   return result;
+    // },
+    // UserByEmail: async (parent, args, context, info) => {
+    //   // console.debug(context)
+    //   const { email } = args
+    //   console.debug('userByEmail()', email)
+    //   const { user, db } = context
+    //   const result = await db.User.findOne({ where: { email } });
+    //   // FIXME we need admin role
+    //   throw new Error('who is calling this function?')
+    //   return result;
+    // },
     Portfolio: async (_, args, context) => {
       const { id } = args
       const { user, db } = context
@@ -312,24 +311,35 @@ const resolvers = {
         if (!account) throw new Error('InvalidAccountError: no account for userid accountId combo')
         const asset = await db.Asset.findByPk(account.assetId)
         // const asset = await db.Asset.find({ where: { code: account.}})
-        where.chain = assetMap.getByKey(asset.id) // dock => Dock PoS Mainnet
+        // where.chain = assetMap.getByKey(asset.id)
+        where.chain = account.chainId
 
         console.warn('HELLO WORLD')
 
         // where[Op.or] = { recipientId: account.address, senderId: account.address }
-        where[Op.or] = { toId: account.address, fromId: account.address }
+        let addrPk = Buffer.from(decodeAddress(account.address)) // .toString('hex') // keep as buffer
+        where[Op.or] = {
+          // toId: account.address, fromId: account.address
+          toPk: addrPk, fromPk: addrPk
+        }
       }
       // if (address) { where[Op.or] = { recipientId: address, senderId: address } }
-      if (address) { where[Op.or] = { toId: address, fromId: address } }
+      if (address) { 
+        // where[Op.or] = { toId: address, fromId: address }
+        let addrPk = Buffer.from(decodeAddress(address)) // .toString('hex') // keep as buffer
+        where[Op.or] = { toPk: addrPk, fromPk: addrPk }
+      }
       if (ids) {
         try {
           const accounts = await db.Account.findAll({ where: { id: { [Op.in]: ids } } })
-          const addresses = accounts.map(m => m.address)
+          // const addresses = accounts.map(m => m.address)
+          const addresses = accounts.map(m => Buffer.from(decodeAddress(m.address)).toString('hex'))
           //const account = accounts[0]
           //const asset = await db.Asset.findByPk(account.assetId)
-          //where.chain = assetMap.getByKey(asset.id) // dock => Dock PoS Mainnet
+          //where.chain = assetMap.getByKey(asset.id)
           // where[Op.or] = { recipientId: { [Op.in]: addresses }, senderId: { [Op.in]: addresses } }
-          where[Op.or] = { toId: { [Op.in]: addresses }, fromId: { [Op.in]: addresses } }
+          // where[Op.or] = { toId: { [Op.in]: addresses }, fromId: { [Op.in]: addresses } }
+          where[Op.or] = { toPk: { [Op.in]: addresses }, fromPk: { [Op.in]: addresses } }
           // FIXME what if an account is found on multiple chains?
         } catch (err) {
           console.error(err)
@@ -354,42 +364,11 @@ const resolvers = {
       // var chain = ccChain[account.assetId]
       // if (!chain) return {}
       // chain = chain.toLowerCase()
-      try {
-        if (account.assetId === 'dock') {
-          // read balance from chain (via api)
-          var url = `${dotsamaRestApiBaseUrl}/${account.assetId}/query/system/account/${account.address}`
-          console.debug('url', url)
-          var rest = await axios.get(url)
-          if (rest.data) ret = rest.data.data
-          // pooled value
-          url = `${dotsamaRestApiBaseUrl}/${account.assetId}/query/nominationPools/poolMembersForAccount?accountId=${account.address}`
-          console.debug('url', url)
-          var rest = await axios.get(url)
-          if (rest.data) ret.pooled = rest.data.poolMembers?.points || 0
-          // locks
-          url = `${dotsamaRestApiBaseUrl}/${account.assetId}/query/balances/locks?accountId=${account.address}`
-          // console.debug('url', url)
-          var rest = await axios.get(url)
-          if (rest.data) ret.locks = rest.data.locks.map(lock => {
-            return { id: lock.id, amount: Number(lock.amount), reasons: lock.reasons }
-          }) || []
-          // pending pool rewards
-          url = `${dotsamaRestApiBaseUrl}/${account.assetId}/api/call/nominationPoolsApi/pendingRewards?accountId=${account.address}`
-          // console.debug('url', url)
-          var rest = await axios.get(url)
-          console.log('rest.data', rest.data)
-          if (rest.data) ret.pooledClaimable = rest.data.pendingRewards || 0
-          // balance
-          ret.balance = ret.free + ret.pooledClaimable + ret.pooled
-          ret.id = account.id
-
-        } else {
-          // read balance from db
-          const where = { id: account.id }
-          const latest = await db.AccountBalance.findAll({ where, order: [['timestamp', 'DESC']], limit: 1 })
-          ret = latest[0]
-  
-        }
+      try {        
+        // read balance from db
+        const where = { id: account.id }
+        const latest = await db.AccountBalance.findAll({ where, order: [['timestamp', 'DESC']], limit: 1 })
+        ret = latest[0]
       } catch(err) {
         // console.warn('last url', url)
         console.error('error', err.toString())
@@ -403,9 +382,11 @@ const resolvers = {
       const { user, db } = context
       const { offset = 0, limit = 50 } = args
       // get a distinct list of block numbers
+      let addrPk = Buffer.from(decodeAddress(account.address)) // .toString('hex') // keep as buffer
       const blockNumbers = await db.Transaction.findAll({ where: {
         chainId: account.assetId,
-        [Op.or]: { toId: account.address, fromId: account.address }
+        // [Op.or]: { toId: account.address, fromId: account.address },
+        [Op.or]: { toPk: addrPk, fromPk: addrPk }
       }, attributes: ['blockNumber'], group: ['blockNumber'], order: [['blockNumber', 'ASC']]})
       // work out prevBlock and nextBlock for each block
       const blocks = blockNumbers.map((block, idx) => {
@@ -426,10 +407,12 @@ const resolvers = {
       console.debug('Account.block', account.id, account.address, blockNumber)
       // console.debug('account', account)
       const asset = await db.Asset.findByPk(account.assetId)
+      const addrPk = Buffer.from(decodeAddress(account.address)) // .toString('hex') // keep as buffer
       // get the previous block
       const prevBlock = await db.Transaction.findOne({ where: {
         chainId: account.assetId,
-        [Op.or]: { fromId: account.address, toId: account.address },
+        // [Op.or]: { fromId: account.address, toId: account.address },
+        [Op.or]: { fromPk: addrPk, toPk: addrPk },
         blockNumber: { [Op.lt]: blockNumber }
       }, order: [['blockNumber', 'DESC']] })
       const prevBlockBalance = await db.AccountBalance.findOne({ where: {
@@ -445,13 +428,15 @@ const resolvers = {
       // get the current block
       const events = await db.Transaction.findAll({ where: {
         chainId: account.assetId,
-        [Op.or]: { fromId: account.address, toId: account.address },
+        // [Op.or]: { fromId: account.address, toId: account.address },
+        [Op.or]: { fromPk: addrPk, toPk: addrPk },
         blockNumber: { [Op.eq]: blockNumber }
       }, order: [['timestamp', 'ASC']] })
       // get the next block
       const nextBlock = await db.Transaction.findOne({ where: {
         chainId: account.assetId,
-        [Op.or]: { fromId: account.address, toId: account.address },
+        // [Op.or]: { fromId: account.address, toId: account.address },
+        [Op.or]: { fromPk: addrPk, toPk: addrPk },
         blockNumber: { [Op.gt]: blockNumber }
       }, order: [['blockNumber', 'ASC']] })
       return {
@@ -465,42 +450,12 @@ const resolvers = {
     },
     balanceHistory: async (account, args, context) => {
       console.debug('Account.balanceHistory', account.assetId, account.id, account.address)
-      const { user, db } = context
-      var ret
-      if (account.assetId === 'dock') {
-        var url = `${dotsamaRestApiBaseUrl}/${account.assetId}/query/system/account/${account.address}`
-        console.debug('url', url)
-        var rest = await axios.get(url)
-        if (rest.data) ret = rest.data.data
-        // pooled value
-        url = `${dotsamaRestApiBaseUrl}/${account.assetId}/query/nominationPools/poolMembersForAccount?accountId=${account.address}`
-        console.debug('url', url)
-        var rest = await axios.get(url)
-        if (rest.data) ret.pooled = rest.data.poolMembers?.points || 0
-        // locks
-        url = `${dotsamaRestApiBaseUrl}/${account.assetId}/query/balances/locks?accountId=${account.address}`
-        // console.debug('url', url)
-        var rest = await axios.get(url)
-        if (rest.data) ret.locks = rest.data.locks.map(lock => {
-          return { id: lock.id, amount: Number(lock.amount), reasons: lock.reasons }
-        }) || []
-        // pending pool rewards
-        url = `${dotsamaRestApiBaseUrl}/${account.assetId}/api/call/nominationPoolsApi/pendingRewards?accountId=${account.address}`
-        // console.debug('url', url)
-        var rest = await axios.get(url)
-        console.log('rest.data', rest.data)
-        if (rest.data) ret.pooledClaimable = rest.data.pendingRewards || 0
-        // balance
-        ret.balance = ret.free + ret.pooledClaimable + ret.pooled
-        ret.id = account.id
-        ret = [ret]
-      } else {
-        const { fromBlock, fromDate, limit = 50 } = args
-        const where = { id: account.id }
-        if (fromBlock) where.blockNumber = { [Op.gte]: fromBlock }
-        if (fromDate) where.timestamp = { [Op.gte]: fromDate }
-        ret = await db.AccountBalance.findAll({ where, order: [['timestamp', 'DESC']], limit })
-      }
+      const { user, db } = context     
+      const { fromBlock, fromDate, limit = 50 } = args
+      const where = { id: account.id }
+      if (fromBlock) where.blockNumber = { [Op.gte]: fromBlock }
+      if (fromDate) where.timestamp = { [Op.gte]: fromDate }
+      const ret = await db.AccountBalance.findAll({ where, order: [['timestamp', 'DESC']], limit })
       return ret  
     },
     /**
@@ -556,8 +511,21 @@ const resolvers = {
     },
     Asset: async (account, args, context) => {
       const { user, db } = context
-      const asset = await db.Asset.findByPk(account.assetId)
+      console.debug('Account.Asset()', account.assetId)
+      let asset
+      try {
+        asset = await db.Asset.findByPk(account.assetId)
+        console.debug('asset', asset)  
+      } catch (err) {
+        console.error('Account.Asset()', err)
+      }
       return asset
+    },
+    Chain: async (account, args, context) => {
+      const { user, db } = context
+      console.debug('Account.Chain()', account.chainId)
+      const chain = await db.Chain.findByPk(account.chainId)
+      return chain
     },
     // Currency: async (account, args, context) => {
     //   const { user, db } = context
@@ -574,23 +542,26 @@ const resolvers = {
       return w.portfolios
     },
     transactions: async (account, args, context) => {
-      console.debug('Account.transactions()', account.assetId, account.address)
+      console.debug('Account.transactions()', account.chainId, account.assetId, account.address)
       const { user, db } = context
       const { limit=50 } = args
+      console.debug('Account.transactions() args', args)
 
       // db.Transaction comes from the indexDb
       const _receipts = await db.Transaction.findAll({
         where: {
-          chainId: account.assetId.toLowerCase(), // Polkadot => polkadot
-          toId: account.address
+          chainId: account.chainId.toLowerCase(), // Polkadot => polkadot
+          // toId: account.address,
+          toPk: Buffer.from(decodeAddress(account.address)) // .toString('hex') // keep as buffer
         }
       })
       console.debug('Account.transactions() _receipts', _receipts.length)
       const _payments = await db.Transaction.findAll({
         // order: [ ['timestamp', 'DESC'] ],
         where: {
-          chainId: account.assetId.toLowerCase(),
-          fromId: account.address,
+          chainId: account.chainId.toLowerCase(),
+          // fromId: account.address,
+          fromPk: Buffer.from(decodeAddress(account.address)) // .toString('hex') // keep as buffer
         }
       })
       console.debug('Account.transactions() _payments', _payments.length)
@@ -786,11 +757,16 @@ const resolvers = {
   },
 
   Transaction: {
+    Chain: async (transaction, args, context) => {
+      const { db } = context
+      const chain = await db.Chain.findByPk(transaction.chainId)
+      return chain
+    },
     Asset: async (transaction, args, context) => {
       const { db } = context
       // console.debug('', transaction)
       // const assetId = assetMap.getByValue(transaction.chainId)
-      const asset = await db.Asset.findByPk(transaction.chainId)
+      const asset = await db.Asset.findByPk(transaction.assetId)
       return asset
     }
   },
@@ -803,6 +779,7 @@ const resolvers = {
     Accounts: async (user, args, context) => {
       const { offset = 0, limit = 100 } = args
       const { db } = context
+      console.debug('User.Accounts()', user)
       // const model = db.User.findByPk(user.id, { include: ['accounts']})
       const list = await db.Account.findAll({ where: { userId: user.id} }, { offset, limit })
       return list
@@ -908,6 +885,16 @@ const resolvers = {
     login: async (_, args, { db }) => {
       // const user = await findUserByEmail(email);
       const  { email, password } = args
+      console.debug('mutations.login()', args)
+
+      try {
+        const user1 = await db.User.findOne({ where: { email } });
+        console.debug('user1', user1)
+      } catch (err) {
+        console.error('mutations.login() error', err)
+        throw new AuthenticationError('Invalid email or password');
+      }
+
       const user = await db.User.scope('login').findOne({ where: { email }, include: ['profile'] });
       // const user = await db.User.findOne({ where: { email } });
       console.log('user', user)
@@ -917,12 +904,14 @@ const resolvers = {
       }
       // const valid = await db.User.comparePassword(password, user.password);
       const valid = await user.comparePassword(password);
+      console.debug('valid', valid)
       if (!valid) {
         // throw new AuthenticationError('Invalid email or password');
         return { success: false, message: 'Invalid email or password', id: 0, email: email }
       }
       const token = db.User.generateToken(user);
       user.token = token
+      console.debug('mutations.login() token', token)
       return { success: true, message: 'Login ok', id: user.id, email: user.email, token, profile: user.profile };
     },
     saveProfile: async (_, args, { user, db }) => {
@@ -1064,16 +1053,20 @@ const resolvers = {
       const { user, db } = context
       // check user login
       if (!user) throw new Error('AuthenticationError: You must be logged in');
-      const { name, assetId, address } = args
+      const { name, chainId, assetId, address } = args
       console.debug('createAccount', args)
+      const chain = await db.Chain.findOne({ where: { id: chainId } })
+      if (!chain) throw new Error(`Invalid chain id ${chainId}`)
       // check currency
       const asset = await db.Asset.findOne({ where: { id: assetId } })
       if (!asset) throw new Error(`Invalid asset id ${assetId}`)
-      // check account exists?
+      // check account is valid format
+      if (!address) throw new Error(`Missing address ${address}`)      
       // create a UUID
       const uuid = uuidv4()
       var [account, created] = await db.Account.findOrCreate({
         where: {
+          chainId,
           assetId,
           address,
           userId: user.id
@@ -1081,6 +1074,8 @@ const resolvers = {
         defaults: {
           id: uuid.toString(),
           name,
+          // isValid: isAddress(address),
+          chainId,
           assetId,
           address,
           userId: user.id
@@ -1089,7 +1084,7 @@ const resolvers = {
       // const account = await db.Account.create({ name, currencyId: curr.id, address, userId: user.id })
       // trigger the getAccountHistory worker
       const q_getAccountHistory = new Queue('getAccountHistory', { connection: cfg.redis })
-      await q_getAccountHistory.add('getAccountHistory', { chainId: assetId, accountId: account.id })
+      await q_getAccountHistory.add('getAccountHistory', { chainId: chainId, assetId: assetId, accountId: account.id })
       // return { success: created, message: `Account ${created ? 'created' : 'retrieved'}`, account }
       return account
     },

@@ -133,7 +133,7 @@ export default defineComponent({
     const sortedResult = computed((): IAccount[] => {
       // console.debug('sortedResult', result.value?.Accounts?.list)
       if (!result.value?.Accounts) return []
-      const list = [...result.value?.Portfolios] || []
+      const list = [...result.value?.Portfolios]
       // console.debug('list', list)
       var sortedList = list.sort((a: IAccount, b: IAccount) => {
         // console.debug(a, b)

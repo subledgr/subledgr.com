@@ -11,8 +11,4 @@ export const chainDefs = {
     provider: 'substrate',
     url: 'wss://rpc.ib.network/westend'
   },
-  dock: {
-    provider: 'dock',
-    url: 'wss://mainnet-node.dock.io'
-  },
 }

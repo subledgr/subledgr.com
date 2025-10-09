@@ -25,9 +25,9 @@
         <span class="d-none d-sm-inline" style="color: grey; font-size: 12px; font-weight: 300"><em>({{ shortStash(item.address) }})</em></span>
       </v-list-item-title>
 
-      <!-- <v-list-item-subtitle class="d-none d-sm-block">
-        {{ shortStash(item.address) }})
-      </v-list-item-subtitle> -->
+      <v-list-item-subtitle class="d-none d-sm-block">
+        {{ item.Chain?.id || item.chainId }}
+      </v-list-item-subtitle>
 
       <v-row dense>
         <v-col cols="2">

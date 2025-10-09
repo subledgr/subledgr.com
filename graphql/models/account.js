@@ -19,8 +19,11 @@ const accountModel = {
       primaryKey: true
     },
     name: { type: DataTypes.STRING(64) },
+    // TODO: add chainId?
+    chainId: { type: DataTypes.STRING(32), allowNull: false },
     assetId: { type: DataTypes.STRING(32), allowNull: false },
     address: { type: DataTypes.STRING(64), allowNull: false },
+    isValid: { type: DataTypes.BOOLEAN, defaultValue: true },
     // balance: { type: DataTypes.BIGINT, defaultValue: 0 },
     // status: { type: DataTypes.STRING(16) },
     // multiaddrs: { type: DataTypes.JSON }

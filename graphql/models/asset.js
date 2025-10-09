@@ -24,4 +24,5 @@ const assetModel = {
   }
 }
 
+
 export { assetModel }

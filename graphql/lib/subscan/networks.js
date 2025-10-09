@@ -28,7 +28,7 @@ const networks = [
   { name: "Crust Maxwell", chainId: "maxwell", status: "test" },
   { name: "Crust Shadow", chainId: "shadow", status: "live" },
   { name: "DeepBrain Chain", chainId: "dbc", status: "live" },
-  { name: "Dock", chainId: "dock", status: "live" },
+  // { name: "Dock", chainId: "dock", status: "live" },
   { name: "Dolphin", chainId: "dolphin", status: "test" },
   { name: "Edgeware", chainId: "edgeware", status: "live" },
   { name: "Efinity", chainId: "efinity", status: "live" },

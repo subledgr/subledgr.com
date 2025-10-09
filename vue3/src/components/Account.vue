@@ -14,6 +14,9 @@
         {{ result?.Account?.name || accountId }}
       </v-toolbar-title>
       <v-toolbar-items>
+        <v-btn :to="`/account/${accountId}/blocks`">
+          <v-icon>mdi-blocks</v-icon>
+        </v-btn>
         <v-btn elevation="0">
           <v-icon>mdi-dots-vertical</v-icon>
           <v-menu activator="parent">
@@ -32,6 +35,15 @@
       
       </v-toolbar-items>
     </v-toolbar>
+
+    <v-list-item>
+      <v-list-item-title>
+        {{ result?.Account?.name || accountId }}
+      </v-list-item-title>
+      <v-list-item-subtitle>
+        {{ result?.Account?.Chain?.name || result?.Account?.chainId }}
+      </v-list-item-subtitle>
+    </v-list-item>
 
     <v-row class="ma-1">
       <v-col>

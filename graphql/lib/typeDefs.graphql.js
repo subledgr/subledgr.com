@@ -7,9 +7,9 @@ scalar BigInt
 
 type Query {
   me: User
-  UserByEmail(email: String): User
-  UserById(id: Int): User
-  Users: [User]
+  # UserByEmail(email: String): User
+  # UserById(id: Int): User
+  # Users: [User]
   Account(id: String!): Account
   Accounts(ids: [String], assetId: String, page: Int, offset: Int, search: String): [Account] # AccountsResponse
   Asset(id: String!): Asset
@@ -40,7 +40,7 @@ type Mutation {
   setPortfolioAccounts(id: String!, accountIds: [String]!): CreatePortfolioResponse
 
   # Account management
-  createAccount(name: String!, assetId: String!, address: String!): Account # CreateAccountResponse
+  createAccount(name: String!, chainId: String!, assetId: String!, address: String!): Account # CreateAccountResponse
   deleteAccount(id: String!): DeleteAccountResponse
 
   # Asset management
@@ -53,11 +53,13 @@ type Account
   id: String!
   User: User
   # assetId: String
+  Chain: Chain
   Asset: Asset
   address: String!
   name: String!
   # balance: AccountData
   balance: AccountBalance
+  isValid: Boolean
   portfolios: [Portfolio]
   transactions(limit: Int, offset: Int): [Transaction]
   block(blockNumber: BigInt): AccountBlockResponse
@@ -67,6 +69,8 @@ type Account
   chartData(period: String): [AccountChartItem]
   balanceHistory(fromBlock: BigInt, fromDate: String, limit: Int): [AccountBalance]
   valueHistory(t_curr: String, periods: Int, granulatity: String): [AccountValueItem]
+  createdAt: String
+  updatedAt: String
 }
 type AccountBlockListItem {
   blockNumber: BigInt
@@ -149,6 +153,16 @@ type BalanceLock {
   id: String
   amount: BigInt
   reasons: String
+}
+
+type Chain {
+  id: String!
+  name: String
+  parent: String
+  status: String
+  # url: String
+  # active: Boolean
+  logo: String
 }
 
 type UserRegisterResponse {
@@ -361,7 +375,9 @@ type Transaction # matched to subsquid Transfer model
   #authorId: String
   address: String # this is the account address for a query
   fromId: String
+  fromPk: String
   toId: String
+  toPk: String
   amount: BigInt
   # totalFee: BigInt
   # feeBalances: BigInt

@@ -114,7 +114,7 @@ export default defineComponent({
       let res: any = null;
       try {
         res = await mutate(input);
-      } catch (e) {
+      } catch (e: any) {
         console.error('Error in loginUser:', e);
         error = e;
       }

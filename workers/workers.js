@@ -10,7 +10,7 @@ import * as pkg1 from '@bull-board/express'
 const { ExpressAdapter } = pkg1
 import * as pkg2 from '@bull-board/api'
 const { createBullBoard } = pkg2
-import { BullMQAdapter } from '@bull-board/api/bullMQAdapter.js'
+import { BullMQAdapter } from '@bull-board/api/bullMQAdapter'
 
 // in docker compose we map 23000 to 3000
 const PORT = cfg.bullmq.port // process.env.SUBLEDGR_BULLMQ_PORT || 3000

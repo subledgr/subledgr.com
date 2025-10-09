@@ -28,7 +28,7 @@
 import { defineComponent, watch, ref, PropType } from 'vue'
 // import CurrencyPickerDialog from './CurrencyPickerDialog.vue'
 import { useMutation } from '@vue/apollo-composable'
-import { ICurrency, IAccount, IAccountBalance, IAsset } from './types'
+import { ICurrency, IAccount, IAccountBalance, IAsset, IBlockchain } from './types'
 import { MUT_PORTFOLIO_EDIT } from '@/graphql'
 
 export default defineComponent({
@@ -63,7 +63,7 @@ export default defineComponent({
       // } ]
     }
 
-    const _account = ref<IAccount>({ id: '', name: '', assetId: '', Asset: {} as IAsset, address: '', balance: {} as IAccountBalance, transactions: [] })
+    const _account = ref<IAccount>({ id: '', name: '', chainId: '', Chain: {} as IBlockchain, assetId: '', Asset: {} as IAsset, address: '', balance: {} as IAccountBalance, transactions: [] })
     _account.value.name = props.account.name
     _account.value.id = props.account.id
     const x_visible = ref(false)

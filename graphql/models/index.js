@@ -32,6 +32,7 @@ const sequelize = new Sequelize(config.db.database, config.db.username, config.d
 const indexDb = new Sequelize(config.indexDb.database, config.indexDb.username, config.indexDb.password, config.indexDb.options)
 
 import { userModel } from './user.js'
+import { chainModel } from './chain.js'
 import { assetModel } from './asset.js'
 import { currencyModel } from './currency.js'
 import { accountModel } from './account.js'
@@ -45,6 +46,7 @@ import { transactionModel } from './transaction.js'
 // const User = sequelize.define('user', userModel.definition, { ...userModel.options, sequelize })
 // The User Class has methods, so we instantiate it differently
 const User = userModel.User.init(userModel.definition, { ...userModel.options, sequelize })
+const Chain = sequelize.define('chain', chainModel.definition, { ...chainModel.options, sequelize })
 const Asset = sequelize.define('asset', assetModel.definition, { ...assetModel.options, sequelize })
 const Currency = sequelize.define('currency', currencyModel.definition, { ...currencyModel.options, sequelize })
 const Profile = sequelize.define('profile', profileModel.definition, { ...profileModel.options, sequelize })
@@ -59,6 +61,11 @@ User.hasOne(Profile, { as: 'profile', foreignKey: 'id' })
 User.hasMany(Portfolio, { as: 'portfolios', foreignKey: 'userId' })
 User.hasMany(Account, { as: 'accounts', foreignKey: 'userId' })
 
+// // Chain can have many assets, via table chain_asset
+// Chain.hasMany(Asset, { as: 'assets', foreignKey: 'chainId' })
+
+// // Asset can hosted on many chains, via table chain_asset
+// Asset.hasMany(Chain, { as: 'chain', foreignKey: 'chainId' })
 Asset.hasMany(Account, { as: 'accounts', foreignKey: 'assetId' })
 // Asset.hasMany(Portfolio, { as: 'portfolios', foreignKey: 'assetId' })
 // Asset.hasMany(Price, { as: 'prices', foreignKey: 'f_curr' })
@@ -123,6 +130,7 @@ if (process.env.NODE_ENV === 'development') {
 
 db.User = User
 db.Profile = Profile
+db.Chain = Chain
 db.Asset = Asset
 db.Currency = Currency
 db.Portfolio = Portfolio

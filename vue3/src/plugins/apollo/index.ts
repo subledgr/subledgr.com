@@ -39,9 +39,6 @@ function createApolloClient (ssr = false) {
       Asset: {
         keyFields: ['id']
       },
-      Currency: {
-        keyFields: ['code']
-      },
       Account: {
         keyFields: ['id'],
       //   fields: {
@@ -94,6 +91,15 @@ function createApolloClient (ssr = false) {
       },
       AccountBalance: {
         keyFields: ['id', 'blockNumber']
+      },
+      AccountBlockResponse: {
+        keyFields: ["chainId", "blockNumber"],
+      },
+      block: {
+        keyFields: ['chainId', 'blockNumber']
+      },
+      Currency: {
+        keyFields: ['code']
       },
       Portfolio: {
         keyFields: ['id']

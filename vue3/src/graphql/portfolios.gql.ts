@@ -69,6 +69,10 @@ query PortfolioAccounts($portfolioId: String!, $ids: [String!], $tCurr: String!)
         pooled
         claimable
       }
+      Chain {
+        id
+        name
+      }
       Asset {
         id
         code

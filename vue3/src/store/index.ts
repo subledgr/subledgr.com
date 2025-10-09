@@ -2,6 +2,7 @@
 import { createStore } from 'vuex'
 import { currency } from './modules/currency'
 import { asset } from './modules/asset'
+import { blockchain } from './modules/blockchain'
 import { profile } from './modules/profile'
 import { transaction } from './modules/transaction'
 import { plausible } from './modules/plausible'
@@ -69,7 +70,7 @@ export const store = createStore({
       state.email = null
       state.id = null
       state.token = null
-      saveStore(key, state)
+      saveStore(key, {} as IState) // state)
     }
   },
   actions: {
@@ -95,6 +96,7 @@ export const store = createStore({
   },
   modules: {
     asset,
+    blockchain,
     currency,
     profile,
     transaction,

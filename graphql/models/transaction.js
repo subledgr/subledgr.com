@@ -15,8 +15,11 @@ const transactionModel = {
     // specVersion: { type: DataTypes.STRING(64) },
     // transactionVersion: { type: DataTypes.STRING(64) },
     // authorId: { type: DataTypes.STRING(64) },
+    assetId: { type: DataTypes.STRING(64), field: 'asset_id' },
     fromId: { type: DataTypes.STRING(64), field: 'from_id' },
+    fromPk: { type: DataTypes.BLOB, field: 'from_pk' }, // BYTEA
     toId: { type: DataTypes.STRING(64), field: 'to_id' },
+    toPk: { type: DataTypes.BLOB, field: 'to_pk' }, // BYTEA
     amount: { type: DataTypes.BIGINT },
     // totalFee: { type: DataTypes.BIGINT },
     // feeBalances: { type: DataTypes.BIGINT },

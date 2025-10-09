@@ -100,16 +100,9 @@ export class BiDirectionalMap {
 
 // // Usage:
 // const assetMap = new BiDirectionalMap({
-//   'dock': 'Dock PoS Mainnet',
 //   'polkadot': 'Polkadot',
 //   'kusama': 'Kusama'
 // });
 
-// console.log(assetMap.getByKey('dock'));        // Dock PoS Mainnet
 // console.log(assetMap.getByValue('Polkadot'));  // polkadot
 
-// assetMap.set('dock', 'New Dock Value');
-// console.log(assetMap.getByKey('dock'));        // New Dock Value
-
-// assetMap.deleteByKey('dock');
-// console.log(assetMap.getByKey('dock'));        // undefined

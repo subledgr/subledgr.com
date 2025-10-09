@@ -1,3 +1,12 @@
+export interface IBlockchain {
+  id: string
+  // code: string
+  name: string
+  symbol: string
+  decimals: number
+  logo: string
+}
+
 // is this used anywhere?
 export interface IAccountData {
   locked: bigint
@@ -30,6 +39,8 @@ export interface IAccountBalance {
 export interface IAccount {
   assetId: string
   Asset: IAsset
+  chainId: string
+  Chain: IBlockchain
   address: string
   // balance: IAccountData
   balance: IAccountBalance
@@ -69,6 +80,12 @@ export interface ICurrency {
   // parachain: boolean // false
   symbol: string // '₭'
   logo: string // 'images/logos/chains/kusama.svg'
+}
+
+export interface IGLAccount {
+  code: string
+  name: string
+  type: string
 }
 
 export interface Judgement {
